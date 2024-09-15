@@ -77,11 +77,19 @@
 	];
 	// todo: invisible skills for SEO
 
-	let education = {
-		degree: "BA in Russian Language & Literature",
-		university: "BYU",
-		year: "2014",
-	};
+	let education = [
+		{
+			degree: "BA in Russian Language & Literature",
+			university: "BYU",
+			year: "2014",
+		},
+		{
+			degree: "Coding Bootcamp",
+			university: "vschool.io",
+			program: "Python + JavaScript",
+			year: "2014",
+		},
+	];
 
 	const iconSize = 30;
 </script>
@@ -152,7 +160,9 @@
 
 	<section>
 		<h2 class="text-2xl font-semibold mb-4">Education</h2>
-		<p class="font-semibold">{education.degree}</p>
-		<p>{education.university}, {education.year}</p>
+		{#each education as edu}
+			<p class="font-semibold">{edu.degree}</p>
+			<p>{edu.university}{#if edu.program}, {edu.program}{/if}, {edu.year}</p>
+		{/each}
 	</section>
 </div>
