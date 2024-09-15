@@ -60,7 +60,22 @@
 			],
 		},
 	];
-	let skills = ["Python", "PostgreSQL", "DuckDB", "SQL", "Git"];
+	let skills = [
+		"Python",
+		"PostgreSQL",
+		"DuckDB",
+		"SQL",
+		"Git",
+		"JavaScript",
+		"TypeScript",
+		"Svelte",
+		"AWS",
+		"Linux",
+		"Cloud",
+		"Databricks",
+		"Airflow",
+	];
+	// todo: invisible skills for SEO
 
 	let education = {
 		degree: "BA in Russian Language & Literature",
