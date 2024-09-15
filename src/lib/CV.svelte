@@ -95,11 +95,14 @@
 			</Button>
 			
 			<div class="flex items-center gap-2">
-				<Button variant="outline">
-					<Phone size={18} />
-					<span class="w-3" />
-					<Calendar size={18} />
-				</Button>
+				<a href="https://morganwill.com/cal" target="_blank" rel="noopener noreferrer">
+					<Button variant="outline">
+						<div class="flex items-center gap-2">
+							<Phone size={18} />
+							<Calendar size={18} />
+						</div>
+					</Button>
+				</a>
 			</div>
 			
 			<div class="flex items-center gap-2">
