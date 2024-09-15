@@ -82,6 +82,8 @@
 		university: "BYU",
 		year: "2014",
 	};
+
+	const iconSize = 30;
 </script>
 
 <div class="max-w-3xl mx-auto p-8 bg-background text-foreground">
@@ -114,8 +116,8 @@
 				>
 					<Button variant="outline">
 						<div class="flex items-center gap-2">
-							<Phone size={18} />
-							<Calendar size={18} />
+							<Phone size={iconSize} />
+							<Calendar size={iconSize} />
 						</div>
 					</Button>
 				</a>
@@ -126,16 +128,16 @@
 					target="_blank"
 					rel="noopener noreferrer"
 				>
-					<Linkedin size={18} />
+					<Linkedin size={iconSize} />
 				</a>
 			</div>
 			<div class="flex items-center gap-2">
 				<a href={github} target="_blank" rel="noopener noreferrer"
-					><Github size={18} /></a
-				>
+					><Github size={iconSize} />
+				</a>
 			</div>
 			<div class="flex items-center gap-2">
-				<a href={`mailto:${email}`}><Mail size={18} /></a>
+				<a href={`mailto:${email}`}><Mail size={iconSize} /> </a>
 			</div>
 			<!-- <div class="flex items-center gap-2">
 				<MapPin size={18} />
