@@ -86,12 +86,6 @@
 	</section>
 	<section class="mb-8">
 		<div class="flex flex-wrap gap-4">
-			<Button variant="outline">
-				<div class="flex items-center gap-2">
-					<a href={`mailto:${email}`}><Mail size={18} /></a>
-				</div>
-			</Button>
-			
 			<div class="flex items-center gap-2">
 				<a href="https://morganwill.com/cal" target="_blank" rel="noopener noreferrer">
 					<Button variant="outline">
@@ -102,7 +96,6 @@
 					</Button>
 				</a>
 			</div>
-			
 			<div class="flex items-center gap-2">
 				<a href={`https://${linkedin}`} target="_blank" rel="noopener noreferrer">
 				<Linkedin size={18} />
@@ -112,9 +105,12 @@
 				<a href={github} target="_blank" rel="noopener noreferrer"><Github size={18} /></a>
 			</div>
 			<div class="flex items-center gap-2">
+				<a href={`mailto:${email}`}><Mail size={18} /></a>
+			</div>
+			<!-- <div class="flex items-center gap-2">
 				<MapPin size={18} />
 				<span>4 years remote</span>
-			</div>
+			</div> -->
 		</div>
 		
 	</section>
