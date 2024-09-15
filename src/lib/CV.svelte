@@ -4,14 +4,25 @@
 	import { Textarea } from "$lib/components/ui/textarea";
 	import { Badge } from "$lib/components/ui/badge";
 	import { Separator } from "$lib/components/ui/separator";
-	import { Avatar, AvatarImage, AvatarFallback } from "$lib/components/ui/avatar";
-	import { Mail, Phone, MapPin, Linkedin, Github, Calendar } from "lucide-svelte";;
+	import {
+		Avatar,
+		AvatarImage,
+		AvatarFallback,
+	} from "$lib/components/ui/avatar";
+	import {
+		Mail,
+		Phone,
+		MapPin,
+		Linkedin,
+		Github,
+		Calendar,
+	} from "lucide-svelte";
 	import Experience from "./Experience.svelte";
 
 	let name = "Morgan Williams";
 	let title = "Rapid full-stack development at scale";
 	let email = "workwith@morganwill.com";
-	
+
 	let linkedin = "https://www.linkedin.com/in/mrgnw/";
 	let github = "https://github.com/mrgnw";
 	let experience = [
@@ -23,7 +34,7 @@
 			description: [
 				"Designed and implemented data infrastructure and pipelines, enabling faster business operations and enhanced data insights while cutting costs significantly. (AWS, Python, duckdb and sqlmesh, Alteryx, SQL Server, healthcare CMS).",
 				"Transitioned legacy workflows to modern data pipelines, accelerating tasks by 100x to 1000x through automation, reducing multi-hour processes to seconds or milliseconds.",
-				"Mentored data analysts in Python and SQL, expanding their skills and capabilities, resulting in a substantial increase in productivity."
+				"Mentored data analysts in Python and SQL, expanding their skills and capabilities, resulting in a substantial increase in productivity.",
 			],
 		},
 		{
@@ -34,7 +45,7 @@
 			description: [
 				"Created API endpoints in GoLang, learning new tech & collaborating across teams to interface multiple services.",
 				"Implemented ETL processes pipelines in Databricks.",
-				"Documented & created new processes to onboard, train, and increase teammate productivity."
+				"Documented & created new processes to onboard, train, and increase teammate productivity.",
 			],
 		},
 		{
@@ -45,17 +56,11 @@
 			description: [
 				"Created ETL workflows in Airflow, improving speeds up to 1000x.",
 				"Migrated multiple codebases to Python3.",
-				"Created Python APIs and internal web interfaces, empowering business users across teams to meaningfully interact with company data."
+				"Created Python APIs and internal web interfaces, empowering business users across teams to meaningfully interact with company data.",
 			],
 		},
 	];
-	let skills = [
-		"Python",
-		"PostgreSQL",
-		"DuckDB",
-		"SQL",
-		"Git"
-	];
+	let skills = ["Python", "PostgreSQL", "DuckDB", "SQL", "Git"];
 
 	let education = {
 		degree: "BA in Russian Language & Literature",
@@ -87,7 +92,11 @@
 	<section class="mb-8">
 		<div class="flex flex-wrap gap-4">
 			<div class="flex items-center gap-2">
-				<a href="https://morganwill.com/cal" target="_blank" rel="noopener noreferrer">
+				<a
+					href="https://morganwill.com/cal"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
 					<Button variant="outline">
 						<div class="flex items-center gap-2">
 							<Phone size={18} />
@@ -97,12 +106,18 @@
 				</a>
 			</div>
 			<div class="flex items-center gap-2">
-				<a href={`https://${linkedin}`} target="_blank" rel="noopener noreferrer">
-				<Linkedin size={18} />
-			</a>
+				<a
+					href={`https://${linkedin}`}
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					<Linkedin size={18} />
+				</a>
 			</div>
 			<div class="flex items-center gap-2">
-				<a href={github} target="_blank" rel="noopener noreferrer"><Github size={18} /></a>
+				<a href={github} target="_blank" rel="noopener noreferrer"
+					><Github size={18} /></a
+				>
 			</div>
 			<div class="flex items-center gap-2">
 				<a href={`mailto:${email}`}><Mail size={18} /></a>
@@ -112,16 +127,11 @@
 				<span>4 years remote</span>
 			</div> -->
 		</div>
-		
 	</section>
 
 	<Separator class="my-8" />
 
-	
-
-	<Experience experience={experience} />
-
-
+	<Experience {experience} />
 
 	<section>
 		<h2 class="text-2xl font-semibold mb-4">Education</h2>
