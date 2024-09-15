@@ -10,10 +10,8 @@
 
 	let name = "Morgan Williams";
 	let title = "Rapid full-stack development at scale";
-	let summary = "Rapid full-stack development at scale";
 	let email = "workwith@morganwill.com";
-	// let phone = "+1 234 567 890";
-	let location = "New York, NY";
+	
 	let linkedin = "https://www.linkedin.com/in/mrgnw/";
 	let github = "https://github.com/mrgnw";
 	let experience = [
@@ -106,10 +104,6 @@
 			</div>
 			
 			<div class="flex items-center gap-2">
-				<MapPin size={18} />
-				<span>{location}</span>
-			</div>
-			<div class="flex items-center gap-2">
 				<a href={`https://${linkedin}`} target="_blank" rel="noopener noreferrer">
 				<Linkedin size={18} />
 			</a>
@@ -117,7 +111,12 @@
 			<div class="flex items-center gap-2">
 				<a href={github} target="_blank" rel="noopener noreferrer"><Github size={18} /></a>
 			</div>
+			<div class="flex items-center gap-2">
+				<MapPin size={18} />
+				<span>4 years remote</span>
+			</div>
 		</div>
+		
 	</section>
 
 	<Separator class="my-8" />
