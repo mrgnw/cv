@@ -5,15 +5,17 @@
 	import { Badge } from "$lib/components/ui/badge";
 	import { Separator } from "$lib/components/ui/separator";
 	import { Avatar, AvatarImage, AvatarFallback } from "$lib/components/ui/avatar";
-	import { Mail, Phone, MapPin, Linkedin, Github } from "lucide-svelte";;
+	import { Mail, Phone, MapPin, Linkedin, Github, Calendar } from "lucide-svelte";;
+	import Experience from "./Experience.svelte";
 
-	let name = "John Doe";
-	let title = "Software Developer";
-	let email = "johndoe@example.com";
-	let phone = "+1 234 567 890";
+	let name = "Morgan Williams";
+	let title = "Fullstack Software Developer";
+	let subtitle = "Specialized in backend python & data engineering with a passion for UX & frontend";
+	let email = "workwith@morganwill.com";
+	// let phone = "+1 234 567 890";
 	let location = "New York, NY";
-	let linkedin = "linkedin.com/in/johndoe";
-	let github = "github.com/johndoe";
+	let linkedin = "https://www.linkedin.com/in/mrgnw/";
+	let github = "https://github.com/mrgnw";
 	let summary = "Experienced software developer with a passion for creating efficient and scalable applications.";
 	let experience = [
 		{
@@ -29,9 +31,16 @@
 			description: "Contributed to the development of innovative web applications.",
 		},
 	];
-	let skills = ["JavaScript", "React", "Node.js", "Python", "SQL", "Git"];
+	let skills = [
+		"Python",
+		"PostgreSQL",
+		"DuckDB",
+		"SQL",
+		"Git"
+	];
+
 	let education = {
-		degree: "Bachelor of Science in Computer Science",
+		degree: "Bachelor of Arts in Russian Language & Literature",
 		university: "Tech University",
 		year: "2015",
 	};
@@ -48,28 +57,41 @@
 			<AvatarFallback>{name[0]}</AvatarFallback>
 		</Avatar>
 	</header>
-
+	<section class="mb-8">
+		<h2 class="text-2xl font-semibold mb-4">Skills</h2>
+		<div class="flex flex-wrap gap-2">
+			{#each skills as skill}
+				<Badge>{skill}</Badge>
+			{/each}
+		</div>
+	</section>
 	<section class="mb-8">
 		<div class="flex flex-wrap gap-4">
+			<Button variant="outline">
+				<div class="flex items-center gap-2">
+					<a href={`mailto:${email}`}><Mail size={18} /></a>
+				</div>
+			</Button>
+			
 			<div class="flex items-center gap-2">
-				<Mail size={18} />
-				<span>{email}</span>
+				<Button variant="outline">
+					<Phone size={18} />
+					<span class="w-3" />
+					<Calendar size={18} />
+				</Button>
 			</div>
-			<div class="flex items-center gap-2">
-				<Phone size={18} />
-				<span>{phone}</span>
-			</div>
+			
 			<div class="flex items-center gap-2">
 				<MapPin size={18} />
 				<span>{location}</span>
 			</div>
 			<div class="flex items-center gap-2">
+				<a href={`https://${linkedin}`} target="_blank" rel="noopener noreferrer">
 				<Linkedin size={18} />
-				<a href={`https://${linkedin}`} target="_blank" rel="noopener noreferrer">{linkedin}</a>
+			</a>
 			</div>
 			<div class="flex items-center gap-2">
-				<Github size={18} />
-				<a href={`https://${github}`} target="_blank" rel="noopener noreferrer">{github}</a>
+				<a href={github} target="_blank" rel="noopener noreferrer"><Github size={18} /></a>
 			</div>
 		</div>
 	</section>
@@ -81,25 +103,9 @@
 		<p>{summary}</p>
 	</section>
 
-	<section class="mb-8">
-		<h2 class="text-2xl font-semibold mb-4">Experience</h2>
-		{#each experience as job}
-			<div class="mb-4">
-				<h3 class="text-xl font-semibold">{job.title}</h3>
-				<p class="text-muted-foreground">{job.company} | {job.period}</p>
-				<p>{job.description}</p>
-			</div>
-		{/each}
-	</section>
+	<Experience experience={experience} />
 
-	<section class="mb-8">
-		<h2 class="text-2xl font-semibold mb-4">Skills</h2>
-		<div class="flex flex-wrap gap-2">
-			{#each skills as skill}
-				<Badge>{skill}</Badge>
-			{/each}
-		</div>
-	</section>
+
 
 	<section>
 		<h2 class="text-2xl font-semibold mb-4">Education</h2>

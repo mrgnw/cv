@@ -1,4 +1,4 @@
 <script>
-	import Resume from "$lib/Resume/+page.svelte";
+	import CV from "$lib/CV.svelte";
 </script>
-<Resume />
+<CV />
