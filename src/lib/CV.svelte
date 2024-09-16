@@ -117,12 +117,14 @@
 		</div>
 	</section>
 	<section class="mb-6" id="links">
+		<h2 class="sr-only">Contact and Social Links</h2> <!-- Screen reader only heading for accessibility -->
 		<div class="flex flex-wrap gap-4">
-			<div class="flex items-center gap-2 -ml-2"> <!-- Adjust the value as needed -->
+			<div class="flex items-center gap-2 -ml-2">
 				<a
 					href="https://morganwill.com/cal"
 					target="_blank"
 					rel="noopener noreferrer"
+					aria-label="Schedule an intro call with Morgan"
 				>
 					<Button variant="outline">
 						<div class="flex items-center gap-2">
@@ -132,28 +134,27 @@
 					</Button>
 				</a>
 			</div>
-			<div class="flex items-center gap-2 -ml-2"> <!-- Adjust the value as needed -->
+			<div class="flex items-center gap-2 -ml-2">
 				<a
 					href="https://www.linkedin.com/in/mrgnw/"
 					target="_blank"
 					rel="noopener noreferrer"
 					class="flex items-center"
+					aria-label="Morgan's LinkedIn profile"
 				>
 					<iconify-icon icon="la:linkedin" height="2.3em"></iconify-icon>
 				</a>
 			</div>
 			<div class="flex items-center gap-2">
-				<a href={github} target="_blank" rel="noopener noreferrer"
-					><Github size={iconSize} />
+				<a href={github} target="_blank" rel="noopener noreferrer" aria-label="Morgan's GitHub profile">
+					<Github size={iconSize} />
 				</a>
 			</div>
 			<div class="flex items-center gap-2">
-				<a href={`mailto:${email}`}><Mail size={iconSize} /> </a>
+				<a href={`mailto:${email}`} aria-label="Email Morgan">
+					<Mail size={iconSize} />
+				</a>
 			</div>
-			<!-- <div class="flex items-center gap-2">
-				<MapPin size={18} />
-				<span>4 years remote</span>
-			</div> -->
 		</div>
 	</section>
 
