@@ -19,11 +19,12 @@
 	} from "lucide-svelte";
 	import Experience from "./Experience.svelte";
 
+	
 	let name = "Morgan Williams";
 	let title = "Rapid full-stack development at scale";
 	let email = "workwith@morganwill.com";
 
-	let linkedin = "https://www.linkedin.com/in/mrgnw/";
+
 	let github = "https://github.com/mrgnw";
 	let experience = [
 		{
@@ -95,7 +96,7 @@
 </script>
 
 <div class="max-w-3xl mx-auto p-8 bg-background text-foreground">
-	<header class="flex items-center justify-between mb-8">
+	<header class="flex items-center justify-between mb-2">
 		<div>
 			<h1 class="text-4xl font-bold">{name}</h1>
 			<p class="text-xl text-muted-foreground">{title}</p>
@@ -106,17 +107,9 @@
 			<AvatarFallback>{name[0]}</AvatarFallback>
 		</Avatar>
 	</header>
-	<section class="mb-8">
-		<h2 class="text-2xl font-semibold mb-4">Skills</h2>
-		<div class="flex flex-wrap gap-2">
-			{#each skills as skill}
-				<Badge>{skill}</Badge>
-			{/each}
-		</div>
-	</section>
-	<section class="mb-8">
+	<section class="mb-6">
 		<div class="flex flex-wrap gap-4">
-			<div class="flex items-center gap-2">
+			<div class="flex items-center gap-2 -ml-2"> <!-- Adjust the value as needed -->
 				<a
 					href="https://morganwill.com/cal"
 					target="_blank"
@@ -130,13 +123,14 @@
 					</Button>
 				</a>
 			</div>
-			<div class="flex items-center gap-2">
+			<div class="flex items-center gap-2 -ml-2"> <!-- Adjust the value as needed -->
 				<a
-					href={`https://${linkedin}`}
+					href="https://www.linkedin.com/in/mrgnw/"
 					target="_blank"
 					rel="noopener noreferrer"
+					class="flex items-center"
 				>
-					<Linkedin size={iconSize} />
+					<iconify-icon icon="la:linkedin" height="2.3em"></iconify-icon>
 				</a>
 			</div>
 			<div class="flex items-center gap-2">
@@ -151,6 +145,14 @@
 				<MapPin size={18} />
 				<span>4 years remote</span>
 			</div> -->
+		</div>
+	</section>
+	<section class="mb-8">
+		<h2 class="text-2xl font-semibold mb-4">Skills</h2>
+		<div class="flex flex-wrap gap-2">
+			{#each skills as skill}
+				<Badge>{skill}</Badge>
+			{/each}
 		</div>
 	</section>
 
