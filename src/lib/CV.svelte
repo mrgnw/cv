@@ -4,6 +4,7 @@
 	import { Textarea } from "$lib/components/ui/textarea";
 	import { Badge } from "$lib/components/ui/badge";
 	import { Separator } from "$lib/components/ui/separator";
+	
 	import {
 		Avatar,
 		AvatarImage,
@@ -142,7 +143,7 @@
 					class="flex items-center"
 					aria-label="Morgan's LinkedIn profile"
 				>
-					<iconify-icon icon="la:linkedin" height="2.3em"></iconify-icon>
+					<Linkedin size={iconSize} />
 				</a>
 			</div>
 			<div class="flex items-center gap-2">
