@@ -107,7 +107,16 @@
 			<AvatarFallback>{name[0]}</AvatarFallback>
 		</Avatar>
 	</header>
-	<section class="mb-6">
+	
+	<section class="mb-8">
+		<h2 class="text-2xl font-semibold mb-4">Skills</h2>
+		<div class="flex flex-wrap gap-2">
+			{#each skills as skill}
+				<Badge>{skill}</Badge>
+			{/each}
+		</div>
+	</section>
+	<section class="mb-6" id="links">
 		<div class="flex flex-wrap gap-4">
 			<div class="flex items-center gap-2 -ml-2"> <!-- Adjust the value as needed -->
 				<a
@@ -145,14 +154,6 @@
 				<MapPin size={18} />
 				<span>4 years remote</span>
 			</div> -->
-		</div>
-	</section>
-	<section class="mb-8">
-		<h2 class="text-2xl font-semibold mb-4">Skills</h2>
-		<div class="flex flex-wrap gap-2">
-			{#each skills as skill}
-				<Badge>{skill}</Badge>
-			{/each}
 		</div>
 	</section>
 
