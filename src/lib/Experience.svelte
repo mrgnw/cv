@@ -20,6 +20,11 @@
 			return `${Math.floor(diffMonths)} months`;
 		}
 	}
+
+	function formatDate(date: string): string {
+		const options = { year: 'numeric', month: 'short' };
+		return new Date(date).toLocaleDateString(undefined, options);
+	}
 </script>
 
 <style>
@@ -59,7 +64,7 @@
 				{exp.company} - 
 				<span class="period">
 					<span class="default-text" in:fade out:fade>{calculateDuration(exp.start, exp.end)}</span>
-					<span class="hover-text" in:fade out:fade>{exp.start} - {exp.end ? exp.end : 'Present'}</span>
+					<span class="hover-text" in:fade out:fade>{formatDate(exp.start)} - {exp.end ? formatDate(exp.end) : 'Present'}</span>
 				</span>
 			</p>
 			{#each exp.description as paragraph}

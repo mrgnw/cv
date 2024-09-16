@@ -104,7 +104,7 @@
 			<!-- <p class="text-muted-foreground">{summary}</p> -->
 		</div>
 		<Avatar class="w-24 h-24">
-			<AvatarImage src="/morgan.jpg" alt={name} />
+			<AvatarImage src="/morgan.jpg" alt={name} rel="preload" />
 			<AvatarFallback>{name[0]}</AvatarFallback>
 		</Avatar>
 	</header>
