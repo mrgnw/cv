@@ -29,9 +29,9 @@
 	let github = "https://github.com/mrgnw";
 	let experience = [
 		{
-			title: "Lead Data Engineering Consultant",
+			title: "Data Engineer & Architect",
 			company: "National Care Dental",
-			start: "2021-08-01",
+			start: "2022-05-01",
 			// No end date means current
 			description: [
 				"Designed and implemented data infrastructure and pipelines, enabling faster business operations and enhanced data insights while cutting costs significantly. (AWS, Python, duckdb and sqlmesh, Alteryx, SQL Server, healthcare CMS).",
@@ -42,8 +42,8 @@
 		{
 			title: "Senior Data Engineer",
 			company: "Persefoni",
-			start: "2018-12-01",
-			end: "2021-08-01",
+			start: "2021-08-01",
+			end: "2022-05-31",
 			description: [
 				"Created API endpoints in GoLang, learning new tech & collaborating across teams to interface multiple services.",
 				"Implemented ETL processes pipelines in Databricks.",
@@ -53,8 +53,8 @@
 		{
 			title: "Software Engineer",
 			company: "Zelis Healthcare",
-			start: "2015-01-01",
-			end: "2018-12-01",
+			start: "2018-12-01",
+			end: "2021-08-01",
 			description: [
 				"Created ETL workflows in Airflow, improving speeds up to 1000x.",
 				"Migrated multiple codebases to Python3.",
