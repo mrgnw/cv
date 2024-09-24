@@ -81,16 +81,18 @@
 
 	let education = [
 		{
-			degree: "BA in Russian Language & Literature",
-			university: "BYU",
+			degree: "Coding Bootcamp",
+			provider: "vschool.io",
+			summary: "Python + JavaScript",
 			year: "2014",
 		},
 		{
-			degree: "Coding Bootcamp",
-			university: "vschool.io",
-			program: "Python + JavaScript",
+			degree: "BA in Russian Language & Literature",
+			provider: "BYU",
 			year: "2014",
+			summary: "minor in advertising communications"
 		},
+
 	];
 
 	const iconSize = 30;
@@ -153,11 +155,15 @@
 
 	<Experience {experience} />
 
-	<section>
+	<section class="education">
 		<h2 class="text-2xl font-semibold mb-4">Education</h2>
 		{#each education as edu}
-		<p class="font-semibold">{edu.degree}</p>
-		<p>{edu.university}{#if edu.program}, {edu.program}{/if}, {edu.year}</p>
+		<p class="font-semibold flex justify-between">
+			{edu.degree} @ {edu.provider}
+			<span class="text-muted-foreground"> {edu.year}</span>
+		</p>
+		<p class="text-muted-foreground">{edu.summary}</p>
+		<!-- <p>{edu.university}{#if edu.program}, {edu.program}{/if}, {edu.year}</p> -->
 		{/each}
 	</section>
 </div>
