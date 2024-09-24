@@ -15,7 +15,7 @@ node generate-pdf.js
 
 Unfortunately, pdf export is only supported on Chromium[*](https://playwright.dev/docs/api/class-page#page-pdf)
 
-### Generated using Svelte 5 template with [shadcn-svelte](http://shadcn-svelte.com) and [mdsvex](http://mdsvex.pngwn.io)
+## Generated using Svelte 5 template with [shadcn-svelte](http://shadcn-svelte.com) and [mdsvex](http://mdsvex.pngwn.io)
 
 ### Use this template
 
@@ -29,5 +29,3 @@ gh repo create $appname \
   --private --clone
 cd $appname
 ```
-
-### pdf generation
