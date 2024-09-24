@@ -164,6 +164,6 @@
 
 <!-- Floating PDF Download Link -->
 <a href={pdfLink} target="_blank" rel="noopener noreferrer" aria-label="Download Morgan's CV"
-	class="fixed bottom-4 right-4 bg-background p-2 rounded-full shadow-lg">
+	class="no-print fixed bottom-4 right-4 bg-background p-2 rounded-full shadow-lg">
 	<FileSearch size={iconSize} />
 </a>

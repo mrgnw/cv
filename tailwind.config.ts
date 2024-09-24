@@ -59,6 +59,17 @@ const config: Config = {
 			}
 		}
 	},
+	plugins: [
+		function ({ addUtilities }) {
+			addUtilities({
+				'.no-print': {
+					'@media print': {
+						display: 'none',
+					},
+				},
+			});
+		},
+	],
 };
 
 export default config;
