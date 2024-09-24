@@ -33,6 +33,7 @@ const __dirname = path.dirname(__filename);
 				left: '20px',
 				right: '20px',
 			},
+			scale: 0.86,
 		});
 
 		console.log('🖨️ static/morgan-williams-cv.pdf');
