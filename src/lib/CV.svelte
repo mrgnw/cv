@@ -17,16 +17,16 @@
 		Linkedin,
 		Github,
 		Calendar,
+		FileSearch,
 	} from "lucide-svelte";
 	import Experience from "./Experience.svelte";
 
-	
 	let name = "Morgan Williams";
 	let title = "Rapid full-stack development at scale";
 	let email = "workwith@morganwill.com";
 
-
 	let github = "https://github.com/mrgnw";
+	let pdfLink = "/morgan-williams-cv.pdf"; // Link to the PDF version
 	let experience = [
 		{
 			title: "Data Engineer & Architect",
@@ -101,7 +101,6 @@
 		<div>
 			<h1 class="text-4xl font-bold">{name}</h1>
 			<p class="text-xl text-muted-foreground">{title}</p>
-			<!-- <p class="text-muted-foreground">{summary}</p> -->
 		</div>
 		<Avatar class="w-24 h-24">
 			<AvatarImage src="/morgan.jpg" alt={name} rel="preload" />
@@ -118,7 +117,7 @@
 		</div>
 	</section>
 	<section class="mb-6" id="links">
-		<h2 class="sr-only">Contact and Social Links</h2> <!-- Screen reader only heading for accessibility -->
+		<h2 class="sr-only">Contact and Social Links</h2>
 		<div class="flex flex-wrap gap-4">
 			<div class="flex items-center gap-2 -ml-2">
 				<a
@@ -171,3 +170,8 @@
 		{/each}
 	</section>
 </div>
+
+<!-- Floating PDF Download Link -->
+<a href={pdfLink} target="_blank" rel="noopener noreferrer" aria-label="Download Morgan's CV" class="fixed bottom-4 right-4 bg-background p-2 rounded-full shadow-lg">
+	<FileSearch size={iconSize} />
+</a>
