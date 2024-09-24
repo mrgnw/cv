@@ -1,4 +1,21 @@
-# Svelte 5 template with [shadcn-svelte](http://shadcn-svelte.com) and [mdsvex](http://mdsvex.pngwn.io)
+## Morgan's CV
+
+### Generate pdf
+
+```sh
+bunx playwright install chromium
+bun run build && bun run preview
+```
+
+```sh
+node generate-pdf.js
+```
+
+
+
+Unfortunately, pdf export is only supported on Chromium[*](https://playwright.dev/docs/api/class-page#page-pdf)
+
+### Generated using Svelte 5 template with [shadcn-svelte](http://shadcn-svelte.com) and [mdsvex](http://mdsvex.pngwn.io)
 
 ### Use this template
 
@@ -13,3 +30,4 @@ gh repo create $appname \
 cd $appname
 ```
 
+### pdf generation
