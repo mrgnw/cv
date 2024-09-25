@@ -16,8 +16,8 @@
 		MapPin,
 		Linkedin,
 		Github,
-		Calendar,
-		FileSearch,
+		CalendarClock,
+		FileText,
 	} from "lucide-svelte";
 	import Experience from "./Experience.svelte";
 
@@ -152,7 +152,7 @@
 					<Button variant="outline">
 						<div class="flex items-center gap-2">
 							<Phone size={iconSize} />
-							<Calendar size={iconSize} />
+							<CalendarClock size={iconSize} />
 						</div>
 					</Button>
 				</a>
@@ -198,5 +198,5 @@
 <a href={pdfLink} target="_blank" rel="noopener noreferrer" aria-label="Download Morgan's CV"
 	class="no-print fixed bottom-4 right-4 bg-background p-2 rounded-full shadow-lg"
 	data-sveltekit-preload-data="hover">
-	<FileSearch size={iconSize} />
+	<FileText size={iconSize} />
 </a>
