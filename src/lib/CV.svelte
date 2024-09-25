@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { Button } from "$lib/components/ui/button";
 	import { Input } from "$lib/components/ui/input";
 	import { Textarea } from "$lib/components/ui/textarea";
@@ -21,79 +21,104 @@
 	} from "lucide-svelte";
 	import Experience from "./Experience.svelte";
 
-	let name = "Morgan Williams";
-	let title = "Rapid full-stack development at scale";
-	let email = "workwith@morganwill.com";
+	// Define prop types (optional but recommended with TypeScript)
+	interface ExperienceItem {
+		title: string;
+		company: string;
+		start: string;
+		end?: string;
+		description: string[];
+	}
 
-	let github = "https://github.com/mrgnw";
-	let pdfLink = "/morgan-williams-cv.pdf"; // Link to the PDF version
-	let experience = [
-		{
-			title: "Data Engineer & Architect",
-			company: "National Care Dental",
-			start: "2022-05-01",
-			// No end date means current
-			description: [
-				"Designed and implemented data infrastructure and pipelines, enabling faster business operations and enhanced data insights while cutting costs significantly. (AWS, Python, duckdb and sqlmesh, Alteryx, SQL Server, healthcare CMS).",
-				"Transitioned legacy workflows to modern data pipelines, accelerating tasks by 100x to 1000x through automation, reducing multi-hour processes to seconds or milliseconds.",
-				"Mentored data analysts in Python and SQL, expanding their skills and capabilities, resulting in a substantial increase in productivity.",
-			],
-		},
-		{
-			title: "Senior Data Engineer",
-			company: "Persefoni",
-			start: "2021-08-01",
-			end: "2022-05-31",
-			description: [
-				"Created API endpoints in GoLang, learning new tech & collaborating across teams to interface multiple services.",
-				"Implemented ETL processes pipelines in Databricks.",
-				"Documented & created new processes to onboard, train, and increase teammate productivity.",
-			],
-		},
-		{
-			title: "Software Engineer",
-			company: "Zelis Healthcare",
-			start: "2018-12-01",
-			end: "2021-08-01",
-			description: [
-				"Created ETL workflows in Airflow, improving speeds up to 1000x.",
-				"Migrated multiple codebases to Python3.",
-				"Created Python APIs and internal web interfaces, empowering business users across teams to meaningfully interact with company data.",
-			],
-		},
-	];
-	let skills = [
-		"Python",
-		"PostgreSQL",
-		"DuckDB",
-		"SQL",
-		"Git",
-		"JavaScript",
-		"TypeScript",
-		"Svelte",
-		"AWS",
-		"Linux",
-		"Cloud",
-		"Databricks",
-		"Airflow",
-	];
-	// todo: invisible skills for SEO
+	interface EducationItem {
+		degree: string;
+		provider: string;
+		summary?: string;
+		year: string;
+	}
 
-	let education = [
-		{
-			degree: "Coding Bootcamp",
-			provider: "vschool.io",
-			summary: "Python + JavaScript",
-			year: "2014",
-		},
-		{
-			degree: "BA in Russian Language & Literature",
-			provider: "BYU",
-			year: "2014",
-			summary: "minor in advertising communications"
-		},
+	interface CVProps {
+		name: string;
+		title: string;
+		email: string;
+		github: string;
+		pdfLink: string;
+		experience: ExperienceItem[];
+		skills: string[];
+		education: EducationItem[];
+	}
 
-	];
+	// Destructure props using the $props rune
+	let {
+		name = "Morgan Williams",
+		title = "Rapid full-stack development at scale",
+		email = "workwith@morganwill.com",
+		github = "https://github.com/mrgnw",
+		pdfLink = "/morgan-williams-cv.pdf",
+		experience = [
+			{
+				title: "Data Engineer & Architect",
+				company: "National Care Dental",
+				start: "2022-05-01",
+				description: [
+					"Designed and implemented data infrastructure and pipelines, enabling faster business operations and enhanced data insights while cutting costs significantly. (AWS, Python, duckdb and sqlmesh, Alteryx, SQL Server, healthcare CMS).",
+					"Transitioned legacy workflows to modern data pipelines, accelerating tasks by 100x to 1000x through automation, reducing multi-hour processes to seconds or milliseconds.",
+					"Mentored data analysts in Python and SQL, expanding their skills and capabilities, resulting in a substantial increase in productivity.",
+				],
+			},
+			{
+				title: "Senior Data Engineer",
+				company: "Persefoni",
+				start: "2021-08-01",
+				end: "2022-05-31",
+				description: [
+					"Created API endpoints in GoLang, learning new tech & collaborating across teams to interface multiple services.",
+					"Implemented ETL processes pipelines in Databricks.",
+					"Documented & created new processes to onboard, train, and increase teammate productivity.",
+				],
+			},
+			{
+				title: "Software Engineer",
+				company: "Zelis Healthcare",
+				start: "2018-12-01",
+				end: "2021-08-01",
+				description: [
+					"Created ETL workflows in Airflow, improving speeds up to 1000x.",
+					"Migrated multiple codebases to Python3.",
+					"Created Python APIs and internal web interfaces, empowering business users across teams to meaningfully interact with company data.",
+				],
+			},
+		],
+		skills = [
+			"Python",
+			"PostgreSQL",
+			"DuckDB",
+			"SQL",
+			"Git",
+			"JavaScript",
+			"TypeScript",
+			"Svelte",
+			"AWS",
+			"Linux",
+			"Cloud",
+			"Databricks",
+			"Airflow",
+		],
+		education = [
+			{
+				degree: "Coding Bootcamp",
+				provider: "vschool.io",
+				summary: "Python + JavaScript",
+				year: "2014",
+			},
+			{
+				degree: "BA in Russian Language & Literature",
+				provider: "BYU",
+				year: "2014",
+				summary: "minor in advertising communications",
+			},
+		],
+	}: CVProps = $props();
 
 	const iconSize = 30;
 </script>
@@ -162,8 +187,9 @@
 			{edu.degree} @ {edu.provider}
 			<span class="text-muted-foreground"> {edu.year}</span>
 		</p>
+		{#if edu.summary}
 		<p class="text-muted-foreground">{edu.summary}</p>
-		<!-- <p>{edu.university}{#if edu.program}, {edu.program}{/if}, {edu.year}</p> -->
+		{/if}
 		{/each}
 	</section>
 </div>
