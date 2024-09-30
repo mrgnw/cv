@@ -47,7 +47,7 @@ function waitForServer(url, timeout = 10000) {
 		try {
 			const url = `${serverUrl}${route}`;
 			const fileName = route === '/' ? 'index' : route.replace('/', '');
-			console.log(`Generating PDF for ${url}`);
+			console.log(`🌐 ${url}`);
 
 			await page.goto(url, { waitUntil: 'networkidle' });
 			const pdfPath = path.join('static', 'cv', `${fileName}.pdf`);
