@@ -1,17 +1,17 @@
 import type { PageServerLoad } from './$types';
-
-import { readFile } from 'fs/promises';
-import path from 'path';
 import { error } from '@sveltejs/kit';
 import json5 from 'json5';
 
-export const load = (async ({ params }) => {
+export const load = (async ({ params, fetch }) => {
     const { slug } = params;
-    const versionsDir = path.resolve('src/lib/versions');
-    const filePath = path.join(versionsDir, `${slug}.json5`);
+    const filePath = `/versions/${slug}.json5`;
 
     try {
-        const fileContent = await readFile(filePath, 'utf-8');
+        const response = await fetch(filePath);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const fileContent = await response.text();
         const data = json5.parse(fileContent);
 
         return data;
