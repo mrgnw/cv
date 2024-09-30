@@ -1,8 +1,8 @@
 <script lang="ts">
   import CV from '$lib/CV.svelte';
-  import type { PageLoad } from './$types';
+  import type { PageServerLoad } from './$types';
 
-  export let data: PageLoad;
+  export let data: PageServerLoad;
 </script>
 
 <CV
