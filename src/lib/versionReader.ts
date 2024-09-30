@@ -14,7 +14,7 @@ for (const path in versions) {
 	if (slug) {
 		versionMap[slug] = {
 			...versions[path].default,
-			pdfLink: `/cv/${slug}/morgan-williams-cv.pdf`,
+			pdfLink: `/cv/${slug}/morgan-williams.pdf`,
 		};
 	}
 }

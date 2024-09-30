@@ -9,6 +9,7 @@
 		"cfg:static": "cp svelte.config.static.js svelte.config.js",
 		"cfg:main": "cp svelte.config.main.js svelte.config.js",
 		"preview": "vite preview",
+		"preview:static": "bun run cfg:static && vite preview; bun run cfg:main",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"pdfs": "bunx concurrently -k \"bun run preview\" \"bun run pdf-script\"",

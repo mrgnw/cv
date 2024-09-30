@@ -54,7 +54,7 @@
 		title = "Rapid full-stack development at scale",
 		email = "workwith@morganwill.com",
 		github = "https://github.com/mrgnw",
-		pdfLink = "/morgan-williams-cv.pdf",
+		pdfLink = "/morgan-williams-cv",
 		experience = [
 			{
 				title: "Data Engineer & Architect",

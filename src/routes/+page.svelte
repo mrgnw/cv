@@ -10,5 +10,5 @@
 	title={data.title}
 	email={data.email}
 	github={data.github}
-	pdfLink={data.pdfLink}
+	pdfLink='morgan-williams.pdf'
 />

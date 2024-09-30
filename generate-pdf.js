@@ -40,19 +40,22 @@ function waitForServer(url, timeout = 10000) {
 	}
 
 	const routes = getVersionNames();
+	// console.debug(routes);
 	const browser = await chromium.launch();
 	const page = await browser.newPage();
 
 	for (const route of routes) {
 		try {
 			const url = `${serverUrl}${route}`;
-			const fileName = route === '/' ? 'index' : route.replace('/', '');
+			const versionName = route === '/' ? 'index' : route.replace('/', '');
+			console.log(versionName);
 			console.log(`🌐 ${url}`);
 
 			await page.goto(url, { waitUntil: 'networkidle' });
-			const pdfPath = path.join('static', 'cv', `${fileName}.pdf`);
-			await page.pdf({
-				path: pdfPath,
+			
+			const pdfPath = path.join('static', 'cv', versionName, 'morgan-williams.pdf');
+
+			const pdfOptions = {
 				format: 'A4',
 				printBackground: true,
 				margin: {
@@ -62,6 +65,21 @@ function waitForServer(url, timeout = 10000) {
 					right: '20mm',
 				},
 				scale: 0.87,
+			}
+
+			if (versionName === 'main') {
+				// also save to to static/morgan-williams.pdf
+				const pdfPath = path.join('static', 'morgan-williams.pdf');
+				await page.pdf({
+					path: pdfPath,
+					...pdfOptions,
+				});
+				console.log(`🕴️ ${pdfPath}`);
+			}
+
+			await page.pdf({
+				path: pdfPath,
+				...pdfOptions,
 			});
 			console.log(`📄 ${pdfPath}`);
 		} catch (error) {
