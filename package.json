@@ -5,9 +5,8 @@
 	"scripts": {
 		"dev": "vite dev --host",
 		"build": "vite build",
-		"build:static": "vite build -c vite.config.static.ts",
+		"build:static": "cp svelte.config.static.js svelte.config.js && vite build; cp svelte.config.main.js svelte.config.js",
 		"preview": "vite preview",
-		"preview:static": "vite preview -c vite.config.static.ts --port 5000",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
 	},
