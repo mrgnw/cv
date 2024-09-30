@@ -4,6 +4,7 @@
 
 	export let data: PageServerLoad;
 </script>
+
 <CV
 	name={data.name}
 	title={data.title}

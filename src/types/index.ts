@@ -6,17 +6,17 @@ export interface CVData {
 	github: string;
 	pdfLink: string;
 	experience: Array<{
-			title: string;
-			company: string;
-			start: string;
-			end?: string;
-			description: string[];
+		title: string;
+		company: string;
+		start: string;
+		end?: string;
+		description: string[];
 	}>;
 	skills: string[];
 	education: Array<{
-			degree: string;
-			provider: string;
-			summary?: string;
-			year: string;
+		degree: string;
+		provider: string;
+		summary?: string;
+		year: string;
 	}>;
 }
