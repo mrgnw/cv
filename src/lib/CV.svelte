@@ -94,7 +94,6 @@
 			"PostgreSQL",
 			"DuckDB",
 			"SQL",
-			"Git",
 			"JavaScript",
 			"TypeScript",
 			"Svelte",

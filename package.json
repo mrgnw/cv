@@ -8,7 +8,7 @@
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"pdfs": "bunx concurrently -k \"bun run preview\" \"bun run pdf-script\"",
+		"pdfs": "vite build && bunx concurrently -k --kill-signal SIGTERM \"bun run preview\" \"bun run pdf-script\" || true",
 		"pdf-script": "bun generate-pdf.js"
 	},
 	"devDependencies": {

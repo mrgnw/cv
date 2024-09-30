@@ -11,7 +11,7 @@
   email={data.email}
   github={data.github}
   pdfLink={data.pdfLink}
-  experience={data.experience}
   skills={data.skills}
+  experience={data.experience}
   education={data.education}
 />

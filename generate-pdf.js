@@ -41,12 +41,12 @@ const waitForServer = (url, timeout = 10000) => new Promise((resolve, reject) =>
 		format: 'A4',
 		printBackground: true,
 		margin: {
-			top: '20mm',
-			bottom: '20mm',
-			left: '20mm',
-			right: '20mm',
+			top: '10mm',
+			bottom: '10mm',
+			left: '16mm',
+			right: '16mm',
 		},
-		scale: 0.87,
+		scale: 0.84,
 	};
 
 	for (const route of routes) {

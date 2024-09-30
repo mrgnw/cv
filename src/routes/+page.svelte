@@ -11,4 +11,7 @@
 	email={data.email}
 	github={data.github}
 	pdfLink='morgan-williams.pdf'
+	skills={data.skills}
+	experience={data.experience}
+	education={data.education}
 />

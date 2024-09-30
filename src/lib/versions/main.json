@@ -3,6 +3,17 @@
 	"title": "Rapid full-stack development at scale",
 	"email": "workwith@morganwill.com",
 	"github": "https://github.com/mrgnw",
+	"skills": [
+		"Python",
+		"PostgreSQL",
+		"SQL",
+		"JavaScript",
+		"Svelte",
+		"Servers",
+		"Linux",
+		"ETL"
+	],
+	"tools": ["DuckDB", "FastAPI", "Airflow", "AWS", "Databricks", "Spark"],
 	"experience": [
 		{
 			"title": "Data Engineer & Architect",
@@ -36,21 +47,6 @@
 				"Created Python APIs and internal web interfaces, empowering business users across teams to meaningfully interact with company data."
 			]
 		}
-	],
-	"skills": [
-		"Python",
-		"PostgreSQL",
-		"DuckDB",
-		"SQL",
-		"Git",
-		"JavaScript",
-		"TypeScript",
-		"Svelte",
-		"AWS",
-		"Linux",
-		"Cloud",
-		"Databricks",
-		"Airflow"
 	],
 	"education": [
 		{
