@@ -1,10 +1,10 @@
 import type { PageServerLoad } from './$types';
 import { error } from '@sveltejs/kit';
-import { getVersion } from '$lib/versionReader';
+import { coalesceVersion } from '$lib/versionReader';
 
 export const load = (async ({ params }) => {
     const { slug } = params;
-    const data = getVersion(slug);
+    const data = coalesceVersion(slug);
 
     if (!data) {
         console.error(`Error loading CV version "${slug}"`);

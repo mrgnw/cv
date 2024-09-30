@@ -26,3 +26,17 @@ export function getVersion(slug: string): CVData | null {
 export function getMainVersion(): CVData | null {
 	return versionMap["main"] || null;
 }
+export function coalesceVersion(slug: string): CVData | null {
+	// merges version (slug) on top of main
+	const main = getMainVersion();
+	const version = getVersion(slug);
+
+	if (!main || !version) {
+		return null;
+	}
+	
+	return {
+		...main,
+		...version,
+	};
+}
