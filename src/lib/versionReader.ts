@@ -1,5 +1,4 @@
-// src/lib/versionLoader.ts
-import type { CVData } from "../types"; // Define your CV data type
+import type { CVData, Experience } from "../types"; // Ensure Experience is imported if defined separately
 
 // Dynamically import all JSON files in the versions directory
 const versions = import.meta.glob<CVData>("/src/lib/versions/*.json", {
@@ -23,13 +22,9 @@ export function getVersion(slug: string): CVData | null {
 	return versionMap[slug] || null;
 }
 
-export function getMainVersion(): CVData | null {
-	return versionMap["main"] || null;
-}
-
 export function coalesceVersion(slug: string): CVData | null {
 	// Merges version (slug) on top of main
-	const main = getMainVersion();
+	const main =  versionMap["main"];
 	const version = getVersion(slug);
 
 	if (!main || !version) {
@@ -39,37 +34,35 @@ export function coalesceVersion(slug: string): CVData | null {
 	// Start with the main data
 	const merged: CVData = { ...main, ...version };
 
-	// Handle the experience field separately
+	// Handle the experience field by index
 	if (main.experience && version.experience) {
-		merged.experience = coalesceExperiences(main.experience, version.experience);
+		merged.experience = coalesceExperiencesByIndex(main.experience, version.experience);
 	}
+
+	// Optionally combine skills and education
+	merged.skills = Array.from(new Set([...(main.skills || []), ...(version.skills || [])]));
+	merged.education = [...(main.education || []), ...(version.education || [])];
 
 	return merged;
 }
 
-function coalesceExperiences(
+function coalesceExperiencesByIndex(
 	mainExperiences: Experience[],
 	versionExperiences: Experience[]
 ): Experience[] {
+	const maxLength = Math.max(mainExperiences.length, versionExperiences.length);
 	const mergedExperiences: Experience[] = [];
 
-	// Create a map of main experiences indexed by company
-	const mainExperienceMap = new Map<string, Experience>();
-	for (const exp of mainExperiences) {
-		mainExperienceMap.set(exp.company, exp);
-	}
+	for (let i = 0; i < maxLength; i++) {
+		const mainExp = mainExperiences[i];
+		const versionExp = versionExperiences[i];
 
-	// Iterate over version experiences to merge
-	for (const versionExp of versionExperiences) {
-		const company = versionExp.company;
-		const mainExp = mainExperienceMap.get(company);
-
-		if (mainExp) {
-			// Merge descriptions line by line, accounting for differing lengths
+		if (mainExp && versionExp) {
+			// Merge descriptions line by line
 			const mergedDescription = coalesceDescriptions(
 				mainExp.description,
 				versionExp.description
-			);
+				);
 
 			// Merge the experiences
 			const mergedExp: Experience = {
@@ -79,16 +72,13 @@ function coalesceExperiences(
 			};
 
 			mergedExperiences.push(mergedExp);
-			mainExperienceMap.delete(company); // Remove it from the map as it's processed
-		} else {
-			// If not present in main, use the version experience as is
+		} else if (versionExp) {
+			// If only version experience exists, use it
 			mergedExperiences.push(versionExp);
+		} else if (mainExp) {
+			// If only main experience exists, use it
+			mergedExperiences.push(mainExp);
 		}
-	}
-
-	// Add any remaining main experiences that were not in version
-	for (const mainExp of mainExperienceMap.values()) {
-		mergedExperiences.push(mainExp);
 	}
 
 	return mergedExperiences;
@@ -108,7 +98,7 @@ function coalesceDescriptions(
 		} else if (mainDescription[i]) {
 			mergedDescription[i] = mainDescription[i];
 		} else {
-			mergedDescription[i] = "";	
+			mergedDescription[i] = ""; // Default to empty string if both are undefined
 		}
 	}
 
