@@ -1,0 +1,46 @@
+{
+	"name": "Backend Joe",
+	"skills": [
+		"Python",
+		"PostgreSQL",
+		"SQL",
+		"JavaScript",
+		"Svelte",
+		"AWS",
+		"Linux"
+	],
+	"tools": ["DuckDB", "FastAPI", "AWS"],
+	"experience": [
+		{
+			"title": "Backend & data engineering consultant",
+			"company": "National Care Dental",
+			"start": "2022-05-01",
+			"description": [
+				"",
+				"B"
+			]
+		},
+		{
+			"title": "Senior Data Engineer",
+			"company": "Persefoni",
+			"start": "2021-08-01",
+			"end": "2022-05-31",
+			"description": [
+				"Created API endpoints in GoLang, learning new tech & collaborating across teams to interface multiple services.",
+				"Implemented ETL processes pipelines in Databricks.",
+				"Documented & created new processes to onboard, train, and increase teammate productivity."
+			]
+		},
+		{
+			"title": "Software Engineer",
+			"company": "Zelis Healthcare",
+			"start": "2018-12-01",
+			"end": "2021-08-01",
+			"description": [
+				"Created ETL workflows in Airflow, improving speeds up to 1000x.",
+				"Migrated multiple codebases to Python3.",
+				"Created Python APIs and internal web interfaces, empowering business users across teams to meaningfully interact with company data."
+			]
+		}
+	]
+}
