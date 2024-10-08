@@ -5,7 +5,7 @@ const versions = import.meta.glob<CVData>("/src/lib/versions/*.json", {
 	eager: true,
 });
 
-// Create a mapping from slug to data
+// map the slug to a version
 const versionMap: Record<string, CVData> = {};
 
 for (const path in versions) {
@@ -24,24 +24,23 @@ export function getVersion(slug: string): CVData | null {
 
 export function coalesceVersion(slug: string): CVData | null {
 	// Merges version (slug) on top of main
-	const main =  versionMap["main"];
+	const main = versionMap["main"];
 	const version = getVersion(slug);
 
 	if (!main || !version) {
 		return null;
 	}
 
-	// Start with the main data
+	// Simple merge
 	const merged: CVData = { ...main, ...version };
 
-	// Handle the experience field by index
+	// merge experience descriptions line by line
 	if (main.experience && version.experience) {
-		merged.experience = coalesceExperiencesByIndex(main.experience, version.experience);
+		merged.experience = coalesceExperiencesByIndex(
+			main.experience,
+			version.experience
+		);
 	}
-
-	// Optionally combine skills and education
-	merged.skills = Array.from(new Set([...(main.skills || []), ...(version.skills || [])]));
-	merged.education = [...(main.education || []), ...(version.education || [])];
 
 	return merged;
 }
@@ -62,7 +61,7 @@ function coalesceExperiencesByIndex(
 			const mergedDescription = coalesceDescriptions(
 				mainExp.description,
 				versionExp.description
-				);
+			);
 
 			// Merge the experiences
 			const mergedExp: Experience = {
@@ -70,13 +69,10 @@ function coalesceExperiencesByIndex(
 				...versionExp,
 				description: mergedDescription,
 			};
-
 			mergedExperiences.push(mergedExp);
 		} else if (versionExp) {
-			// If only version experience exists, use it
 			mergedExperiences.push(versionExp);
 		} else if (mainExp) {
-			// If only main experience exists, use it
 			mergedExperiences.push(mainExp);
 		}
 	}
@@ -97,8 +93,6 @@ function coalesceDescriptions(
 			mergedDescription[i] = versionLine;
 		} else if (mainDescription[i]) {
 			mergedDescription[i] = mainDescription[i];
-		} else {
-			mergedDescription[i] = ""; // Default to empty string if both are undefined
 		}
 	}
 
