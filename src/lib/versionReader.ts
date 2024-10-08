@@ -65,7 +65,7 @@ function coalesceExperiences(
 		const mainExp = mainExperienceMap.get(company);
 
 		if (mainExp) {
-			// Merge descriptions line by line
+			// Merge descriptions line by line, accounting for differing lengths
 			const mergedDescription = coalesceDescriptions(
 				mainExp.description,
 				versionExp.description
@@ -105,8 +105,10 @@ function coalesceDescriptions(
 		const versionLine = versionDescription[i]?.trim();
 		if (versionLine) {
 			mergedDescription[i] = versionLine;
-		} else {
+		} else if (mainDescription[i]) {
 			mergedDescription[i] = mainDescription[i];
+		} else {
+			mergedDescription[i] = "";	
 		}
 	}
 
