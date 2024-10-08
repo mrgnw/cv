@@ -18,12 +18,21 @@ for (const path in versions) {
 	}
 }
 
+/**
+ * Retrieves a specific version by its slug.
+ * @param slug - The slug identifier for the version.
+ * @returns The corresponding CVData or null if not found.
+ */
 export function getVersion(slug: string): CVData | null {
 	return versionMap[slug] || null;
 }
 
+/**
+ * Combines the main version with a specified version.
+ * @param slug - The slug identifier for the version to combine.
+ * @returns The merged CVData or null if merging isn't possible.
+ */
 export function coalesceVersion(slug: string): CVData | null {
-	// Merges version (slug) on top of main
 	const main = versionMap["main"];
 	const version = getVersion(slug);
 
@@ -31,21 +40,24 @@ export function coalesceVersion(slug: string): CVData | null {
 		return null;
 	}
 
-	// Simple merge
+	// Shallow merge
 	const merged: CVData = { ...main, ...version };
 
-	// merge experience descriptions line by line
+	// Merge the experience descriptions item by item
 	if (main.experience && version.experience) {
-		merged.experience = coalesceExperiencesByIndex(
-			main.experience,
-			version.experience
-		);
+		merged.experience = mergeExperiences(main.experience, version.experience);
 	}
 
 	return merged;
 }
 
-function coalesceExperiencesByIndex(
+/**
+ * Merges two arrays of Experience objects by their index.
+ * @param mainExperiences - The primary array of experiences.
+ * @param versionExperiences - The array of experiences to merge from the version.
+ * @returns A new array of merged Experience objects.
+ */
+function mergeExperiences(
 	mainExperiences: Experience[],
 	versionExperiences: Experience[]
 ): Experience[] {
@@ -57,19 +69,11 @@ function coalesceExperiencesByIndex(
 		const versionExp = versionExperiences[i];
 
 		if (mainExp && versionExp) {
-			// Merge descriptions line by line
-			const mergedDescription = coalesceDescriptions(
-				mainExp.description,
-				versionExp.description
-			);
-
-			// Merge the experiences
-			const mergedExp: Experience = {
+			mergedExperiences.push({
 				...mainExp,
 				...versionExp,
-				description: mergedDescription,
-			};
-			mergedExperiences.push(mergedExp);
+				description: mergeDescriptions(mainExp.description, versionExp.description),
+			});
 		} else if (versionExp) {
 			mergedExperiences.push(versionExp);
 		} else if (mainExp) {
@@ -80,7 +84,14 @@ function coalesceExperiencesByIndex(
 	return mergedExperiences;
 }
 
-function coalesceDescriptions(
+/**
+ * Merges two arrays of description strings line by line.
+ * Prefer version descriptions over main descriptions when available.
+ * @param mainDescription - The primary array of descriptions.
+ * @param versionDescription - The array of descriptions to merge from the version.
+ * @returns A new array of merged description strings.
+ */
+function mergeDescriptions(
 	mainDescription: string[],
 	versionDescription: string[]
 ): string[] {
@@ -89,11 +100,7 @@ function coalesceDescriptions(
 
 	for (let i = 0; i < maxLength; i++) {
 		const versionLine = versionDescription[i]?.trim();
-		if (versionLine) {
-			mergedDescription[i] = versionLine;
-		} else if (mainDescription[i]) {
-			mergedDescription[i] = mainDescription[i];
-		}
+		mergedDescription[i] = versionLine || mainDescription[i] || "";
 	}
 
 	return mergedDescription;
