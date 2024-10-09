@@ -11,5 +11,5 @@ export const load = (async ({ params }) => {
         throw error(404, 'CV version not found');
     }
 
-    return data;
+	return { ...data, slug };
 }) satisfies PageServerLoad;

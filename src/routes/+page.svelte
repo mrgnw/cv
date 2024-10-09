@@ -3,7 +3,19 @@
 	import type { PageServerLoad } from "./$types";
 
 	export let data: PageServerLoad;
+	// let versions = data.versions;
+	// console.log(versions);
+	
 </script>
+
+
+<!-- <h2>Versions</h2>
+<ul>
+	{#each versions as version}
+		<li>{version}</li>
+	{/each}
+</ul>
+ -->
 
 <CV
 	name={data.name}
