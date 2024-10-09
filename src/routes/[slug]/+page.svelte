@@ -3,6 +3,7 @@
   import type { PageServerLoad } from './$types';
 
   export let data: PageServerLoad;
+  const slug = data.slug;
 </script>
 
 <CV
@@ -10,7 +11,7 @@
   title={data.title}
   email={data.email}
   github={data.github}
-  pdfLink={data.pdfLink}
+  pdfLink={`/cv/${slug}/morgan-williams.pdf`}
   skills={data.skills}
   experience={data.experience}
   education={data.education}

@@ -1,16 +1,21 @@
-import type { CVData, Experience } from "../types"; // Ensure Experience is imported if defined separately
+import type { CVData, Experience } from "../types";
 
-// Dynamically import all JSON files in the versions directory
+/**
+ * Dynamically import all JSON files in the versions directory.
+ */
 const versions = import.meta.glob<CVData>("/src/lib/versions/*.json", {
 	eager: true,
 });
 
-// map the slug to a version
+/**
+ * Maps each version slug to its corresponding CV data.
+ */
 const versionMap: Record<string, CVData> = {};
 
 for (const path in versions) {
-	const slug = path.match(/\/src\/lib\/versions\/(.*)\.json$/)?.[1];
-	if (slug) {
+	const slugMatch = path.match(/\/src\/lib\/versions\/(.*)\.json$/);
+	if (slugMatch) {
+		const slug = slugMatch[1];
 		versionMap[slug] = {
 			...versions[path].default,
 			pdfLink: `/cv/${slug}/morgan-williams.pdf`,
@@ -40,10 +45,10 @@ export function coalesceVersion(slug: string): CVData | null {
 		return null;
 	}
 
-	// Shallow merge
+	// Initial shallow merge: version properties override main properties.
 	const merged: CVData = { ...main, ...version };
 
-	// Merge the experience descriptions item by item
+	// Merge the experience sections if they exist in both main and version.
 	if (main.experience && version.experience) {
 		merged.experience = mergeExperiences(main.experience, version.experience);
 	}
@@ -104,4 +109,12 @@ function mergeDescriptions(
 	}
 
 	return mergedDescription;
+}
+
+/**
+ * Retrieves all available versions.
+ * @returns An array of slugs representing all versions.
+ */
+export function getAllVersions(): string[] {
+	return Object.keys(versionMap);
 }
