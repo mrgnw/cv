@@ -19,6 +19,7 @@
 		CalendarClock,
 		FileText,
 	} from "lucide-svelte";
+	
 	import Experience from "./Experience.svelte";
 
 	// Define prop types (optional but recommended with TypeScript)
@@ -138,7 +139,7 @@
 		<h2 class="text-2xl font-semibold mb-4">Skills</h2>
 		<div class="flex flex-wrap gap-2">
 			{#each skills as skill}
-			<Badge>{skill}</Badge>
+				<Badge>{skill}</Badge>
 			{/each}
 		</div>
 	</section>
@@ -146,8 +147,12 @@
 		<h2 class="sr-only">Contact and Social Links</h2>
 		<div class="flex flex-wrap gap-4">
 			<div class="flex items-center gap-2 -ml-2">
-				<a href="https://morganwill.com/cal" target="_blank" rel="noopener noreferrer"
-					aria-label="Schedule an intro call with Morgan">
+				<a
+					href="https://morganwill.com/cal"
+					target="_blank"
+					rel="noopener noreferrer"
+					aria-label="Schedule an intro call with Morgan"
+				>
 					<Button variant="outline">
 						<div class="flex items-center gap-2">
 							<Phone size={iconSize} />
@@ -157,13 +162,23 @@
 				</a>
 			</div>
 			<div class="flex items-center gap-2 -ml-2">
-				<a href="https://www.linkedin.com/in/mrgnw/" target="_blank" rel="noopener noreferrer" class="flex items-center"
-					aria-label="Morgan's LinkedIn profile">
+				<a
+					href="https://www.linkedin.com/in/mrgnw/"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="flex items-center"
+					aria-label="Morgan's LinkedIn profile"
+				>
 					<Linkedin size={iconSize} />
 				</a>
 			</div>
 			<div class="flex items-center gap-2">
-				<a href={github} target="_blank" rel="noopener noreferrer" aria-label="Morgan's GitHub profile">
+				<a
+					href={github}
+					target="_blank"
+					rel="noopener noreferrer"
+					aria-label="Morgan's GitHub profile"
+				>
 					<Github size={iconSize} />
 				</a>
 			</div>
@@ -182,20 +197,25 @@
 	<section class="education">
 		<h2 class="text-2xl font-semibold mb-4">Education</h2>
 		{#each education as edu}
-		<p class="font-semibold flex justify-between">
-			{edu.degree} @ {edu.provider}
-			<span class="text-muted-foreground"> {edu.year}</span>
-		</p>
-		{#if edu.summary}
-		<p class="text-muted-foreground">{edu.summary}</p>
-		{/if}
+			<p class="font-semibold flex justify-between">
+				{edu.degree} @ {edu.provider}
+				<span class="text-muted-foreground"> {edu.year}</span>
+			</p>
+			{#if edu.summary}
+				<p class="text-muted-foreground">{edu.summary}</p>
+			{/if}
 		{/each}
 	</section>
 </div>
 
 <!-- PDF Download -->
-<a href={pdfLink} target="_blank" rel="noopener noreferrer" aria-label="Download Morgan's CV"
+<a
+	href={pdfLink}
+	target="_blank"
+	rel="noopener noreferrer"
+	aria-label="Download Morgan's CV"
 	class="no-print fixed bottom-4 right-4 bg-background p-2 rounded-full shadow-lg"
-	data-sveltekit-preload-data="hover">
+	data-sveltekit-preload-data="hover"
+>
 	<FileText size={iconSize} />
 </a>
