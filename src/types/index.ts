@@ -13,7 +13,6 @@ export interface CVData {
 	title: string;
 	email: string;
 	github: string;
-	pdfLink: string;
 	experience: Array<Experience>;
 	skills: string[];
 	education: Array<{
