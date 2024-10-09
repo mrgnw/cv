@@ -22,7 +22,8 @@
 			"description": [
 				"Designed and implemented data infrastructure and pipelines, enabling faster business operations and enhanced data insights while cutting costs significantly. (AWS, Python, duckdb and sqlmesh, Alteryx, SQL Server, healthcare CMS).",
 				"Transitioned legacy workflows to modern data pipelines, accelerating tasks by 100x to 1000x through automation, reducing multi-hour processes to seconds or milliseconds.",
-				"Mentored data analysts in Python and SQL, expanding their skills and capabilities, resulting in a substantial increase in productivity."
+				"Mentored data analysts in Python and SQL, expanding their skills and capabilities, resulting in a substantial increase in productivity.",
+				null
 			]
 		},
 		{

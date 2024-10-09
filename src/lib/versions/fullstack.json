@@ -1,0 +1,67 @@
+{
+	"name": "Morgan Williams",
+	"title": "Full-Stack Developer specializing in rapid development",
+	"email": "workwith@morganwill.com",
+	"github": "https://github.com/mrgnw",
+	"skills": [
+		"JavaScript",
+		"TypeScript",
+		"Python",
+		"Svelte",
+		"Node.js",
+		"PostgreSQL",
+		"DuckDB",
+		"SQL",
+		"AWS",
+		"Linux",
+		"HTML",
+		"CSS"
+	],
+	"tools": [
+		"SvelteKit",
+		"FastAPI",
+		"Express.js",
+		"Tailwind CSS",
+		"Docker",
+		"AWS"
+	],
+	"experience": [
+		{
+			"title": "Senior Full-Stack Developer",
+			"company": "Web Innovators LLC",
+			"start": "2020-03-01",
+			"description": [
+				"Led the development of interactive web applications using Svelte and SvelteKit, enhancing user experience and engagement.",
+				"Developed RESTful APIs with Node.js and Express.js, ensuring efficient data communication between client and server.",
+				"Implemented responsive designs using Tailwind CSS, improving mobile user satisfaction by 25%.",
+				"Optimized database interactions with PostgreSQL and DuckDB, reducing query times by 50%."
+			]
+		},
+		{
+			"title": "Full-Stack Developer",
+			"company": "Digital Craftworks",
+			"start": "2017-01-01",
+			"end": "2020-02-28",
+			"description": [
+				"Built full-stack applications using Python (FastAPI) and JavaScript, catering to client-specific needs.",
+				"Integrated AWS services for scalable and secure deployments, resulting in a 99.9% uptime.",
+				"Collaborated with designers to implement UI/UX best practices, increasing user retention by 15%.",
+				"Migrated legacy codebases to modern frameworks, enhancing maintainability and performance."
+			]
+		}
+	],
+	"education": [
+		{
+			"degree": "Coding Bootcamp",
+			"provider": "vschool.io",
+			"summary": "Full-Stack Development with Python and JavaScript",
+			"year": "2014"
+		},
+		{
+			"degree": "BA in Russian Language & Literature",
+			"provider": "BYU",
+			"year": "2014",
+			"summary": "Minor in Advertising Communications"
+		}
+	]
+}

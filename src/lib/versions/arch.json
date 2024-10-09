@@ -1,0 +1,98 @@
+{
+	"name": "Morgan Williams",
+	"title": "Solutions Architect specializing in Scalable Cloud-Based Systems",
+	"email": "workwith@morganwill.com",
+	"github": "https://github.com/mrgnw",
+	"skills": [
+		"Python",
+		"Go",
+		"AWS",
+		"Linux",
+		"PostgreSQL",
+		"SQL",
+		"JavaScript",
+		"Svelte",
+		"Microservices",
+		"Docker",
+		"Kubernetes",
+		"FastAPI",
+		"Airflow",
+		"Databricks",
+		"Spark",
+		"ETL",
+		"API Design",
+		"Systems Architecture",
+		"Cloud Infrastructure"
+	],
+	"tools": [
+		"FastAPI",
+		"Gin Gonic",
+		"Docker",
+		"Kubernetes",
+		"AWS",
+		"Terraform",
+		"Ansible"
+	],
+	"experience": [
+		{
+			"title": "Solutions Architect",
+			"company": "CloudTech Innovators",
+			"start": "2022-01-01",
+			"description": [
+				"Designed and implemented scalable cloud-based architectures using AWS services, ensuring high availability and fault tolerance.",
+				"Developed and orchestrated microservices using Docker and Kubernetes, enhancing system scalability and maintainability.",
+				"Collaborated with cross-functional teams to define system requirements and translate them into technical specifications.",
+				"Optimized data pipelines with Airflow and Databricks, improving data processing efficiency by 60%.",
+				"Implemented Infrastructure as Code (IaC) using Terraform and Ansible, streamlining deployment processes and reducing provisioning time by 50%."
+			]
+		},
+		{
+			"title": "Senior Backend Engineer",
+			"company": "Tech Solutions Inc.",
+			"start": "2021-06-01",
+			"end": "2021-12-31",
+			"description": [
+				"Developed and maintained scalable RESTful APIs using Python (FastAPI) and Go (Gin Gonic), serving millions of users worldwide.",
+				"Implemented microservices architecture with Docker and Kubernetes, improving system reliability and deployment speed.",
+				"Optimized PostgreSQL database queries, reducing response times by 40%.",
+				"Collaborated with cross-functional teams to design and integrate gRPC services for internal communication."
+			]
+		},
+		{
+			"title": "Senior Data Engineer",
+			"company": "Persefoni",
+			"start": "2021-08-01",
+			"end": "2022-05-31",
+			"description": [
+				"Created API endpoints in GoLang, learning new tech & collaborating across teams to interface multiple services.",
+				"Implemented ETL processes pipelines in Databricks.",
+				"Documented & created new processes to onboard, train, and increase teammate productivity."
+			]
+		},
+		{
+			"title": "Software Engineer",
+			"company": "Zelis Healthcare",
+			"start": "2018-12-01",
+			"end": "2021-08-01",
+			"description": [
+				"Created ETL workflows in Airflow, improving speeds up to 1000x.",
+				"Migrated multiple codebases to Python3.",
+				"Created Python APIs and internal web interfaces, empowering business users across teams to meaningfully interact with company data."
+			]
+		}
+	],
+	"education": [
+		{
+			"degree": "Coding Bootcamp",
+			"provider": "vschool.io",
+			"summary": "Advanced Solutions Architecture with Python and Go",
+			"year": "2014"
+		},
+		{
+			"degree": "BA in Russian Language & Literature",
+			"provider": "BYU",
+			"year": "2014",
+			"summary": "Minor in Advertising Communications"
+		}
+	]
+}

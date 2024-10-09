@@ -1,46 +1,55 @@
 {
-	"name": "Backend Joe",
+	"title": "Backend Engineer specializing in API development",
 	"skills": [
 		"Python",
+		"Go",
+		"AWS",
+		"Linux",
 		"PostgreSQL",
 		"SQL",
-		"JavaScript",
-		"Svelte",
-		"AWS",
-		"Linux"
+		"Docker",
+		"Microservices",
+		"RESTful APIs",
+		"gRPC"
 	],
-	"tools": ["DuckDB", "FastAPI", "AWS"],
+	"tools": ["FastAPI"],
 	"experience": [
 		{
-			"title": "Software engineer: API's & data",
-			"company": "National Care Dental",
-			"start": "2022-05-01",
+			"title": "Senior Backend Engineer",
+			"company": "Tech Solutions Inc.",
+			"start": "2021-06-01",
 			"description": [
-				"",
-				"B"
+				"Developed and maintained scalable RESTful APIs using Python (FastAPI) and Go (Gin Gonic), serving millions of users worldwide.",
+				"Implemented microservices architecture with Docker and Kubernetes, improving system reliability and deployment speed.",
+				"Optimized PostgreSQL database queries, reducing response times by 40%.",
+				"Collaborated with cross-functional teams to design and integrate gRPC services for internal communication."
 			]
 		},
 		{
-			"title": "Senior Data Engineer",
-			"company": "Persefoni",
-			"start": "2021-08-01",
-			"end": "2022-05-31",
+			"title": "Backend Developer",
+			"company": "Innovate Labs",
+			"start": "2018-09-01",
+			"end": "2021-05-31",
 			"description": [
-				"Created API endpoints in GoLang, learning new tech & collaborating across teams to interface multiple services.",
-				"Implemented ETL processes pipelines in Databricks.",
-				"Documented & created new processes to onboard, train, and increase teammate productivity."
+				"Built robust backend systems in Go and Python, enhancing application performance by 30%.",
+				"Integrated AWS services (EC2, S3, Lambda) for cloud-based solutions, reducing infrastructure costs.",
+				"Developed CI/CD pipelines with Docker and Jenkins, streamlining the deployment process.",
+				"Ensured security and compliance by implementing OAuth2.0 and JWT authentication mechanisms."
 			]
+		}
+	],
+	"education": [
+		{
+			"degree": "Coding Bootcamp",
+			"provider": "vschool.io",
+			"summary": "Advanced Backend Development with Python and Go",
+			"year": "2014"
 		},
 		{
-			"title": "Software Engineer",
-			"company": "Zelis Healthcare",
-			"start": "2018-12-01",
-			"end": "2021-08-01",
-			"description": [
-				"Created ETL workflows in Airflow, improving speeds up to 1000x.",
-				"Migrated multiple codebases to Python3.",
-				"Created Python APIs and internal web interfaces, empowering business users across teams to meaningfully interact with company data."
-			]
+			"degree": "BA in Russian Language & Literature",
+			"provider": "BYU",
+			"year": "2014",
+			"summary": "Minor in Advertising Communications"
 		}
 	]
 }
