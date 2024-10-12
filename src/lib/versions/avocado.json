@@ -1,0 +1,84 @@
+{
+	"name": "Morgan Williams",
+	"title": "Developer Advocate specializing in Training & Documentation",
+	"email": "workwith@morganwill.com",
+	"github": "https://github.com/mrgnw",
+	"skills": [
+		"Python",
+		"PostgreSQL",
+		"SQL",
+		"JavaScript",
+		"TypeScript",
+		"Svelte",
+		"AWS",
+		"Linux",
+		"ETL",
+		"Technical Writing",
+		"Public Speaking",
+		"Employee Training",
+		"Project Documentation"
+	],
+	"tools": [
+		"DuckDB",
+		"FastAPI",
+		"Airflow",
+		"AWS",
+		"Databricks",
+		"Spark",
+		"Markdown",
+		"Git",
+		"Jupyter Notebooks"
+	],
+	"experience": [
+		{
+			"title": "Developer Advocate",
+			"company": "National Care Dental",
+			"start": "2022-05-01",
+			"description": [
+				"Trained and upskilled over 50 employees in data engineering best practices, resulting in a 40% increase in team productivity.",
+				"Developed comprehensive project documentation, reducing onboarding time for new hires by 30%.",
+				"Collaborated with cross-functional teams to create developer-focused tutorials and guides, enhancing internal knowledge sharing.",
+				"Led workshops and seminars on AWS, Python, and modern data pipelines, fostering a culture of continuous learning."
+			]
+		},
+		{
+			"title": "Senior Data Engineer",
+			"company": "Persefoni",
+			"start": "2021-08-01",
+			"end": "2022-05-31",
+			"description": [
+				"Created API endpoints in GoLang, facilitating seamless integration between multiple services.",
+				"Implemented ETL processes pipelines in Databricks, improving data processing efficiency by 60%.",
+				"Documented and streamlined onboarding processes, enabling faster integration of new team members.",
+				"Mentored junior engineers, enhancing their technical skills and contributing to overall team success."
+			]
+		},
+		{
+			"title": "Software Engineer",
+			"company": "Zelis Healthcare",
+			"start": "2018-12-01",
+			"end": "2021-08-01",
+			"description": [
+				"Created ETL workflows in Airflow, improving data processing speeds by up to 1000x.",
+				"Migrated multiple codebases to Python3, enhancing code maintainability and performance.",
+				"Developed Python APIs and internal web interfaces, empowering business users to interact effectively with company data.",
+				"Contributed to project documentation, ensuring clarity and consistency across all technical materials."
+			]
+		}
+	],
+	"education": [
+		{
+			"degree": "Coding Bootcamp",
+			"provider": "vschool.io",
+			"summary": "Python + JavaScript",
+			"year": "2014"
+		},
+		{
+			"degree": "BA in Russian Language & Literature",
+			"provider": "BYU",
+			"year": "2014",
+			"summary": "Minor in Advertising Communications"
+		}
+	]
+}
+
