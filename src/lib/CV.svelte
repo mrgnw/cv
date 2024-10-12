@@ -2,7 +2,7 @@
 	import { Button } from "$lib/components/ui/button";
 	import { Badge } from "$lib/components/ui/badge";
 	import { Separator } from "$lib/components/ui/separator";
-	import Typewriter from 'svelte-typewriter'
+	import Typewriter from "svelte-typewriter";
 
 	import {
 		Avatar,
@@ -17,7 +17,7 @@
 		CalendarClock,
 		FileText,
 	} from "lucide-svelte";
-	
+
 	import Experience from "./Experience.svelte";
 
 	// Define prop types (optional but recommended with TypeScript)
@@ -125,9 +125,11 @@
 	<header class="flex items-center justify-between mb-2">
 		<div>
 			<h1 class="text-4xl font-bold">{name}</h1>
-			<Typewriter>
-				<p class="text-xl text-muted-foreground">{title}</p>
-			</Typewriter>
+			<div class="typewriter-wrapper h-10 flex items-center">
+				<Typewriter>
+					<p class="text-xl text-muted-foreground">{title}</p>
+				</Typewriter>
+			</div>
 		</div>
 		<Avatar class="w-24 h-24">
 			<AvatarImage src="/morgan.jpg" alt={name} rel="preload" />
@@ -219,3 +221,12 @@
 >
 	<FileText size={iconSize} />
 </a>
+
+<style>
+	.typewriter-wrapper {
+		height: 2.5rem;
+		display: flex;
+		align-items: center;
+		overflow: hidden;
+	}
+</style>
