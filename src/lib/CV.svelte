@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { Button } from "$lib/components/ui/button";
-	import { Input } from "$lib/components/ui/input";
-	import { Textarea } from "$lib/components/ui/textarea";
 	import { Badge } from "$lib/components/ui/badge";
 	import { Separator } from "$lib/components/ui/separator";
+	import Typewriter from 'svelte-typewriter'
 
 	import {
 		Avatar,
@@ -13,7 +12,6 @@
 	import {
 		Mail,
 		Phone,
-		MapPin,
 		Linkedin,
 		Github,
 		CalendarClock,
@@ -127,7 +125,9 @@
 	<header class="flex items-center justify-between mb-2">
 		<div>
 			<h1 class="text-4xl font-bold">{name}</h1>
-			<p class="text-xl text-muted-foreground">{title}</p>
+			<Typewriter>
+				<p class="text-xl text-muted-foreground">{title}</p>
+			</Typewriter>
 		</div>
 		<Avatar class="w-24 h-24">
 			<AvatarImage src="/morgan.jpg" alt={name} rel="preload" />
