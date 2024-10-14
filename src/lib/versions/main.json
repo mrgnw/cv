@@ -11,7 +11,8 @@
 		"Svelte",
 		"AWS",
 		"Linux",
-		"ETL"
+		"ETL",
+		"API"
 	],
 	"tools": ["DuckDB", "FastAPI", "Airflow", "AWS", "Databricks", "Spark"],
 	"experience": [
@@ -19,6 +20,7 @@
 			"title": "Data Engineer & Architect",
 			"company": "National Care Dental",
 			"start": "2022-05-01",
+			"stack": ["AWS", "Python", "DuckDB", "SQLMesh", "SQL", "Alteryx", "API's"],
 			"description": [
 				"Designed and implemented data infrastructure and pipelines, enabling faster business operations and enhanced data insights while cutting costs significantly. (AWS, Python, duckdb and sqlmesh, Alteryx, SQL Server, healthcare CMS).",
 				"Transitioned legacy workflows to modern data pipelines, accelerating tasks by 100x to 1000x through automation, reducing multi-hour processes to seconds or milliseconds.",
@@ -31,6 +33,7 @@
 			"company": "Persefoni",
 			"start": "2021-08-01",
 			"end": "2022-05-31",
+			"stack": ["Python", "Databricks", "ETL", "SQL", "GoLang"],
 			"description": [
 				"Created API endpoints in GoLang, learning new tech & collaborating across teams to interface multiple services.",
 				"Implemented ETL processes pipelines in Databricks.",
@@ -42,6 +45,7 @@
 			"company": "Zelis Healthcare",
 			"start": "2018-12-01",
 			"end": "2021-08-01",
+			"stack": ["Python", "Airflow", "ETL", "API development", "Web development"],
 			"description": [
 				"Created ETL workflows in Airflow, improving speeds up to 1000x.",
 				"Migrated multiple codebases to Python3.",

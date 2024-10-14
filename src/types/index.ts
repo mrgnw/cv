@@ -6,6 +6,7 @@ export interface Experience {
 	start: string;
 	end?: string;
 	description: string[];
+	stack?: string[];
 }
 
 export interface CVData {
