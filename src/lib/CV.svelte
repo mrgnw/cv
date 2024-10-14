@@ -5,6 +5,8 @@
 	import { Button } from "$lib/components/ui/button";
 	import { Badge } from "$lib/components/ui/badge";
 	import { Separator } from "$lib/components/ui/separator";
+	
+		import mainData from '$lib/versions/main.json';
 
 	import {
 		Avatar,
@@ -22,73 +24,14 @@
 
 	// Destructure props
 	let {
-		name = "Morgan Williams",
-		title = "Rapid full-stack development at scale",
-		email = "workwith@morganwill.com",
-		github = "https://github.com/mrgnw",
+		name = mainData.name,
+		title = mainData.title,
+		email = mainData.email,
+		github = mainData.github,
 		pdfLink = "/morgan-williams-cv",
-		experience = [
-			{
-				title: "Data Engineer & Architect",
-				company: "National Care Dental",
-				start: "2022-05-01",
-				description: [
-					"Designed and implemented data infrastructure and pipelines, enabling faster business operations and enhanced data insights while cutting costs significantly. (AWS, Python, duckdb and sqlmesh, Alteryx, SQL Server, healthcare CMS).",
-					"Transitioned legacy workflows to modern data pipelines, accelerating tasks by 100x to 1000x through automation, reducing multi-hour processes to seconds or milliseconds.",
-					"Mentored data analysts in Python and SQL, expanding their skills and capabilities, resulting in a substantial increase in productivity.",
-				],
-			},
-			{
-				title: "Senior Data Engineer",
-				company: "Persefoni",
-				start: "2021-08-01",
-				end: "2022-05-31",
-				description: [
-					"Created API endpoints in GoLang, learning new tech & collaborating across teams to interface multiple services.",
-					"Implemented ETL processes pipelines in Databricks.",
-					"Documented & created new processes to onboard, train, and increase teammate productivity.",
-				],
-			},
-			{
-				title: "Software Engineer",
-				company: "Zelis Healthcare",
-				start: "2018-12-01",
-				end: "2021-08-01",
-				description: [
-					"Created ETL workflows in Airflow, improving speeds up to 1000x.",
-					"Migrated multiple codebases to Python3.",
-					"Created Python APIs and internal web interfaces, empowering business users across teams to meaningfully interact with company data.",
-				],
-			},
-		],
-		skills = [
-			"Python",
-			"PostgreSQL",
-			"DuckDB",
-			"SQL",
-			"JavaScript",
-			"TypeScript",
-			"Svelte",
-			"AWS",
-			"Linux",
-			"Cloud",
-			"Databricks",
-			"Airflow",
-		],
-		education = [
-			{
-				degree: "Coding Bootcamp",
-				provider: "vschool.io",
-				summary: "Python + JavaScript",
-				year: "2014",
-			},
-			{
-				degree: "BA in Russian Language & Literature",
-				provider: "BYU",
-				year: "2014",
-				summary: "minor in advertising communications",
-			},
-		],
+		experience = mainData.experience,
+		skills = mainData.skills,
+		education = mainData.education,
 	}: CVProps = $props();
 
 	const iconSize = 30;
