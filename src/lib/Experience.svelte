@@ -1,18 +1,14 @@
 <script lang="ts">
 	import { intervalToDuration, formatDuration, format } from "date-fns";
-
 	import { Badge } from "$lib/components/ui/badge";
+	import { fade } from "svelte/transition";
 
 	export let experience;
 
 	function calculateDuration(start: string, end?: string): string {
 		const startDate = new Date(start);
 		const endDate = end ? new Date(end) : new Date();
-
-		// Get the duration between the two dates
 		const duration = intervalToDuration({ start: startDate, end: endDate });
-
-		// Format the duration to a human-readable string
 		return formatDuration(duration, {
 			format: ["years", "months"],
 			zero: false,
@@ -29,7 +25,18 @@
 	<h2 class="text-2xl font-semibold mb-4">Experience</h2>
 	{#each experience as exp}
 		<div class="mb-8">
-			<h3 class="text-xl font-semibold">{exp.title}</h3>
+			<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-1">
+				<h3 class="text-xl font-semibold">
+					{exp.title}
+				</h3>
+				{#if exp.stack}
+					<div class="flex flex-wrap gap-1 justify-end sm:max-w-[50%]">
+						{#each exp.stack as tech}
+							<Badge variant="outline" class="text-xs">{tech}</Badge>
+						{/each}
+					</div>
+				{/if}
+			</div>
 			<p class="text-muted-foreground">
 				{exp.company} -
 				<span class="period">
@@ -43,15 +50,6 @@
 					>
 				</span>
 			</p>
-
-			{#if exp.stack}
-				<div class="stack">
-					{#each exp.stack as tech}
-						<Badge>{tech}</Badge>
-					{/each}
-				</div>
-			{/if}
-
 			{#each exp.description as paragraph}
 				<p class="mb-2">{paragraph}</p>
 			{/each}
@@ -88,10 +86,8 @@
 	}
 
 	.stack {
-		margin-top: 0.5rem;
-		margin-bottom: 0.5rem;
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.5rem;
+		gap: 0.25rem;
 	}
 </style>

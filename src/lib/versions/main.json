@@ -22,7 +22,7 @@
 			"start": "2022-05-01",
 			"stack": ["AWS", "Python", "DuckDB", "SQLMesh", "SQL", "Alteryx", "API's"],
 			"description": [
-				"Designed and implemented data infrastructure and pipelines, enabling faster business operations and enhanced data insights while cutting costs significantly. (AWS, Python, duckdb and sqlmesh, Alteryx, SQL Server, healthcare CMS).",
+				"Designed and implemented data infrastructure and pipelines, enabling faster business operations and enhanced data insights while cutting costs significantly.",
 				"Transitioned legacy workflows to modern data pipelines, accelerating tasks by 100x to 1000x through automation, reducing multi-hour processes to seconds or milliseconds.",
 				"Mentored data analysts in Python and SQL, expanding their skills and capabilities, resulting in a substantial increase in productivity.",
 				null
@@ -35,8 +35,8 @@
 			"end": "2022-05-31",
 			"stack": ["Python", "Databricks", "ETL", "SQL", "GoLang"],
 			"description": [
+				"Implemented ETL processes pipelines in Databricks for a rapidly growing climate-change startup",
 				"Created API endpoints in GoLang, learning new tech & collaborating across teams to interface multiple services.",
-				"Implemented ETL processes pipelines in Databricks.",
 				"Documented & created new processes to onboard, train, and increase teammate productivity."
 			]
 		},
@@ -45,7 +45,7 @@
 			"company": "Zelis Healthcare",
 			"start": "2018-12-01",
 			"end": "2021-08-01",
-			"stack": ["Python", "Airflow", "ETL", "API development", "Web development"],
+			"stack": ["Python", "Airflow", "ETL", "API development", "Web development", "FHIR"],
 			"description": [
 				"Created ETL workflows in Airflow, improving speeds up to 1000x.",
 				"Migrated multiple codebases to Python3.",
