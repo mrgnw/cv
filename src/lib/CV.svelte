@@ -42,9 +42,13 @@
 		<div>
 			<h1 class="text-4xl font-bold">{name}</h1>
 			<div class="typewriter-wrapper">
-				<Typewriter>
+				<!-- Hide Typewriter during print -->
+				<Typewriter class="print:hidden">
 					<p class="text-xl text-muted-foreground">{title}</p>
 				</Typewriter>
+
+				<!-- Show static text during print -->
+				<p class="text-xl text-muted-foreground hidden print:block">{title}</p>
 			</div>
 		</div>
 		<Avatar class="w-24 h-24">

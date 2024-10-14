@@ -54,7 +54,14 @@ const waitForServer = (url, timeout = 10000) => new Promise((resolve, reject) =>
 			const url = `${serverUrl}${route}`;
 			const versionName = route === '/' ? 'index' : route.slice(1);
 
-			await page.goto(url, { waitUntil: 'networkidle' });
+			// Navigate to the page and capture the response
+			const response = await page.goto(url, { waitUntil: 'networkidle' });
+
+			// Check if the response is ok (status code 2xx)
+			if (!response || !response.ok()) {
+				console.error(`❌ ${response ? response.status() : 'Error'} ${route}`);
+				continue; // Skip PDF generation for this route
+			}
 
 			if (versionName === 'main') {
 				const mainPdfPath = path.join('static', 'morgan-williams.pdf');
@@ -65,7 +72,6 @@ const waitForServer = (url, timeout = 10000) => new Promise((resolve, reject) =>
 			const pdfPath = path.join('static', 'cv', versionName, 'morgan-williams.pdf');
 			await page.pdf({ path: pdfPath, ...pdfOptions });
 			console.log(`📄 ${pdfPath}`);
-
 		} catch (error) {
 			console.error(`⚠️ ${route}:`, error);
 		}
