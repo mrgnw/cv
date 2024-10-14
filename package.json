@@ -8,6 +8,7 @@
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"install-browsers": "playwright install",
 		"pdfs": "vite build && bunx concurrently -k --kill-signal SIGTERM \"bun run preview\" \"bun run pdf-script\" || true",
 		"pdf-script": "bun generate-pdf.js"
 	},
@@ -34,7 +35,7 @@
 		"json5": "^2.2.3",
 		"lucide-svelte": "^0.441.0",
 		"pdfmake": "^0.2.13",
-		"playwright": "^1.47.2",
+		"playwright": "^1.48.0",
 		"svelte-typewriter": "^3.2.3",
 		"tailwind-merge": "^2.5.2",
 		"tailwind-variants": "^0.2.1"
