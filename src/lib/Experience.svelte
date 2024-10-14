@@ -25,19 +25,10 @@
 	<h2 class="text-2xl font-semibold mb-4">Experience</h2>
 	{#each experience as exp}
 		<div class="mb-8">
-			<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-1">
-				<h3 class="text-xl font-semibold">
-					{exp.title}
-				</h3>
-				{#if exp.stack}
-					<div class="flex flex-wrap gap-1 justify-end sm:max-w-[50%]">
-						{#each exp.stack as tech}
-							<Badge variant="outline" class="text-xs">{tech}</Badge>
-						{/each}
-					</div>
-				{/if}
-			</div>
-			<p class="text-muted-foreground">
+			<h3 class="text-xl font-semibold mb-2">
+				{exp.title}
+			</h3>
+			<p class="text-muted-foreground mb-2">
 				{exp.company} -
 				<span class="period">
 					<span class="default-text" in:fade out:fade
@@ -50,9 +41,21 @@
 					>
 				</span>
 			</p>
-			{#each exp.description as paragraph}
-				<p class="mb-2">{paragraph}</p>
-			{/each}
+			<div class="flex flex-col sm:flex-row gap-4">
+				{#if exp.stack}
+					<div class="sm:w-24 flex flex-row flex-wrap sm:flex-col gap-1">
+						{#each exp.stack as tech}
+							<span class="text-xs text-muted-foreground">{tech}</span>
+						{/each}
+					</div>
+				{/if}
+				<div class="flex-1">
+					
+					{#each exp.description as paragraph}
+						<p class="mb-2">{paragraph}</p>
+					{/each}
+				</div>
+			</div>
 		</div>
 	{/each}
 </section>
