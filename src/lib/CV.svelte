@@ -5,8 +5,8 @@
 	import { Button } from "$lib/components/ui/button";
 	import { Badge } from "$lib/components/ui/badge";
 	import { Separator } from "$lib/components/ui/separator";
-	
-		import mainData from '$lib/versions/main.json';
+
+	import mainData from "$lib/versions/main.json";
 
 	import {
 		Avatar,
