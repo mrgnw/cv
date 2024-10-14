@@ -59,7 +59,7 @@ const waitForServer = (url, timeout = 10000) => new Promise((resolve, reject) =>
 
 			// Check if the response is ok (status code 2xx)
 			if (!response || !response.ok()) {
-				console.error(`❌ ${response ? response.status() : 'Error'} ${route}`);
+				console.error(`❌ ${response?.status()} ${route}`);
 				continue; // Skip PDF generation for this route
 			}
 
