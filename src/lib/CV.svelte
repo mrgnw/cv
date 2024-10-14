@@ -20,7 +20,6 @@
 		FileText,
 	} from "lucide-svelte";
 
-
 	// Destructure props
 	let {
 		name = "Morgan Williams",
@@ -99,7 +98,7 @@
 	<header class="flex items-center justify-between mb-2">
 		<div>
 			<h1 class="text-4xl font-bold">{name}</h1>
-			<div class="typewriter-wrapper h-10 flex items-center">
+			<div class="typewriter-wrapper">
 				<Typewriter>
 					<p class="text-xl text-muted-foreground">{title}</p>
 				</Typewriter>
@@ -197,10 +196,26 @@
 </a>
 
 <style>
+	:root {
+		--line-height: 1.5;
+		--font-size: 1.25rem;
+	}
+
 	.typewriter-wrapper {
-		height: 2.5rem;
+		min-height: calc(var(--line-height) * var(--font-size) * 2);
 		display: flex;
 		align-items: center;
 		overflow: hidden;
+	}
+
+	.typewriter-wrapper :global(p) {
+		font-size: var(--font-size);
+		line-height: var(--line-height);
+	}
+
+	@media (min-width: 640px) {
+		.typewriter-wrapper {
+			min-height: calc(var(--line-height) * var(--font-size));
+		}
 	}
 </style>
