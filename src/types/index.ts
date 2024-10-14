@@ -23,3 +23,28 @@ export interface CVData {
 	}>;
 }
 
+export interface ExperienceItem {
+	title: string;
+	company: string;
+	start: string;
+	end?: string;
+	description: string[];
+}
+
+export interface EducationItem {
+	degree: string;
+	provider: string;
+	summary?: string;
+	year: string;
+}
+
+export interface CVProps {
+	name: string;
+	title: string;
+	email: string;
+	github: string;
+	pdfLink: string;
+	experience: ExperienceItem[];
+	skills: string[];
+	education: EducationItem[];
+}

@@ -19,33 +19,7 @@
 	} from "lucide-svelte";
 
 	import Experience from "./Experience.svelte";
-
-	// Define prop types (optional but recommended with TypeScript)
-	interface ExperienceItem {
-		title: string;
-		company: string;
-		start: string;
-		end?: string;
-		description: string[];
-	}
-
-	interface EducationItem {
-		degree: string;
-		provider: string;
-		summary?: string;
-		year: string;
-	}
-
-	interface CVProps {
-		name: string;
-		title: string;
-		email: string;
-		github: string;
-		pdfLink: string;
-		experience: ExperienceItem[];
-		skills: string[];
-		education: EducationItem[];
-	}
+	import type { CVProps } from "../types";
 
 	// Destructure props using the $props rune
 	let {
