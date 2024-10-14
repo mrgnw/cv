@@ -147,13 +147,15 @@
 	.typewriter-wrapper {
 		min-height: calc(var(--line-height) * var(--font-size) * 2);
 		display: flex;
-		align-items: center;
+		flex-direction: column;
+		justify-content: flex-start;
 		overflow: hidden;
 	}
 
 	.typewriter-wrapper :global(p) {
 		font-size: var(--font-size);
 		line-height: var(--line-height);
+		margin: 0;
 	}
 
 	@media (min-width: 640px) {
