@@ -1,8 +1,10 @@
 <script lang="ts">
+	import Experience from "./Experience.svelte";
+	import type { CVProps } from "../types";
+	import Typewriter from "svelte-typewriter";
 	import { Button } from "$lib/components/ui/button";
 	import { Badge } from "$lib/components/ui/badge";
 	import { Separator } from "$lib/components/ui/separator";
-	import Typewriter from "svelte-typewriter";
 
 	import {
 		Avatar,
@@ -18,10 +20,8 @@
 		FileText,
 	} from "lucide-svelte";
 
-	import Experience from "./Experience.svelte";
-	import type { CVProps } from "../types";
 
-	// Destructure props using the $props rune
+	// Destructure props
 	let {
 		name = "Morgan Williams",
 		title = "Rapid full-stack development at scale",
