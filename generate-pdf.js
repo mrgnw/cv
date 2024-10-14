@@ -71,7 +71,7 @@ const waitForServer = (url, timeout = 10000) => new Promise((resolve, reject) =>
 
 			const pdfPath = path.join('static', 'cv', versionName, 'morgan-williams.pdf');
 			await page.pdf({ path: pdfPath, ...pdfOptions });
-			console.log(`📄 ${pdfPath}`);
+			console.log(`🖨️  ${pdfPath}`);
 		} catch (error) {
 			console.error(`⚠️ ${route}:`, error);
 		}
