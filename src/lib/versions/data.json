@@ -1,8 +1,5 @@
 {
-	"name": "Morgan Williams",
 	"title": "Data Engineer & Architect for Big Data Solutions",
-	"email": "workwith@morganwill.com",
-	"github": "https://github.com/mrgnw",
 	"skills": [
 		"Python",
 		"SQL",
@@ -17,44 +14,6 @@
 		"Data Warehousing",
 		"Big Data"
 	],
-	"tools": ["Airflow", "Spark", "Databricks", "DuckDB", "AWS"],
-	"experience": [
-		{
-			"title": "Lead Data Engineer",
-			"company": "DataFlow Corp",
-			"start": "2021-09-01",
-			"description": [
-				"Designed and implemented scalable ETL pipelines using Airflow and Spark, processing petabytes of data.",
-				"Optimized data transformation workflows, reducing processing time by 70%.",
-				"Architected data warehousing solutions with DuckDB and PostgreSQL, enhancing query performance and data accessibility.",
-				"Managed a team of data engineers, leading to a 50% increase in overall productivity."
-			]
-		},
-		{
-			"title": "Data Engineer",
-			"company": "AnalyticsHub",
-			"start": "2018-06-01",
-			"end": "2021-08-31",
-			"description": [
-				"Developed data ingestion processes using Python and SQL, ensuring data integrity and consistency.",
-				"Integrated AWS services (S3, EMR) for scalable storage and processing solutions.",
-				"Collaborated with data science teams to prepare datasets for machine learning models, improving model accuracy by 20%.",
-				"Implemented data security protocols in compliance with industry standards."
-			]
-		}
-	],
-	"education": [
-		{
-			"degree": "Coding Bootcamp",
-			"provider": "vschool.io",
-			"summary": "Data Engineering with Python and SQL",
-			"year": "2014"
-		},
-		{
-			"degree": "BA in Russian Language & Literature",
-			"provider": "BYU",
-			"year": "2014",
-			"summary": "Minor in Advertising Communications"
-		}
-	]
+	"tools": ["Airflow", "Spark", "Databricks", "DuckDB", "AWS"]
+	
 }
