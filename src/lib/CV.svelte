@@ -5,8 +5,15 @@
 	import { Button } from "$lib/components/ui/button";
 	import { Badge } from "$lib/components/ui/badge";
 	import { Separator } from "$lib/components/ui/separator";
+	import { ChevronDown } from "lucide-svelte";
 
 	import mainData from "$lib/versions/main.json";
+	let highlightedSkill = $state("");
+
+	function highlightStack(skill: string) {
+		highlightedSkill = skill;
+		console.log(highlightedSkill);
+	}
 
 	import {
 		Avatar,
@@ -42,13 +49,10 @@
 		<div>
 			<h1 class="text-4xl font-bold">{name}</h1>
 			<div class="typewriter-wrapper">
-				<!-- Hide Typewriter during print -->
 				<Typewriter class="print:hidden">
 					<p class="text-xl text-muted-foreground">{title}</p>
 				</Typewriter>
-
-				<!-- Show static text during print -->
-				<p class="text-xl text-muted-foreground hidden print:block">{title}</p>
+				<p class="print:block text-xl text-muted-foreground hidden">{title}</p>
 			</div>
 		</div>
 		<Avatar class="w-24 h-24">
@@ -61,7 +65,15 @@
 		<h2 class="text-2xl font-semibold mb-4">Skills</h2>
 		<div class="flex flex-wrap gap-2">
 			{#each skills as skill}
-				<Badge>{skill}</Badge>
+				<div
+					onmouseenter={() => highlightStack(skill)}
+					onmouseleave={() => highlightStack("")}
+					ontouchstart={() => highlightStack(skill)}
+					ontouchend={() => highlightStack("")}
+					class="cursor-pointer"
+				>
+					<Badge>{skill}</Badge>
+				</div>
 			{/each}
 		</div>
 	</section>
@@ -114,9 +126,9 @@
 
 	<Separator class="my-8" />
 
-	<Experience {experience} />
+	<Experience {experience} {highlightedSkill} />
 
-	<section class="education">
+	<section class="education mb-16">
 		<h2 class="text-2xl font-semibold mb-4">Education</h2>
 		{#each education as edu}
 			<p class="font-semibold flex justify-between">
@@ -128,6 +140,26 @@
 			{/if}
 		{/each}
 	</section>
+
+	<footer class="print-footnote mt-auto pt-4 print:hidden">
+		<details>
+			<summary class="flex items-center gap-1 cursor-pointer list-none">
+				<span class="text-sm font-semibold">Related keywords</span>
+				<ChevronDown size={16} class="transition-transform duration-200" />
+			</summary>
+
+			<p class="print-keywords text-sm text-muted-foreground py-2">
+				{#each mainData.keywords as keyword, index}
+					<span class="inline-block">
+						{keyword}
+						{#if index < mainData.keywords.length - 1}
+							<span class="mx-1 text-muted-foreground/50">•</span>
+						{/if}
+					</span>
+				{/each}
+			</p>
+		</details>
+	</footer>
 </div>
 
 <!-- PDF Download -->
@@ -166,5 +198,40 @@
 		.typewriter-wrapper {
 			min-height: calc(var(--line-height) * var(--font-size));
 		}
+	}
+
+	@media print {
+		.print-footnote {
+			position: fixed;
+			bottom: 1rem;
+			left: 1rem;
+			right: 1rem;
+			border-top: none;
+		}
+
+		.print-keywords {
+			font-size: 1pt;
+			color: transparent;
+			user-select: none;
+		}
+
+		:global(.print-footnote [data-state="open"] > [data-accordion-content]) {
+			display: block !important;
+		}
+
+		:global(.print-footnote [data-accordion-trigger]) {
+			display: none !important;
+		}
+	}
+
+	/* Remove default arrow from details summary */
+	details > summary::marker,
+	details > summary::-webkit-details-marker {
+		display: none;
+	}
+
+	/* Rotate chevron when details is open */
+	details[open] > summary > :global(svg) {
+		transform: rotate(180deg);
 	}
 </style>
