@@ -114,7 +114,7 @@
 
 	<Experience {experience} />
 
-	<section class="education">
+	<section class="education mb-16">
 		<h2 class="text-2xl font-semibold mb-4">Education</h2>
 		{#each education as edu}
 			<p class="font-semibold flex justify-between">
@@ -127,10 +127,10 @@
 		{/each}
 	</section>
 
-	<footer class="print-footnote mt-8 border-t pt-4 print:hidden">
+	<footer class="print-footnote mt-auto pt-4 print:hidden">
 		<details>
 			<summary class="flex items-center gap-1 cursor-pointer list-none">
-				<span class="text-sm font-semibold">Keywords</span>
+				<span class="text-sm font-semibold">Related keywords</span>
 				<ChevronDown size={16} class="transition-transform duration-200" />
 			</summary>
 			
