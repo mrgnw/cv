@@ -5,6 +5,7 @@
 	import { Button } from "$lib/components/ui/button";
 	import { Badge } from "$lib/components/ui/badge";
 	import { Separator } from "$lib/components/ui/separator";
+	import { ChevronDown } from 'lucide-svelte';
 
 	import mainData from "$lib/versions/main.json";
 
@@ -39,19 +40,19 @@
 
 <div class="max-w-3xl mx-auto p-8 bg-background text-foreground">
 	<header class="flex items-center justify-between mb-2">
-		<div>
-			<h1 class="text-4xl font-bold">{name}</h1>
-			<div class="typewriter-wrapper">
-				<Typewriter class="print:hidden">
-					<p class="text-xl text-muted-foreground">{title}</p>
-				</Typewriter>
-				<p class="print:block text-xl text-muted-foreground hidden">{title}</p>
+			<div>
+				<h1 class="text-4xl font-bold">{name}</h1>
+				<div class="typewriter-wrapper">
+					<Typewriter class="print:hidden">
+						<p class="text-xl text-muted-foreground">{title}</p>
+					</Typewriter>
+					<p class="print:block text-xl text-muted-foreground hidden">{title}</p>
+				</div>
 			</div>
-		</div>
-		<Avatar class="w-24 h-24">
-			<AvatarImage src="/morgan.jpg" alt={name} rel="preload" />
-			<AvatarFallback>{name[0]}</AvatarFallback>
-		</Avatar>
+			<Avatar class="w-24 h-24">
+				<AvatarImage src="/morgan.jpg" alt={name} rel="preload" />
+				<AvatarFallback>{name[0]}</AvatarFallback>
+			</Avatar>
 	</header>
 
 	<section class="mb-8">
@@ -125,6 +126,26 @@
 			{/if}
 		{/each}
 	</section>
+
+	<footer class="print-footnote mt-8 border-t pt-4 print:hidden">
+		<details>
+			<summary class="flex items-center gap-1 cursor-pointer list-none">
+				<span class="text-sm font-semibold">Keywords</span>
+				<ChevronDown size={16} class="transition-transform duration-200" />
+			</summary>
+			
+			<p class="print-keywords text-sm text-muted-foreground py-2">
+				{#each mainData.keywords as keyword, index}
+					<span class="inline-block">
+						{keyword}
+						{#if index < mainData.keywords.length - 1}
+							<span class="mx-1 text-muted-foreground/50">•</span>
+						{/if}
+					</span>
+				{/each}
+			</p>
+		</details>
+	</footer>
 </div>
 
 <!-- PDF Download -->
@@ -163,5 +184,40 @@
 		.typewriter-wrapper {
 			min-height: calc(var(--line-height) * var(--font-size));
 		}
+	}
+
+	@media print {
+		.print-footnote {
+			position: fixed;
+			bottom: 1rem;
+			left: 1rem;
+			right: 1rem;
+			border-top: none;
+		}
+
+		.print-keywords {
+			font-size: 1pt;
+			color: transparent;
+			user-select: none;
+		}
+
+		:global(.print-footnote [data-state="open"] > [data-accordion-content]) {
+			display: block !important;
+		}
+
+		:global(.print-footnote [data-accordion-trigger]) {
+			display: none !important;
+		}
+	}
+
+	/* Remove default arrow from details summary */
+	details > summary::marker,
+	details > summary::-webkit-details-marker {
+		display: none;
+	}
+
+	/* Rotate chevron when details is open */
+	details[open] > summary > :global(svg) {
+		transform: rotate(180deg);
 	}
 </style>
