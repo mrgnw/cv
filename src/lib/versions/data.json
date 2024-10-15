@@ -1,15 +1,14 @@
 {
-	"title": "Data Engineer & Architect for Big Data Solutions",
+	"title": "Creating data processes that scale, along with the teams that build them",
 	"skills": [
 		"Python",
-		"SQL",
-		"Airflow",
-		"Databricks",
-		"Spark",
-		"DuckDB",
-		"PostgreSQL",
 		"ETL",
+		"Airflow",
+		"SQL",
 		"AWS",
+		"PostgreSQL",
+		"DuckDB",
+		"Spark",
 		"Linux",
 		"Data Warehousing",
 		"Big Data"

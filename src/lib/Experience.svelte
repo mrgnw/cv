@@ -25,31 +25,29 @@
 	<h2 class="text-2xl font-semibold mb-4">Experience</h2>
 	{#each experience as exp}
 		<div class="mb-8">
-			<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-1">
-				<h3 class="text-xl font-semibold">
-					{exp.title}
-				</h3>
+			<div class="flex flex-col sm:flex-row justify-between gap-4">
+				<div class="flex-1">
+					<h3 class="text-xl font-semibold">
+						{exp.title}
+					</h3>
+					<p class="text-muted-foreground">
+						{exp.company} - 
+						<span class="period">
+							<span class="default-text" in:fade out:fade>{calculateDuration(exp.start, exp.end)}</span>
+							<span class="hover-text" in:fade out:fade>{formatDate(exp.start)} - {exp.end ? formatDate(exp.end) : "Present"}</span>
+						</span>
+					</p>
+				</div>
 				{#if exp.stack}
 					<div class="flex flex-wrap gap-1 justify-end sm:max-w-[50%]">
-						{#each exp.stack as tech}
-							<Badge variant="outline" class="text-xs">{tech}</Badge>
+						{#each exp.stack as tech, i}
+							<span class="text-xs text-muted-foreground">
+								{tech}{i < exp.stack.length - 1 ? ' • ' : ''}
+							</span>
 						{/each}
 					</div>
 				{/if}
 			</div>
-			<p class="text-muted-foreground">
-				{exp.company} -
-				<span class="period">
-					<span class="default-text" in:fade out:fade
-						>{calculateDuration(exp.start, exp.end)}</span
-					>
-					<span class="hover-text" in:fade out:fade
-						>{formatDate(exp.start)} - {exp.end
-							? formatDate(exp.end)
-							: "Present"}</span
-					>
-				</span>
-			</p>
 			{#each exp.description as paragraph}
 				<p class="mb-2">{paragraph}</p>
 			{/each}
