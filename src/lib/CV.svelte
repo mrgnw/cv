@@ -5,9 +5,15 @@
 	import { Button } from "$lib/components/ui/button";
 	import { Badge } from "$lib/components/ui/badge";
 	import { Separator } from "$lib/components/ui/separator";
-	import { ChevronDown } from 'lucide-svelte';
+	import { ChevronDown } from "lucide-svelte";
 
 	import mainData from "$lib/versions/main.json";
+	let highlightedSkill = $state("");
+
+	function highlightStack(skill: string) {
+		highlightedSkill = skill;
+		console.log(highlightedSkill);
+	}
 
 	import {
 		Avatar,
@@ -40,26 +46,34 @@
 
 <div class="max-w-3xl mx-auto p-8 bg-background text-foreground">
 	<header class="flex items-center justify-between mb-2">
-			<div>
-				<h1 class="text-4xl font-bold">{name}</h1>
-				<div class="typewriter-wrapper">
-					<Typewriter class="print:hidden">
-						<p class="text-xl text-muted-foreground">{title}</p>
-					</Typewriter>
-					<p class="print:block text-xl text-muted-foreground hidden">{title}</p>
-				</div>
+		<div>
+			<h1 class="text-4xl font-bold">{name}</h1>
+			<div class="typewriter-wrapper">
+				<Typewriter class="print:hidden">
+					<p class="text-xl text-muted-foreground">{title}</p>
+				</Typewriter>
+				<p class="print:block text-xl text-muted-foreground hidden">{title}</p>
 			</div>
-			<Avatar class="w-24 h-24">
-				<AvatarImage src="/morgan.jpg" alt={name} rel="preload" />
-				<AvatarFallback>{name[0]}</AvatarFallback>
-			</Avatar>
+		</div>
+		<Avatar class="w-24 h-24">
+			<AvatarImage src="/morgan.jpg" alt={name} rel="preload" />
+			<AvatarFallback>{name[0]}</AvatarFallback>
+		</Avatar>
 	</header>
 
 	<section class="mb-8">
 		<h2 class="text-2xl font-semibold mb-4">Skills</h2>
 		<div class="flex flex-wrap gap-2">
 			{#each skills as skill}
-				<Badge>{skill}</Badge>
+				<div
+					onmouseenter={() => highlightStack(skill)}
+					onmouseleave={() => highlightStack("")}
+					ontouchstart={() => highlightStack(skill)}
+					ontouchend={() => highlightStack("")}
+					class="cursor-pointer"
+				>
+					<Badge>{skill}</Badge>
+				</div>
 			{/each}
 		</div>
 	</section>
@@ -112,7 +126,7 @@
 
 	<Separator class="my-8" />
 
-	<Experience {experience} />
+	<Experience {experience} {highlightedSkill} />
 
 	<section class="education mb-16">
 		<h2 class="text-2xl font-semibold mb-4">Education</h2>
@@ -133,7 +147,7 @@
 				<span class="text-sm font-semibold">Related keywords</span>
 				<ChevronDown size={16} class="transition-transform duration-200" />
 			</summary>
-			
+
 			<p class="print-keywords text-sm text-muted-foreground py-2">
 				{#each mainData.keywords as keyword, index}
 					<span class="inline-block">

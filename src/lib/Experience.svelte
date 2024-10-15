@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { intervalToDuration, formatDuration, format } from "date-fns";
-	import { Badge } from "$lib/components/ui/badge";
 	import { fade } from "svelte/transition";
 
-	export let experience;
+	let { experience, highlightedSkill = "" } = $props();
 
 	function calculateDuration(start: string, end?: string): string {
 		const startDate = new Date(start);
@@ -41,7 +40,11 @@
 				{#if exp.stack}
 					<div class="flex flex-wrap gap-1 justify-end sm:max-w-[50%]">
 						{#each exp.stack as tech, i}
-							<span class="text-xs text-muted-foreground">
+							<span
+								class="text-xs text-muted-foreground"
+								class:text-blue-500={highlightedSkill === tech}
+								class:active={tech === highlightedSkill}
+							>
 								{tech}{i < exp.stack.length - 1 ? ' • ' : ''}
 							</span>
 						{/each}
@@ -88,4 +91,5 @@
 		flex-wrap: wrap;
 		gap: 0.25rem;
 	}
+
 </style>
