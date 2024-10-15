@@ -6,12 +6,11 @@
 		"dev": "vite dev --host",
 		"build": "vite build",
 		"preview": "vite preview",
+		"generate": "vite build && bunx concurrently -k --kill-signal SIGTERM \"bun run preview\" \"bun run pdfs\" || true",
 		"prev": "vite build && vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"install-browsers": "playwright install",
-		"pdfs": "vite build && bunx concurrently -k --kill-signal SIGTERM \"bun run preview\" \"bun run pdf-script\" || true",
-		"pdf-script": "bun generate-pdf.js"
+		"pdfs": "playwright install && bun generate-pdf.js"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-cloudflare": "^4.7.2",
