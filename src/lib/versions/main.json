@@ -46,7 +46,7 @@
 			"end": "2021-08-01",
 			"stack": ["Python", "Airflow", "Flask"],
 			"description": [
-				"Created ETL workflows in Airflow, improving speeds up to 1000x.",
+				"Created new ETL workflows in Airflow and optimized existing processing times up to 1000x.",
 				"Migrated multiple codebases to Python3.",
 				"Created Python APIs and internal web interfaces, empowering business users across teams to meaningfully interact with company data."
 			]
