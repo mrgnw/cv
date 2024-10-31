@@ -51,7 +51,7 @@ const waitForServer = (url, timeout = 10000) => new Promise((resolve, reject) =>
 
 	for (const route of routes) {
 		try {
-			const url = `${serverUrl}${route}`;
+			const url = `${serverUrl}${route}?print`;
 			const versionName = route === '/' ? 'index' : route.slice(1);
 
 			// Navigate to the page and capture the response

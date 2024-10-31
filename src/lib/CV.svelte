@@ -6,6 +6,7 @@
 	import { Badge } from "$lib/components/ui/badge";
 	import { Separator } from "$lib/components/ui/separator";
 	import { ChevronDown } from "lucide-svelte";
+	import { browser } from '$app/environment';
 
 	import mainData from "$lib/versions/main.json";
 	let highlightedSkill = $state("");
@@ -42,6 +43,8 @@
 	}: CVProps = $props();
 
 	const iconSize = 30;
+
+	const isPrinting = browser && new URLSearchParams(window.location.search).has('print');
 </script>
 
 <div class="max-w-3xl mx-auto p-8 bg-background text-foreground">
@@ -49,10 +52,13 @@
 		<div>
 			<h1 class="text-4xl font-bold">{name}</h1>
 			<div class="typewriter-wrapper">
-				<Typewriter class="print:hidden">
+				{#if isPrinting}
+				<p class="text-xl text-muted-foreground md:hidden print:block">{title}</p>
+				{:else}
+				<Typewriter class="hidden md:block">
 					<p class="text-xl text-muted-foreground">{title}</p>
 				</Typewriter>
-				<p class="print:block text-xl text-muted-foreground hidden">{title}</p>
+				{/if}
 			</div>
 		</div>
 		<Avatar class="w-24 h-24">
@@ -221,6 +227,20 @@
 
 		:global(.print-footnote [data-accordion-trigger]) {
 			display: none !important;
+		}
+
+		.no-print {
+			display: none !important;
+		}
+
+		.print-only {
+			display: block !important;
+		}
+	}
+
+	@media screen {
+		.print-only {
+			display: none;
 		}
 	}
 
