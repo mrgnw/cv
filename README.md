@@ -4,11 +4,7 @@
 
 ```sh
 bunx playwright install chromium
-bun run build && bun run preview
-```
-
-```sh
-node generate-pdf.js
+bun run pdfs
 ```
 
 
