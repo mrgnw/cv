@@ -1,5 +1,7 @@
 ## Morgan's CV
 
+`bun install`
+
 ### Generate pdf
 
 ```sh
