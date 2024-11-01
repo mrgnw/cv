@@ -1,5 +1,7 @@
 ## Morgan's CV
 
+My CV/resume. src/versions allows me to tailor my resume
+
 `bun install`
 
 ### Generate pdf
