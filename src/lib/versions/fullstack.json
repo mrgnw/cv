@@ -1,13 +1,11 @@
 {
-	"name": "Morgan Williams",
-	"title": "Full-Stack Developer specializing in rapid development",
-	"email": "workwith@morganwill.com",
+	"title": "Full-Stack Developer",
 	"github": "https://github.com/mrgnw",
 	"skills": [
 		"JavaScript",
 		"TypeScript",
-		"Python",
 		"Svelte",
+		"Python",
 		"Node.js",
 		"PostgreSQL",
 		"DuckDB",

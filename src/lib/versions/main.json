@@ -17,7 +17,7 @@
 	"tools": ["DuckDB", "FastAPI", "Airflow", "AWS", "Databricks", "Spark"],
 	"experience": [
 		{
-			"title": "Data Engineer & Architect",
+			"title": "Data Engineering Consultant",
 			"company": "National Care Dental",
 			"start": "2022-05-01",
 			"stack": ["Python", "AWS", "ETL", "SQL", "APIs", "Mentoring"],
