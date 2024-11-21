@@ -2,12 +2,38 @@ import { chromium } from 'playwright';
 import fs from 'fs';
 import path from 'path';
 import http from 'http';
+import { execSync } from 'child_process';
 
-const getVersionNames = () => {
+const getChangedVersions = () => {
+	try {
+		// Get changed files between HEAD and the previous commit
+		const output = execSync('git diff --name-only HEAD HEAD~1').toString();
+		
+		// Filter for version files and extract version names
+		return output
+			.split('\n')
+			.filter(file => file.startsWith('src/lib/versions/') && file.endsWith('.json'))
+			.map(file => path.parse(file).name);
+	} catch (error) {
+		console.error('Error getting changed versions:', error.message);
+		return [];
+	}
+};
+
+const getVersionNames = (specificVersions) => {
 	const versionsDir = path.join('src', 'lib', 'versions');
-	return fs.readdirSync(versionsDir)
+	let files = fs.readdirSync(versionsDir)
 		.filter(file => file.endsWith('.json'))
 		.map(file => `/${path.parse(file).name}`);
+
+	// If specific versions are provided, only process those
+	if (specificVersions && specificVersions.length > 0) {
+		files = files.filter(file => 
+			specificVersions.includes(file.slice(1)) // Remove leading slash
+		);
+	}
+
+	return files;
 };
 
 const waitForServer = (url, timeout = 10000) => new Promise((resolve, reject) => {
@@ -24,7 +50,12 @@ const waitForServer = (url, timeout = 10000) => new Promise((resolve, reject) =>
 });
 
 (async () => {
-	const serverUrl = 'http://localhost:4173'; // Adjust port if necessary
+	// Get versions from command line args OR get changed versions
+	const specificVersions = process.argv.length > 2 ? 
+		process.argv.slice(2) : 
+		getChangedVersions();
+	
+	const serverUrl = 'http://localhost:4173';
 	console.log('Waiting for the preview server to start...');
 	try {
 		await waitForServer(serverUrl);
@@ -33,7 +64,13 @@ const waitForServer = (url, timeout = 10000) => new Promise((resolve, reject) =>
 		process.exit(1);
 	}
 
-	const routes = getVersionNames();
+	const routes = getVersionNames(specificVersions);
+	if (routes.length === 0) {
+		console.log('No versions to process');
+		process.exit(0);
+	}
+
+	console.log('Generating PDFs for versions:', routes.join(', '));
 	const browser = await chromium.launch();
 	const page = await browser.newPage();
 
