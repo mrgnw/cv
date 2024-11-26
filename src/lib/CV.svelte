@@ -61,7 +61,7 @@
 				{/if}
 			</div>
 		</div>
-		<Avatar class="w-24 h-24">
+		<Avatar class="w-24 h-24 no-print">
 			<AvatarImage src="/morgan.jpg" alt={name} rel="preload" />
 			<AvatarFallback>{name[0]}</AvatarFallback>
 		</Avatar>
