@@ -1,5 +1,7 @@
 <script>
 import "../app.css";
+	/** @type {{children?: import('svelte').Snippet}} */
+	let { children } = $props();
 </script>
 
 <svelte:head>
@@ -8,5 +10,5 @@ import "../app.css";
 	<meta name="keywords" content="Morgan Williams, full-stack development, data engineering, Python, Svelte, data architecture, servers">
 </svelte:head>
 
-<slot></slot>
+{@render children?.()}
 

@@ -2,7 +2,11 @@
 	import CV from "$lib/CV.svelte";
 	import type { PageServerLoad } from "./$types";
 
-	export let data: PageServerLoad;
+	interface Props {
+		data: PageServerLoad;
+	}
+
+	let { data }: Props = $props();
 </script>
 
 <CV

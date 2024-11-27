@@ -4,12 +4,18 @@
 
 	type $$Props = HoverCardPrimitive.ContentProps;
 
-	let className: $$Props["class"] = undefined;
-	export let transition: $$Props["transition"] = flyAndScale;
-	export let transitionConfig: $$Props["transitionConfig"] = undefined;
-	export let align: $$Props["align"] = "center";
-	export let sideOffset: $$Props["sideOffset"] = 4;
-	export { className as class };
+	interface Props { [key: string]: any }
+
+	let {
+		class: className = undefined,
+		transition = flyAndScale,
+		transitionConfig = undefined,
+		align = "center",
+		sideOffset = 4,
+		children,
+		...rest
+	}: Props = $props();
+	
 </script>
 
 <HoverCardPrimitive.Content
@@ -21,7 +27,7 @@
 		"bg-popover text-popover-foreground z-50 mt-3 w-64 rounded-md border p-4 shadow-md outline-none",
 		className
 	)}
-	{...$$restProps}
+	{...rest}
 >
-	<slot />
+	{@render children?.()}
 </HoverCardPrimitive.Content>

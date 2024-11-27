@@ -4,13 +4,15 @@
 
 	type $$Props = AvatarPrimitive.FallbackProps;
 
-	let className: $$Props["class"] = undefined;
-	export { className as class };
+	interface Props { [key: string]: any }
+
+	let { class: className = undefined, children, ...rest }: Props = $props();
+	
 </script>
 
 <AvatarPrimitive.Fallback
 	class={cn("bg-muted flex h-full w-full items-center justify-center rounded-full", className)}
-	{...$$restProps}
+	{...rest}
 >
-	<slot />
+	{@render children?.()}
 </AvatarPrimitive.Fallback>
