@@ -8,7 +8,7 @@ export const load = (async ({ params }) => {
 
     if (!data) {
         console.error(`Error loading CV version "${slug}"`);
-        throw error(404, 'CV version not found');
+        error(404, 'CV version not found');
     }
 
 	return { ...data, slug };
