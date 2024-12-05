@@ -68,18 +68,21 @@
 	</header>
 
 	<section class="mb-8">
-		<h2 class="text-2xl font-semibold mb-4">Skills</h2>
-		<div class="flex flex-wrap gap-2">
-			{#each skills as skill}
-			<div onmouseenter={()=> highlightStack(skill)}
-				onmouseleave={() => highlightStack("")}
-				ontouchstart={() => highlightStack(skill)}
-				ontouchend={() => highlightStack("")}
-				class="cursor-pointer"
-				>
-				<Badge>{skill}</Badge>
+		<div class="flex items-baseline gap-2">
+			<h2 class="text-2xl font-semibold">Skills</h2>
+			<div class="text-muted-foreground">
+				{#each skills as skill, index}
+					<span 
+						class="cursor-pointer hover:text-foreground transition-colors inline-block"
+						onmouseenter={() => highlightStack(skill)}
+						onmouseleave={() => highlightStack("")}
+						ontouchstart={() => highlightStack(skill)}
+						ontouchend={() => highlightStack("")}
+					>
+						{skill}{#if index < skills.length - 1}<span class="mx-1">•</span>{/if}
+					</span>
+				{/each}
 			</div>
-			{/each}
 		</div>
 	</section>
 	<section class="mb-6" id="links">
