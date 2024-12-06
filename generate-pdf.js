@@ -4,33 +4,40 @@ import path from 'path';
 import http from 'http';
 import { execSync } from 'child_process';
 
-const getChangedVersions = () => {
-	try {
-		// Get changed files between HEAD and the previous commit
-		const output = execSync('git diff --name-only HEAD HEAD~1').toString();
-		
-		// Filter for version files and extract version names
-		return output
-			.split('\n')
-			.filter(file => file.startsWith('src/lib/versions/') && file.endsWith('.json'))
-			.map(file => path.parse(file).name);
-	} catch (error) {
-		console.error('Error getting changed versions:', error.message);
-		return [];
-	}
+
+const getAllVersions = () => {
+	return fs.readdirSync(path.join('src', 'lib', 'versions'))
+		.filter(file => file.endsWith('.json'))
+		.map(file => path.parse(file).name);
 };
+
+// const getChangedVersions = () => {
+// 	try {
+// 		const modified_versions = execSync('git diff --name-only HEAD HEAD~1').toString();
+		
+// 		return modified_versions
+// 			.split('\n')
+// 			.filter(file => file.startsWith('src/lib/versions/') && file.endsWith('.json'))
+// 			.map(file => path.parse(file).name);
+// 	} catch (error) {
+// 		console.error('Error getting changed versions:', error.message);
+// 		return [];
+// 	}
+// };
 
 const getVersionNames = (specificVersions) => {
 	const versionsDir = path.join('src', 'lib', 'versions');
 	let files = fs.readdirSync(versionsDir)
 		.filter(file => file.endsWith('.json'))
 		.map(file => `/${path.parse(file).name}`);
+	
+	if (specificVersions?.includes('all')) {
+		return files;
+	}
 
 	// If specific versions are provided, only process those
-	if (specificVersions && specificVersions.length > 0) {
-		files = files.filter(file => 
-			specificVersions.includes(file.slice(1)) // Remove leading slash
-		);
+	if (specificVersions?.length) {
+		files = files.filter(file => specificVersions.includes(file.slice(1)));
 	}
 
 	return files;
@@ -53,7 +60,7 @@ const waitForServer = (url, timeout = 10000) => new Promise((resolve, reject) =>
 	// Get versions from command line args OR get changed versions
 	const specificVersions = process.argv.length > 2 ? 
 		process.argv.slice(2) : 
-		getChangedVersions();
+		getAllVersions();
 	
 	const serverUrl = 'http://localhost:4173';
 	console.log('Waiting for the preview server to start...');
@@ -86,10 +93,25 @@ const waitForServer = (url, timeout = 10000) => new Promise((resolve, reject) =>
 		scale: 0.80,
 	};
 
+	// Ensure directories exist
+	const baseDir = path.join('static', 'cv');
+	if (!fs.existsSync('static')) {
+		fs.mkdirSync('static');
+	}
+	if (!fs.existsSync(baseDir)) {
+		fs.mkdirSync(baseDir);
+	}
+
 	for (const route of routes) {
 		try {
 			const url = `${serverUrl}${route}?print`;
 			const versionName = route === '/' ? 'index' : route.slice(1);
+			
+			// Create version directory if it doesn't exist
+			const versionDir = path.join(baseDir, versionName);
+			if (!fs.existsSync(versionDir)) {
+				fs.mkdirSync(versionDir, { recursive: true });
+			}
 
 			// Navigate to the page and capture the response
 			const response = await page.goto(url, { waitUntil: 'networkidle' });
@@ -100,15 +122,17 @@ const waitForServer = (url, timeout = 10000) => new Promise((resolve, reject) =>
 				continue; // Skip PDF generation for this route
 			}
 
+			// Generate version-specific PDF
+			const pdfPath = path.join(versionDir, 'morgan-williams.pdf');
+			await page.pdf({ path: pdfPath, ...pdfOptions });
+			console.log(`🖨️  ${pdfPath}`);
+
+			// For main version, also create a copy in the root static directory
 			if (versionName === 'main') {
 				const mainPdfPath = path.join('static', 'morgan-williams.pdf');
 				await page.pdf({ path: mainPdfPath, ...pdfOptions });
 				console.log(`🕴️ ${mainPdfPath}`);
 			}
-
-			const pdfPath = path.join('static', 'cv', versionName, 'morgan-williams.pdf');
-			await page.pdf({ path: pdfPath, ...pdfOptions });
-			console.log(`🖨️  ${pdfPath}`);
 		} catch (error) {
 			console.error(`⚠️ ${route}:`, error);
 		}
