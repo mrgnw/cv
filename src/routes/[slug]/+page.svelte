@@ -7,7 +7,9 @@
   }
 
   let { data }: Props = $props();
-  const slug = data.slug;
+  const pdfLink = data.slug === 'main' ? 
+    '/morgan-williams.pdf' : 
+    `/morgan-williams.${data.slug}.pdf`;
 </script>
 
 <CV
@@ -15,7 +17,7 @@
   title={data.title}
   email={data.email}
   github={data.github}
-  pdfLink={`/cv/${slug}/morgan-williams.pdf`}
+  {pdfLink}
   skills={data.skills}
   experience={data.experience}
   education={data.education}

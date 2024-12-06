@@ -93,13 +93,9 @@ const waitForServer = (url, timeout = 10000) => new Promise((resolve, reject) =>
 		scale: 0.80,
 	};
 
-	// Ensure directories exist
-	const baseDir = path.join('static', 'cv');
+	// Ensure static directory exists
 	if (!fs.existsSync('static')) {
 		fs.mkdirSync('static');
-	}
-	if (!fs.existsSync(baseDir)) {
-		fs.mkdirSync(baseDir);
 	}
 
 	for (const route of routes) {
@@ -107,11 +103,11 @@ const waitForServer = (url, timeout = 10000) => new Promise((resolve, reject) =>
 			const url = `${serverUrl}${route}?print`;
 			const versionName = route === '/' ? 'index' : route.slice(1);
 			
-			// Create version directory if it doesn't exist
-			const versionDir = path.join(baseDir, versionName);
-			if (!fs.existsSync(versionDir)) {
-				fs.mkdirSync(versionDir, { recursive: true });
-			}
+			// Generate PDF path
+			const pdfName = versionName === 'main' ? 
+				'morgan-williams.pdf' : 
+				`morgan-williams.${versionName}.pdf`;
+			const pdfPath = path.join('static', pdfName);
 
 			// Navigate to the page and capture the response
 			const response = await page.goto(url, { waitUntil: 'networkidle' });
@@ -119,20 +115,13 @@ const waitForServer = (url, timeout = 10000) => new Promise((resolve, reject) =>
 			// Check if the response is ok (status code 2xx)
 			if (!response || !response.ok()) {
 				console.error(`❌ ${response?.status()} ${route}`);
-				continue; // Skip PDF generation for this route
+				continue;
 			}
 
-			// Generate version-specific PDF
-			const pdfPath = path.join(versionDir, 'morgan-williams.pdf');
+			// Generate PDF
 			await page.pdf({ path: pdfPath, ...pdfOptions });
 			console.log(`🖨️  ${pdfPath}`);
 
-			// For main version, also create a copy in the root static directory
-			if (versionName === 'main') {
-				const mainPdfPath = path.join('static', 'morgan-williams.pdf');
-				await page.pdf({ path: mainPdfPath, ...pdfOptions });
-				console.log(`🕴️ ${mainPdfPath}`);
-			}
 		} catch (error) {
 			console.error(`⚠️ ${route}:`, error);
 		}
