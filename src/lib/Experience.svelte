@@ -1,8 +1,11 @@
 <script lang="ts">
 	import { intervalToDuration, formatDuration, format } from "date-fns";
 	import { fade } from "svelte/transition";
+	import { browser } from '$app/environment';
 
 	let { experience, highlightedSkill = "" } = $props();
+
+	const isPrinting = browser && new URLSearchParams(window.location.search).has('print');
 
 	function calculateDuration(start: string, end?: string): string {
 		const startDate = new Date(start);
@@ -31,10 +34,14 @@
 					</h3>
 					<p class="text-muted-foreground">
 						{exp.company} - 
-						<span class="period">
-							<span class="default-text" in:fade out:fade>{calculateDuration(exp.start, exp.end)}</span>
-							<span class="hover-text" in:fade out:fade>{formatDate(exp.start)} - {exp.end ? formatDate(exp.end) : "Present"}</span>
-						</span>
+						{#if isPrinting}
+							<span>{formatDate(exp.start)} - {exp.end ? formatDate(exp.end) : "Present"}</span>
+						{:else}
+							<span class="period">
+								<span class="default-text" in:fade out:fade>{calculateDuration(exp.start, exp.end)}</span>
+								<span class="hover-text" in:fade out:fade>{formatDate(exp.start)} - {exp.end ? formatDate(exp.end) : "Present"}</span>
+							</span>
+						{/if}
 					</p>
 				</div>
 				{#if exp.stack}

@@ -6,13 +6,12 @@
 	"skills": [
 		"Python",
 		"PostgreSQL",
-		"SQL",
 		"JavaScript",
 		"Svelte",
 		"AWS",
 		"Linux",
 		"ETL",
-		"API"
+		"API's"
 	],
 	"tools": ["DuckDB", "FastAPI", "Airflow", "AWS", "Databricks", "Spark"],
 	"experience": [
