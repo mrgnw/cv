@@ -46,7 +46,10 @@
 	<header class="flex items-center justify-between mb-2">
 		<div>
 			<h1 class="text-4xl font-bold">{name}</h1>
-			<a href={`mailto:${email}`} class="text-muted-foreground hover:text-foreground transition-colors block">
+			<a
+				href={`mailto:${email}`}
+				class="text-muted-foreground hover:text-foreground transition-colors block"
+			>
 				{email}
 			</a>
 			<div class="typewriter-wrapper">
@@ -62,14 +65,28 @@
 			</div>
 		</div>
 		<div class="text-right text-sm text-muted-foreground space-y-1">
-			
-			<a href="https://morganwill.com/cal" target="_blank" rel="noopener noreferrer" class="hover:text-foreground transition-colors block">
+			<a
+				href="https://morganwill.com/cal"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="hover:text-foreground transition-colors block"
+			>
 				morganwill.com/cal
 			</a>
-			<a href={github} target="_blank" rel="noopener noreferrer" class="hover:text-foreground transition-colors block">
+			<a
+				href={github}
+				target="_blank"
+				rel="noopener noreferrer"
+				class="hover:text-foreground transition-colors block"
+			>
 				<span class="font-semibold">github</span>.com/mrgnw
 			</a>
-			<a href="https://www.linkedin.com/in/mrgnw/" target="_blank" rel="noopener noreferrer" class="hover:text-foreground transition-colors block">
+			<a
+				href="https://www.linkedin.com/in/mrgnw/"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="hover:text-foreground transition-colors block"
+			>
 				<span class="font-semibold">linkedin</span>.com/in/mrgnw
 			</a>
 		</div>
