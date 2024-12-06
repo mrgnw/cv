@@ -17,11 +17,6 @@
 	}
 
 	import {
-		Avatar,
-		AvatarImage,
-		AvatarFallback,
-	} from "$lib/components/ui/avatar";
-	import {
 		Mail,
 		Phone,
 		Linkedin,
@@ -61,10 +56,6 @@
 				{/if}
 			</div>
 		</div>
-		<Avatar class="w-24 h-24 no-print">
-			<AvatarImage src="/morgan.jpg" alt={name} rel="preload" />
-			<AvatarFallback>{name[0]}</AvatarFallback>
-		</Avatar>
 	</header>
 
 	<section class="mb-8">
