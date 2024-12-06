@@ -3,10 +3,9 @@
 	import type { CVProps } from "../types";
 	import Typewriter from "svelte-typewriter";
 	import { Button } from "$lib/components/ui/button";
-	import { Badge } from "$lib/components/ui/badge";
 	import { Separator } from "$lib/components/ui/separator";
 	import { ChevronDown } from "lucide-svelte";
-	import { browser } from '$app/environment';
+	import { browser } from "$app/environment";
 
 	import mainData from "$lib/versions/main.json";
 	let highlightedSkill = $state("");
@@ -39,22 +38,40 @@
 
 	const iconSize = 30;
 
-	const isPrinting = browser && new URLSearchParams(window.location.search).has('print');
+	const isPrinting =
+		browser && new URLSearchParams(window.location.search).has("print");
 </script>
 
 <div class="max-w-3xl mx-auto p-8 bg-background text-foreground">
 	<header class="flex items-center justify-between mb-2">
 		<div>
 			<h1 class="text-4xl font-bold">{name}</h1>
+			<a href={`mailto:${email}`} class="text-muted-foreground hover:text-foreground transition-colors block">
+				{email}
+			</a>
 			<div class="typewriter-wrapper">
 				{#if isPrinting}
-				<p class="text-xl text-muted-foreground md:hidden print:block">{title}</p>
+					<p class="text-xl text-muted-foreground md:hidden print:block">
+						{title}
+					</p>
 				{:else}
-				<Typewriter class="hidden md:block">
-					<p class="text-xl text-muted-foreground">{title}</p>
-				</Typewriter>
+					<Typewriter class="hidden md:block">
+						<p class="text-xl text-muted-foreground">{title}</p>
+					</Typewriter>
 				{/if}
 			</div>
+		</div>
+		<div class="text-right text-sm text-muted-foreground space-y-1">
+			
+			<a href="https://morganwill.com/cal" target="_blank" rel="noopener noreferrer" class="hover:text-foreground transition-colors block">
+				morganwill.com/cal
+			</a>
+			<a href={github} target="_blank" rel="noopener noreferrer" class="hover:text-foreground transition-colors block">
+				<span class="font-semibold">github</span>.com/mrgnw
+			</a>
+			<a href="https://www.linkedin.com/in/mrgnw/" target="_blank" rel="noopener noreferrer" class="hover:text-foreground transition-colors block">
+				<span class="font-semibold">linkedin</span>.com/in/mrgnw
+			</a>
 		</div>
 	</header>
 
@@ -63,48 +80,17 @@
 			<h2 class="text-2xl font-semibold">Skills</h2>
 			<div class="text-muted-foreground">
 				{#each skills as skill, index}
-					<span 
+					<span
 						class="cursor-pointer hover:text-foreground transition-colors inline-block"
 						onmouseenter={() => highlightStack(skill)}
 						onmouseleave={() => highlightStack("")}
 						ontouchstart={() => highlightStack(skill)}
 						ontouchend={() => highlightStack("")}
 					>
-						{skill}{#if index < skills.length - 1}<span class="mx-1">•</span>{/if}
+						{skill}{#if index < skills.length - 1}<span class="mx-1">•</span
+							>{/if}
 					</span>
 				{/each}
-			</div>
-		</div>
-	</section>
-	<section class="mb-6" id="links">
-		<h2 class="sr-only">Contact and Social Links</h2>
-		<div class="flex flex-wrap gap-4">
-			<div class="flex items-center gap-2 -ml-2">
-				<a href="https://morganwill.com/cal" target="_blank" rel="noopener noreferrer"
-					aria-label="Schedule an intro call with Morgan">
-					<Button variant="outline">
-						<div class="flex items-center gap-2">
-							<Phone size={iconSize} />
-							<CalendarClock size={iconSize} />
-						</div>
-					</Button>
-				</a>
-			</div>
-			<div class="flex items-center gap-2 -ml-2">
-				<a href="https://www.linkedin.com/in/mrgnw/" target="_blank" rel="noopener noreferrer" class="flex items-center"
-					aria-label="Morgan's LinkedIn profile">
-					<Linkedin size={iconSize} />
-				</a>
-			</div>
-			<div class="flex items-center gap-2">
-				<a href={github} target="_blank" rel="noopener noreferrer" aria-label="Morgan's GitHub profile">
-					<Github size={iconSize} />
-				</a>
-			</div>
-			<div class="flex items-center gap-2">
-				<a href={`mailto:${email}`} aria-label="Email Morgan">
-					<Mail size={iconSize} />
-				</a>
 			</div>
 		</div>
 	</section>
@@ -116,13 +102,13 @@
 	<section class="education mb-16">
 		<h2 class="text-2xl font-semibold mb-4">Education</h2>
 		{#each education as edu}
-		<p class="font-semibold flex justify-between">
-			{edu.degree} @ {edu.provider}
-			<span class="text-muted-foreground"> {edu.year}</span>
-		</p>
-		{#if edu.summary}
-		<p class="text-muted-foreground">{edu.summary}</p>
-		{/if}
+			<p class="font-semibold flex justify-between">
+				{edu.degree} @ {edu.provider}
+				<span class="text-muted-foreground"> {edu.year}</span>
+			</p>
+			{#if edu.summary}
+				<p class="text-muted-foreground">{edu.summary}</p>
+			{/if}
 		{/each}
 	</section>
 
@@ -135,11 +121,12 @@
 
 			<p class="print-keywords text-sm text-muted-foreground py-2">
 				{#each mainData.keywords as keyword, index}
-				<span class="inline-block">
-					{keyword}
-					{#if index < mainData.keywords.length - 1} <span class="mx-1 text-muted-foreground/50">•</span>
-				{/if}
-				</span>
+					<span class="inline-block">
+						{keyword}
+						{#if index < mainData.keywords.length - 1}
+							<span class="mx-1 text-muted-foreground/50">•</span>
+						{/if}
+					</span>
 				{/each}
 			</p>
 		</details>
@@ -147,8 +134,14 @@
 </div>
 
 <!-- PDF Download -->
-<a href={pdfLink} target="_blank" rel="noopener noreferrer" aria-label="Download Morgan's CV"
-	class="no-print fixed bottom-4 right-4 bg-background p-2 rounded-full shadow-lg" data-sveltekit-preload-data="hover">
+<a
+	href={pdfLink}
+	target="_blank"
+	rel="noopener noreferrer"
+	aria-label="Download Morgan's CV"
+	class="no-print fixed bottom-4 right-4 bg-background p-2 rounded-full shadow-lg"
+	data-sveltekit-preload-data="hover"
+>
 	<FileText size={iconSize} />
 </a>
 
@@ -217,13 +210,13 @@
 	}
 
 	/* Remove default arrow from details summary */
-	details>summary::marker,
-	details>summary::-webkit-details-marker {
+	details > summary::marker,
+	details > summary::-webkit-details-marker {
 		display: none;
 	}
 
 	/* Rotate chevron when details is open */
-	details[open]>summary> :global(svg) {
+	details[open] > summary > :global(svg) {
 		transform: rotate(180deg);
 	}
 </style>
