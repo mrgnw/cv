@@ -189,6 +189,10 @@
 	}
 
 	@media print {
+		body {
+			transform: scale(0.8);
+			transform-origin: top left;
+		}
 		.print-footnote {
 			position: fixed;
 			bottom: 1rem;
