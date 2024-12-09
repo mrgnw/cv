@@ -2,10 +2,11 @@
 
 FLAG_FILE=".pdf_gen_ts"
 
-CHANGED_FILES=$(git diff --cached --name-only HEAD | grep -E '^(versions|src)/')
+# Check for changes in the src/lib/versions/ or src/ directories
+CHANGED_FILES=$(git diff --cached --name-only HEAD | grep -E '^(src/lib/versions|src)/')
 
 if [ -z "$CHANGED_FILES" ]; then
-    echo "No changes in versions/ or src/, skipping PDF generation..."
+    echo "No changes in src/lib/versions/ or src/, skipping PDF generation..."
     exit 0
 fi
 
