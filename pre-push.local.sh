@@ -3,7 +3,7 @@
 FLAG_FILE=".pdf_gen_ts"
 
 # Check for changes in the src/lib/versions/ or src/ directories
-CHANGED_FILES=$(git diff HEAD --name-only | grep -E '^src/')
+CHANGED_FILES=$(git diff @{push} --name-only | grep -E '^src/')
 
 if [ -z "$CHANGED_FILES" ]; then
     echo "No changes in src/lib/versions/ or src/, skipping PDF generation..."

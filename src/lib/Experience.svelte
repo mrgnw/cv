@@ -46,6 +46,7 @@
 						</div>
 					{/if}
 				</div>
+				
 				<div class="text-right">
 					<p class="text-muted-foreground mb-1">
 						{exp.company}
