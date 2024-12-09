@@ -32,31 +32,28 @@
 					<h3 class="text-xl font-semibold">
 						{exp.title}
 					</h3>
-					<p class="text-muted-foreground">
-						{exp.company} - 
-						{#if isPrinting}
-							<span>{formatDate(exp.start)} - {exp.end ? formatDate(exp.end) : "Present"}</span>
-						{:else}
-							<span class="period">
-								<span class="default-text" in:fade out:fade>{calculateDuration(exp.start, exp.end)}</span>
-								<span class="hover-text" in:fade out:fade>{formatDate(exp.start)} - {exp.end ? formatDate(exp.end) : "Present"}</span>
-							</span>
-						{/if}
+					{#if exp.stack}
+						<div class="flex flex-wrap gap-1">
+							{#each exp.stack as tech, i}
+								<span
+									class="text-xs text-muted-foreground"
+									class:text-blue-500={highlightedSkill === tech}
+									class:active={tech === highlightedSkill}
+								>
+									{tech}{i < exp.stack.length - 1 ? ' • ' : ''}
+								</span>
+							{/each}
+						</div>
+					{/if}
+				</div>
+				<div class="text-right">
+					<p class="text-muted-foreground mb-1">
+						{exp.company}
+					</p>
+					<p class="text-xs text-muted-foreground">
+						{formatDate(exp.start)} - {exp.end ? formatDate(exp.end) : "Present"}
 					</p>
 				</div>
-				{#if exp.stack}
-					<div class="flex flex-wrap gap-1 justify-end sm:max-w-[50%]">
-						{#each exp.stack as tech, i}
-							<span
-								class="text-xs text-muted-foreground"
-								class:text-blue-500={highlightedSkill === tech}
-								class:active={tech === highlightedSkill}
-							>
-								{tech}{i < exp.stack.length - 1 ? ' • ' : ''}
-							</span>
-						{/each}
-					</div>
-				{/if}
 			</div>
 			{#each exp.description as paragraph}
 				<p class="mb-2">{paragraph}</p>
@@ -66,6 +63,7 @@
 </section>
 
 <style>
+	/*
 	.period {
 		position: relative;
 		display: inline-block;
@@ -98,5 +96,5 @@
 		flex-wrap: wrap;
 		gap: 0.25rem;
 	}
-
+	*/
 </style>
