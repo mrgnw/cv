@@ -94,7 +94,6 @@
 
 	<section class="mb-8">
 		<div class="flex items-baseline gap-2">
-			
 			<div class="text-muted-foreground">
 				{#each skills as skill, index}
 					<span
@@ -189,9 +188,20 @@
 	}
 
 	@media print {
+		@page {
+			size: A4;
+			margin: 10mm 16mm;
+		}
 		body {
 			transform: scale(0.8);
 			transform-origin: top left;
+		}
+		.max-w-3xl {
+			transform: scale(0.8);
+			transform-origin: top left;
+			width: 125%;
+			max-width: none;
+			margin: 0;
 		}
 		.print-footnote {
 			position: fixed;
