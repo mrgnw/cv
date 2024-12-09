@@ -56,7 +56,7 @@
 				</div>
 			</div>
 			{#each exp.description as paragraph}
-				<p class="mb-2">{paragraph}</p>
+				<p class="mb-2 mt-1">{paragraph}</p>
 			{/each}
 		</div>
 	{/each}
