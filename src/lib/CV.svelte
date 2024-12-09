@@ -203,6 +203,7 @@
 			max-width: none;
 			margin: 0;
 		}
+		
 		.print-footnote {
 			position: fixed;
 			bottom: 1rem;
