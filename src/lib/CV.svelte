@@ -94,7 +94,7 @@
 
 	<section class="mb-8">
 		<div class="flex items-baseline gap-2">
-			<h2 class="text-2xl font-semibold">Skills</h2>
+			
 			<div class="text-muted-foreground">
 				{#each skills as skill, index}
 					<span
