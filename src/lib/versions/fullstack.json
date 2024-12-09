@@ -4,16 +4,15 @@
 	"skills": [
 		"JavaScript",
 		"TypeScript",
+		"Node.js",
+		"HTML",
+		"CSS",
 		"Svelte",
 		"Python",
-		"Node.js",
-		"PostgreSQL",
-		"DuckDB",
 		"SQL",
+		"DuckDB",
 		"AWS",
-		"Linux",
-		"HTML",
-		"CSS"
+		"Linux"
 	],
 	"tools": [
 		"SvelteKit",
