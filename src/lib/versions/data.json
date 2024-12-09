@@ -4,14 +4,13 @@
 	"skills": [
 		"Python",
 		"ETL",
-		"Airflow",
 		"SQL",
-		"AWS",
-		"PostgreSQL",
+		"SQLMesh",
 		"DuckDB",
+		"AWS",
 		"Spark",
-		"Linux",
-		"Data Warehousing"
+		"Airflow",
+		"Linux"
 	],
 	"tools": ["Airflow", "Spark", "Databricks", "DuckDB", "AWS"]
 }
