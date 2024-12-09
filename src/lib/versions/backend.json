@@ -15,7 +15,7 @@
 	"tools": ["FastAPI"],
 	"experience": [
 		{
-			"title": "Senior Backend Engineer",
+			"title": "Backend Software Consultant",
 			"company": "Tech Solutions Inc.",
 			"start": "2021-06-01",
 			"description": [
@@ -26,7 +26,7 @@
 			]
 		},
 		{
-			"title": "Backend Developer",
+			"title": "Data Engineer",
 			"company": "Innovate Labs",
 			"start": "2018-09-01",
 			"end": "2021-05-31",

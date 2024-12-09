@@ -3,19 +3,15 @@
 	
 	"github": "https://github.com/mrgnw",
 	"skills": [
+		"Svelte",
 		"Python",
-		"PostgreSQL",
 		"SQL",
 		"JavaScript",
-		"TypeScript",
 		"Svelte",
 		"AWS",
 		"Linux",
 		"ETL",
-		"Technical Writing",
-		"Public Speaking",
-		"Employee Training",
-		"Project Documentation"
+		"Documentation"
 	],
 	"tools": [
 		"DuckDB",

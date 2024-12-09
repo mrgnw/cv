@@ -29,3 +29,27 @@ gh repo create $appname \
   --private --clone
 cd $appname
 ```
+
+## Setting up Git Hooks
+
+We have two git hooks to generate the pdfs any time there are changes.
+
+To generate the pdfs on the computer you are coding on:
+
+```sh
+bun install
+```
+
+```sh
+chmod +x pre-push.local.sh
+mkdir -p .git/hooks
+cp pre-push.local.sh .git/hooks/pre-push
+```
+
+To send a command to the primary computer to have it generate the pdfs:
+
+```sh
+mkdir -p .git/hooks
+chmod +x pre-push.remote.sh
+cp pre-push.remote.sh .git/hooks/pre-push
+```
