@@ -85,10 +85,10 @@ const waitForServer = (url, timeout = 10000) => new Promise((resolve, reject) =>
 		format: 'A4',
 		printBackground: true,
 		margin: {
-			top: '10mm',
-			bottom: '10mm',
-			left: '16mm',
-			right: '16mm',
+			top: '6mm',
+			bottom: '6mm',
+			left: '8mm',
+			right: '8mm',
 		},
 	};
 
