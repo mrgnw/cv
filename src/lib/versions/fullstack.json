@@ -22,5 +22,25 @@
 		"Docker",
 		"AWS"
 	],
+	"projects": [
+		{
+			"name": "Ananas",
+			"url": "https://ananas.xcc.es",
+			"description": "Multilanguage translator",
+			"stack": ["Svelte", "Cloudflare", "LLM"]
+		},
+		{
+			"name": "TextMe",
+			"url": "https://textme.cc",
+			"description": "Send WhatsApp, Telegram messages to a phone number",
+			"stack": ["Svelte"]
+		},
+		{
+			"name": "Foto3",
+			"url": "https://foto3.pages.dev",
+			"description": "Experiment with depth effects in Javascript",
+			"stack": ["Svelte", "Threlte", "Javascript"]
+		}
+	],
 	"experience": []
 }

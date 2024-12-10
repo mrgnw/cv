@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Experience from "./Experience.svelte";
+	import Projects from "./Projects.svelte";
 	import type { CVProps } from "../types";
 	import Typewriter from "svelte-typewriter";
 	import { Button } from "$lib/components/ui/button";
@@ -31,9 +32,11 @@
 		email = mainData.email,
 		github = mainData.github,
 		pdfLink = "/morgan-williams-cv",
+		projects,
 		experience = mainData.experience,
 		skills = mainData.skills,
 		education = mainData.education,
+		version,
 	}: CVProps = $props();
 
 	const iconSize = 30;
@@ -111,6 +114,9 @@
 		</div>
 	</section>
 
+	{#if projects}
+		<Projects {projects} />
+	{/if}
 	<Separator class="my-8" />
 
 	<Experience {experience} {highlightedSkill} />
@@ -203,7 +209,7 @@
 			max-width: none;
 			margin: 0;
 		}
-		
+
 		.print-footnote {
 			position: fixed;
 			bottom: 1rem;
