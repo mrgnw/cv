@@ -10,14 +10,14 @@ if [ -z "$CHANGED_FILES" ]; then
     exit 0
 fi
 
-# If PDF generation was run less than 5 minutes ago, skip
+# If PDF generation was run less than 1 minutes ago, skip
 if [ -f "$FLAG_FILE" ]; then
     FLAG_TIME=$(cat "$FLAG_FILE")
     CURRENT_TIME=$(date +%s)
     TIME_DIFF=$((CURRENT_TIME - FLAG_TIME))
     
-    if [ $TIME_DIFF -lt 300 ]; then
-        echo "PDFs were generated less than 5 minutes ago, skipping..."
+    if [ $TIME_DIFF -lt 60 ]; then
+        echo "PDFs were generated less than 1 minute ago, skipping..."
         exit 0
     fi
 fi
@@ -25,8 +25,12 @@ fi
 echo "Generating PDFs..."
 bun run pdfs
 
-git add static/*.pdf
-git commit -m "chore: update PDFs [skip ci]" || true
+PDF_CHANGES=$(git status --porcelain static/*.pdf)
+if [ -n "$PDF_CHANGES" ]; then
+    git add static/*.pdf
+    git commit -m "chore: update PDFs" || true
+fi
 
 date +%s > "$FLAG_FILE"
-git push origin HEAD
+
+# Don't push here - let the original push command handle it
