@@ -19,6 +19,7 @@
   github={data.github}
   {pdfLink}
   skills={data.skills}
+  projects={data.projects}
   experience={data.experience}
   education={data.education}
 />

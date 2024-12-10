@@ -8,6 +8,12 @@ export interface Experience {
 	description: string[];
 	stack?: string[];
 }
+export interface Project {
+	name: string;
+	url: string;
+	description: string;
+	stack?: string[];
+}
 
 export interface CVData {
 	name: string;
@@ -45,6 +51,7 @@ export interface CVProps {
 	email: string;
 	github: string;
 	pdfLink: string;
+	projects: Project[];
 	experience: ExperienceItem[];
 	skills: string[];
 	education: EducationItem[];

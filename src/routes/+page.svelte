@@ -16,6 +16,7 @@
 	github={data.github}
 	pdfLink="morgan-williams.pdf"
 	skills={data.skills}
+	projects={data.projects}
 	experience={data.experience}
 	education={data.education}
 />

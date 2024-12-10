@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Experience from "./Experience.svelte";
+	import Projects from "./Projects.svelte";
 	import type { CVProps } from "../types";
 	import Typewriter from "svelte-typewriter";
 	import { Button } from "$lib/components/ui/button";
@@ -31,9 +32,11 @@
 		email = mainData.email,
 		github = mainData.github,
 		pdfLink = "/morgan-williams-cv",
+		projects,
 		experience = mainData.experience,
 		skills = mainData.skills,
 		education = mainData.education,
+		version,
 	}: CVProps = $props();
 
 	const iconSize = 30;
@@ -43,28 +46,31 @@
 </script>
 
 <div class="max-w-3xl mx-auto p-8 bg-background text-foreground">
-	<header class="flex items-center justify-between mb-2">
+	<header class="flex items-start justify-between">
 		<div>
-			<h1 class="text-4xl font-bold">{name}</h1>
+			<h1 class="text-4xl font-bold mb-1">{name}</h1>
+			<div class="text-muted-foreground">
+				{#each skills as skill, index}
+					<span
+						class="cursor-pointer hover:text-foreground transition-colors inline-block"
+						onmouseenter={() => highlightStack(skill)}
+						onmouseleave={() => highlightStack("")}
+						ontouchstart={() => highlightStack(skill)}
+						ontouchend={() => highlightStack("")}
+					>
+						{skill}{#if index < skills.length - 1}<span class="mx-1">•</span
+							>{/if}
+					</span>
+				{/each}
+			</div>
+		</div>
+		<div class="text-right text-sm text-muted-foreground space-y-1 mt-2">
 			<a
 				href={`mailto:${email}`}
 				class="text-muted-foreground hover:text-foreground transition-colors block"
 			>
 				{email}
 			</a>
-			<div class="typewriter-wrapper">
-				{#if isPrinting}
-					<p class="text-xl text-muted-foreground md:hidden print:block">
-						{title}
-					</p>
-				{:else}
-					<Typewriter class="hidden md:block">
-						<p class="text-xl text-muted-foreground">{title}</p>
-					</Typewriter>
-				{/if}
-			</div>
-		</div>
-		<div class="text-right text-sm text-muted-foreground space-y-1">
 			<a
 				href="https://morganwill.com/cal"
 				target="_blank"
@@ -92,39 +98,35 @@
 		</div>
 	</header>
 
-	<section class="mb-8">
-		<div class="flex items-baseline gap-2">
-			<div class="text-muted-foreground">
-				{#each skills as skill, index}
-					<span
-						class="cursor-pointer hover:text-foreground transition-colors inline-block"
-						onmouseenter={() => highlightStack(skill)}
-						onmouseleave={() => highlightStack("")}
-						ontouchstart={() => highlightStack(skill)}
-						ontouchend={() => highlightStack("")}
-					>
-						{skill}{#if index < skills.length - 1}<span class="mx-1">•</span
-							>{/if}
-					</span>
-				{/each}
-			</div>
+	{#if projects}
+		<div class="flex items-center gap-4 mb-2 w-[85%]">
+			<h2 class="text-2xl font-semibold shrink-0">Projects</h2>
+			<Separator class="flex-grow" />
 		</div>
-	</section>
+		<Projects {projects} />
+	{/if}
 
-	<Separator class="my-8" />
-
+	<div class="flex items-center gap-4 mb-2 w-[81%]">
+		<h2 class="text-2xl font-semibold shrink-0">Experience</h2>
+		<Separator class="flex-grow" />
+	</div>
 	<Experience {experience} {highlightedSkill} />
 
-	<section class="education mb-16">
-		<h2 class="text-2xl font-semibold mb-4">Education</h2>
+	<div class="flex items-center gap-4 mb-2 w-[85%]">
+		<h2 class="text-2xl font-semibold shrink-0">Education</h2>
+		<Separator class="flex-grow" />
+	</div>
+	<section class="education">
 		{#each education as edu}
-			<p class="font-semibold flex justify-between">
-				{edu.degree} @ {edu.provider}
-				<span class="text-muted-foreground"> {edu.year}</span>
-			</p>
-			{#if edu.summary}
-				<p class="text-muted-foreground">{edu.summary}</p>
-			{/if}
+			<div class="mb-2">
+				<p class="font-semibold flex justify-between">
+					{edu.degree} @ {edu.provider}
+					<span class="text-muted-foreground">{edu.year}</span>
+				</p>
+				{#if edu.summary}
+					<p class="text-muted-foreground text-sm">{edu.summary}</p>
+				{/if}
+			</div>
 		{/each}
 	</section>
 
@@ -193,17 +195,17 @@
 			margin: 10mm 16mm;
 		}
 		body {
-			transform: scale(0.8);
+			transform: scale(0.78);
 			transform-origin: top left;
 		}
 		.max-w-3xl {
-			transform: scale(0.8);
+			transform: scale(0.85);
 			transform-origin: top left;
-			width: 125%;
+			width: 120%;
 			max-width: none;
 			margin: 0;
 		}
-		
+
 		.print-footnote {
 			position: fixed;
 			bottom: 1rem;

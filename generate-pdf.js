@@ -14,7 +14,7 @@ const getAllVersions = () => {
 // const getChangedVersions = () => {
 // 	try {
 // 		const modified_versions = execSync('git diff --name-only HEAD HEAD~1').toString();
-		
+
 // 		return modified_versions
 // 			.split('\n')
 // 			.filter(file => file.startsWith('src/lib/versions/') && file.endsWith('.json'))
@@ -30,7 +30,7 @@ const getVersionNames = (specificVersions) => {
 	let files = fs.readdirSync(versionsDir)
 		.filter(file => file.endsWith('.json'))
 		.map(file => `/${path.parse(file).name}`);
-	
+
 	if (specificVersions?.includes('all')) {
 		return files;
 	}
@@ -58,10 +58,10 @@ const waitForServer = (url, timeout = 10000) => new Promise((resolve, reject) =>
 
 (async () => {
 	// Get versions from command line args OR get changed versions
-	const specificVersions = process.argv.length > 2 ? 
-		process.argv.slice(2) : 
+	const specificVersions = process.argv.length > 2 ?
+		process.argv.slice(2) :
 		getAllVersions();
-	
+
 	const serverUrl = 'http://localhost:4173';
 	console.log('Waiting for the preview server to start...');
 	try {
@@ -83,14 +83,13 @@ const waitForServer = (url, timeout = 10000) => new Promise((resolve, reject) =>
 
 	const pdfOptions = {
 		format: 'A4',
-		printBackground: true,
+		printBackground: false,
 		margin: {
-			top: '10mm',
-			bottom: '10mm',
-			left: '16mm',
-			right: '16mm',
+			top: '6mm',
+			bottom: '6mm',
+			left: '8mm',
+			right: '8mm',
 		},
-		scale: 0.80,
 	};
 
 	// Ensure static directory exists
@@ -102,10 +101,10 @@ const waitForServer = (url, timeout = 10000) => new Promise((resolve, reject) =>
 		try {
 			const url = `${serverUrl}${route}?print`;
 			const versionName = route === '/' ? 'index' : route.slice(1);
-			
+
 			// Generate PDF path
-			const pdfName = versionName === 'main' ? 
-				'morgan-williams.pdf' : 
+			const pdfName = versionName === 'main' ?
+				'morgan-williams.pdf' :
 				`morgan-williams.${versionName}.pdf`;
 			const pdfPath = path.join('static', pdfName);
 
