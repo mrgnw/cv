@@ -61,7 +61,7 @@
 		{
 			"name": "The Zen of Svelte",
 			"url": "https://a.xcc.es/zen-of-svelte",
-			"description": "Why Svelte is easy as a python developer",
+			"description": "Svelte is a great frontend framework even for python developers",
 			"year": "2020",
 			"stack": [
 				"Svelte",

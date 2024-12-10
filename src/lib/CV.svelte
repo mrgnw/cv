@@ -46,20 +46,9 @@
 </script>
 
 <div class="max-w-3xl mx-auto p-8 bg-background text-foreground">
-	<header class="flex items-start justify-between mb-4">
+	<header class="flex items-start justify-between">
 		<div>
 			<h1 class="text-4xl font-bold mb-1">{name}</h1>
-			<div class="typewriter-wrapper mb-2">
-				{#if isPrinting}
-					<p class="text-xl text-muted-foreground md:hidden print:block">
-						{title}
-					</p>
-				{:else}
-					<Typewriter class="hidden md:block">
-						<p class="text-xl text-muted-foreground">{title}</p>
-					</Typewriter>
-				{/if}
-			</div>
 			<div class="text-muted-foreground">
 				{#each skills as skill, index}
 					<span
@@ -206,7 +195,7 @@
 			margin: 10mm 16mm;
 		}
 		body {
-			transform: scale(0.8);
+			transform: scale(0.78);
 			transform-origin: top left;
 		}
 		.max-w-3xl {
