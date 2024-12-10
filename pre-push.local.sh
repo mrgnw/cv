@@ -28,9 +28,7 @@ bun run pdfs
 PDF_CHANGES=$(git status --porcelain static/*.pdf)
 if [ -n "$PDF_CHANGES" ]; then
     git add static/*.pdf
-    git commit -m "chore: update PDFs" || true
+    git commit -m "[auto] update PDFs" || true
 fi
 
 date +%s > "$FLAG_FILE"
-
-# Don't push here - let the original push command handle it
