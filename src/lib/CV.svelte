@@ -46,16 +46,10 @@
 </script>
 
 <div class="max-w-3xl mx-auto p-8 bg-background text-foreground">
-	<header class="flex items-center justify-between mb-2">
+	<header class="flex items-start justify-between mb-4">
 		<div>
-			<h1 class="text-4xl font-bold">{name}</h1>
-			<a
-				href={`mailto:${email}`}
-				class="text-muted-foreground hover:text-foreground transition-colors block"
-			>
-				{email}
-			</a>
-			<div class="typewriter-wrapper">
+			<h1 class="text-4xl font-bold mb-1">{name}</h1>
+			<div class="typewriter-wrapper mb-2">
 				{#if isPrinting}
 					<p class="text-xl text-muted-foreground md:hidden print:block">
 						{title}
@@ -66,8 +60,28 @@
 					</Typewriter>
 				{/if}
 			</div>
+			<div class="text-muted-foreground">
+				{#each skills as skill, index}
+					<span
+						class="cursor-pointer hover:text-foreground transition-colors inline-block"
+						onmouseenter={() => highlightStack(skill)}
+						onmouseleave={() => highlightStack("")}
+						ontouchstart={() => highlightStack(skill)}
+						ontouchend={() => highlightStack("")}
+					>
+						{skill}{#if index < skills.length - 1}<span class="mx-1">•</span
+							>{/if}
+					</span>
+				{/each}
+			</div>
 		</div>
-		<div class="text-right text-sm text-muted-foreground space-y-1">
+		<div class="text-right text-sm text-muted-foreground space-y-1 mt-2">
+			<a
+				href={`mailto:${email}`}
+				class="text-muted-foreground hover:text-foreground transition-colors block"
+			>
+				{email}
+			</a>
 			<a
 				href="https://morganwill.com/cal"
 				target="_blank"
@@ -95,30 +109,18 @@
 		</div>
 	</header>
 
-	<section class="mb-4">
-		<div class="flex items-baseline gap-2">
-			<div class="text-muted-foreground">
-				{#each skills as skill, index}
-					<span
-						class="cursor-pointer hover:text-foreground transition-colors inline-block"
-						onmouseenter={() => highlightStack(skill)}
-						onmouseleave={() => highlightStack("")}
-						ontouchstart={() => highlightStack(skill)}
-						ontouchend={() => highlightStack("")}
-					>
-						{skill}{#if index < skills.length - 1}<span class="mx-1">•</span
-							>{/if}
-					</span>
-				{/each}
-			</div>
-		</div>
-	</section>
-
 	{#if projects}
+		<div class="flex items-center gap-4 mb-2 w-[85%]">
+			<h2 class="text-2xl font-semibold shrink-0">Projects</h2>
+			<Separator class="flex-grow" />
+		</div>
 		<Projects {projects} />
 	{/if}
-	<Separator class="my-8" />
 
+	<div class="flex items-center gap-4 mb-2 w-[81%]">
+		<h2 class="text-2xl font-semibold shrink-0">Experience</h2>
+		<Separator class="flex-grow" />
+	</div>
 	<Experience {experience} {highlightedSkill} />
 
 	<section class="education mb-16">
