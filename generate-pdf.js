@@ -90,7 +90,6 @@ const waitForServer = (url, timeout = 10000) => new Promise((resolve, reject) =>
 			left: '16mm',
 			right: '16mm',
 		},
-		scale: 0.80,
 	};
 
 	// Ensure static directory exists
