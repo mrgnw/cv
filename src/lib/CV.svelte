@@ -95,7 +95,7 @@
 		</div>
 	</header>
 
-	<section class="mb-8">
+	<section class="mb-4">
 		<div class="flex items-baseline gap-2">
 			<div class="text-muted-foreground">
 				{#each skills as skill, index}

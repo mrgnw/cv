@@ -3,51 +3,38 @@
 </script>
 
 {#if projects?.length}
-	<section>
-		<h2>Projects</h2>
-		<ul>
-			{#each projects as { name, url, description }}
-				<li>
-					<a href={url} target="_blank" rel="noopener noreferrer">
-						<strong>{name}</strong>
-					</a>
-					— {description}
-				</li>
+	<section class="mb-4">
+		<h2 class="font-semibold text-sm uppercase tracking-wide text-muted-foreground mb-2">Projects</h2>
+		<div class="space-y-2">
+			{#each projects as { name, url, description, stack }}
+				<div class="flex justify-between items-baseline">
+					<div class="flex gap-3 items-baseline">
+						<a 
+							href={url} 
+							target="_blank" 
+							rel="noopener noreferrer"
+							class="font-medium min-w-[100px] hover:text-blue-600 transition-colors"
+						>
+							{name}
+						</a>
+						<span class="text-muted-foreground text-sm">{description}</span>
+					</div>
+					{#if stack}
+						<div class="text-xs text-muted-foreground whitespace-nowrap ml-4">
+							{stack.join(' · ')}
+						</div>
+					{/if}
+				</div>
 			{/each}
-		</ul>
+		</div>
 	</section>
 {/if}
 
 <style>
-	section {
-		margin: 1rem 0;
-	}
-
-	h2 {
-		font-size: 1.25rem;
-		font-weight: 600;
-		margin-bottom: 0.5rem;
-	}
-
-	ul {
-		list-style: none;
-		padding: 0;
-	}
-
-	li {
-		margin-bottom: 0.5rem;
-	}
-
-	a {
-		color: inherit;
-		text-decoration: none;
-	}
-
-	a:hover {
-		text-decoration: underline;
-	}
-
-	strong {
-		font-weight: 600;
+	@media print {
+		a {
+			text-decoration: none;
+			color: inherit;
+		}
 	}
 </style> 
