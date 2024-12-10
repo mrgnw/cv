@@ -4,8 +4,7 @@
 
 {#if projects?.length}
 	<section class="mb-4">
-		<h2 class="font-semibold text-sm uppercase tracking-wide text-muted-foreground mb-2">Projects</h2>
-		<div class="space-y-2">
+		<div class="space-y-1">
 			{#each projects as { name, url, description, stack }}
 				<div class="flex justify-between items-baseline">
 					<div class="flex gap-3 items-baseline">

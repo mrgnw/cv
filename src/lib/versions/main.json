@@ -10,8 +10,7 @@
 		"Svelte",
 		"AWS",
 		"Linux",
-		"ETL",
-		"API's"
+		"ETL"
 	],
 	"tools": ["DuckDB", "FastAPI", "Airflow", "AWS", "Databricks", "Spark"],
 	"experience": [

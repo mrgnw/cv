@@ -25,7 +25,7 @@
 
 <section class="mb-8">
 	{#each experience as exp}
-		<div class="mb-8">
+		<div class="mb-4">
 			<div class="flex flex-col sm:flex-row justify-between gap-4">
 				<div class="flex-1">
 					<h3 class="text-xl font-semibold">
