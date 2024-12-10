@@ -116,15 +116,25 @@
 		<h2 class="text-2xl font-semibold shrink-0">Education</h2>
 		<Separator class="flex-grow" />
 	</div>
-	<section class="education">
+	<section class="education grid grid-cols-2 gap-x-8 gap-y-2">
 		{#each education as edu}
-			<div class="mb-2">
-				<p class="font-semibold flex justify-between">
-					{edu.degree} @ {edu.provider}
-					<span class="text-muted-foreground">{edu.year}</span>
-				</p>
+			<div class="education-entry">
+				<div class="flex justify-between items-baseline">
+					<div class="flex gap-2 items-baseline">
+						<h3 class="font-semibold text-base">{edu.provider}</h3>
+						<p class="text-base text-muted-foreground">{edu.degree}</p>
+					</div>
+					<span class="text-muted-foreground text-sm whitespace-nowrap ml-2">{edu.year}</span>
+				</div>
 				{#if edu.summary}
-					<p class="text-muted-foreground text-sm">{edu.summary}</p>
+					<p class="text-sm text-muted-foreground">{edu.summary}</p>
+				{/if}
+				{#if edu.achievements?.length}
+					<div class="text-sm text-muted-foreground inline-flex gap-2">
+						{#each edu.achievements as achievement, i}
+							<span>{achievement}{#if i < edu.achievements.length - 1} •{/if}</span>
+						{/each}
+					</div>
 				{/if}
 			</div>
 		{/each}
