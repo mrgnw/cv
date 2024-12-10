@@ -83,14 +83,13 @@ const waitForServer = (url, timeout = 10000) => new Promise((resolve, reject) =>
 
 	const pdfOptions = {
 		format: 'A4',
-		printBackground: true,
+		printBackground: false,
 		margin: {
 			top: '6mm',
 			bottom: '6mm',
 			left: '8mm',
 			right: '8mm',
 		},
-		
 	};
 
 	// Ensure static directory exists

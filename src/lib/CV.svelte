@@ -123,16 +123,21 @@
 	</div>
 	<Experience {experience} {highlightedSkill} />
 
-	<section class="education mb-16">
-		<h2 class="text-2xl font-semibold mb-4">Education</h2>
+	<div class="flex items-center gap-4 mb-2 w-[85%]">
+		<h2 class="text-2xl font-semibold shrink-0">Education</h2>
+		<Separator class="flex-grow" />
+	</div>
+	<section class="education">
 		{#each education as edu}
-			<p class="font-semibold flex justify-between">
-				{edu.degree} @ {edu.provider}
-				<span class="text-muted-foreground"> {edu.year}</span>
-			</p>
-			{#if edu.summary}
-				<p class="text-muted-foreground">{edu.summary}</p>
-			{/if}
+			<div class="mb-2">
+				<p class="font-semibold flex justify-between">
+					{edu.degree} @ {edu.provider}
+					<span class="text-muted-foreground">{edu.year}</span>
+				</p>
+				{#if edu.summary}
+					<p class="text-muted-foreground text-sm">{edu.summary}</p>
+				{/if}
+			</div>
 		{/each}
 	</section>
 
@@ -205,9 +210,9 @@
 			transform-origin: top left;
 		}
 		.max-w-3xl {
-			transform: scale(0.8);
+			transform: scale(0.85);
 			transform-origin: top left;
-			width: 125%;
+			width: 120%;
 			max-width: none;
 			margin: 0;
 		}
