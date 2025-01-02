@@ -140,7 +140,7 @@
 		{/each}
 	</section>
 
-	<footer class="print-footnote mt-auto pt-4 print:hidden">
+	<footer class="print-footnote mt-auto pt-4 {isPrinting ? 'hidden' : ''}">
 		<details>
 			<summary class="flex items-center gap-1 cursor-pointer list-none">
 				<span class="text-sm font-semibold">Related keywords</span>
@@ -202,7 +202,7 @@
 	@media print {
 		@page {
 			size: A4;
-			margin: 10mm 16mm;
+			margin: 6mm 6mm;
 		}
 		body {
 			transform: scale(0.78);
