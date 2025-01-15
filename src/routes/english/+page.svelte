@@ -21,7 +21,7 @@
             provider: "Brigham Young University",
             year: "2014",
             achievements: [
-                "Studied and taught in Russia and Belarus for 2 years",
+                "Studied and taught as a volunteer in Russia and Belarus for 2 years",
                 "Minor in Communications and Advertising",
                 "Completed courses in English language and literature"
             ],
@@ -43,10 +43,10 @@
             title: "Software Engineering Consultant & Trainer",
             company:
                 "Zelis Healthcare • National Care Dental",
-            period: "2018- 2025",
+            period: "2018 – 2025",
             description: [
                 "Regularly trained groups of 5-15 employees, teaching skills to improve their capabilities",
-                "Documentated complex technical processes",
+                "Documented complex technical processes",
                 "Automated tasks that would normally require dedicated employees, saving time and improving efficiency",
                 "Learned and taught new programming languages to achieve company objectives"
             ],
@@ -58,7 +58,7 @@
             period: '2015 - 2017',
             description: [
                 'Worked with countless customers over the phone, email, and social media to understand & resolve issues',
-                'Helped manage the quality of Jet/Walmart eCommerce catalog of 50+ million products, training employees in processes that I created to identify and prevent potential issues customer satisfcation or legal issues',
+                'Helped manage the quality of Jet/Walmart eCommerce catalog of 50+ million products, training employees in processes that I created to identify and prevent potential issues customer satisfaction or legal issues',
             ],
         },
         
@@ -66,20 +66,20 @@
 </script>
 
 <svelte:head>
-    <title>Morgan Williams - Native US English</title>
+    <title>Morgan Williams CV</title>
 </svelte:head>
 
 <div class="max-w-[800px] mx-auto p-8 bg-white text-black print:p-4 resume-container">
     <header class="mb-8">
-        <h1 class="text-3xl font-serif mb-2">Morgan Williams</h1>
-        <div class="text-sm mb-4 font-serif flex flex-col">
+        <h1 class="text-3xl font-serif mb-2 text-center">Morgan Williams</h1>
+        <div class="text-sm mb-4 font-serif flex flex-col text-center">
             <a href={`mailto:${email}`} class="text-black hover:underline">{email}</a>
             <a href={`tel:${phone}`} class="text-black hover:underline">{phone}</a>
         </div>
         <!-- Professional Summary -->
         <section class="mb-6">
-            <p class="text-sm font-serif leading-relaxed">
-                Native US English speaker with diverse experience in professional training, language training, and travel.
+            <p class="text-sm font-serif leading-relaxed text-center">
+                Native English speaker with diverse experience including professional & language training and travel.
             </p>
         </section>
     </header>
