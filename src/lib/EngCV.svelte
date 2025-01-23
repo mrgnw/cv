@@ -16,10 +16,6 @@
       education = mainData.education,
     }: CVProps = $props();
   
-    const groupedSkills = {
-      "Technical": skills
-    };
-  
     function formatDate(date: string): string {
       return format(new Date(date), "MMM yyyy");
     }
@@ -44,12 +40,7 @@
     <section class="mb-6">
       <h2 class="text-lg font-bold border-b border-black pb-0.5 mb-2">Skills</h2>
       <div class="flex flex-wrap gap-x-8">
-        {#each Object.entries(groupedSkills) as [category, items]}
-          <div>
-            <span class="font-bold">{category}:</span>
-            {items.join(', ')}
-          </div>
-        {/each}
+        {skills.join(', ')}
       </div>
     </section>
   
@@ -84,7 +75,9 @@
           <div class="mb-3">
             <div class="flex justify-between items-baseline">
               <a href={project.url} class="font-bold hover:underline">{project.name}</a>
-              <a href={project.url} class="text-sm hover:underline">{new URL(project.url).hostname}</a>
+              <a href={project.url} class="text-sm hover:underline">
+                {project.url.replace(/^https?:\/\/(www\.)?/, '')}
+              </a>
             </div>
             <p class="text-sm mt-0.5">{project.description}</p>
           </div>
