@@ -45,8 +45,8 @@
 		browser && new URLSearchParams(window.location.search).has("print");
 </script>
 
-<div class="max-w-3xl mx-auto p-8 bg-background text-foreground">
-	<header class="flex items-start justify-between">
+<div class="max-w-3xl mx-auto p-8 bg-background text-foreground print:p-0 print:max-w-none print:m-0">
+	<header class="flex items-start justify-between mb-8 print:mb-2 print:mt-0">
 		<div>
 			<h1 class="text-4xl font-bold mb-1">{name}</h1>
 			<div class="text-muted-foreground">
@@ -71,14 +71,14 @@
 			>
 				{email}
 			</a>
-			<a
+			<!-- <a
 				href="https://morganwill.com/cal"
 				target="_blank"
 				rel="noopener noreferrer"
 				class="hover:text-foreground transition-colors block"
 			>
 				morganwill.com/cal
-			</a>
+			</a> -->
 			<a
 				href={github}
 				target="_blank"
@@ -98,25 +98,27 @@
 		</div>
 	</header>
 
+	<div class="flex items-center gap-4 mb-2 w-[81%] print:mb-1">
+		<h2 class="text-2xl font-semibold shrink-0">Experience</h2>
+		<Separator class="flex-grow" />
+	</div>
+	<Experience {experience} {highlightedSkill} />
+
+	<!-- Projects -->
 	{#if projects}
-		<div class="flex items-center gap-4 mb-2 w-[85%]">
+		<div class="flex items-center gap-4 mb-2 w-[85%] print:mb-1">
 			<h2 class="text-2xl font-semibold shrink-0">Projects</h2>
 			<Separator class="flex-grow" />
 		</div>
 		<Projects {projects} />
 	{/if}
 
-	<div class="flex items-center gap-4 mb-2 w-[81%]">
-		<h2 class="text-2xl font-semibold shrink-0">Experience</h2>
-		<Separator class="flex-grow" />
-	</div>
-	<Experience {experience} {highlightedSkill} />
-
-	<div class="flex items-center gap-4 mb-2 w-[85%]">
+	<!-- Education -->
+	<div class="flex items-center gap-4 mb-2 w-[85%] print:mb-1">
 		<h2 class="text-2xl font-semibold shrink-0">Education</h2>
 		<Separator class="flex-grow" />
 	</div>
-	<section class="education grid grid-cols-2 gap-x-8 gap-y-2">
+	<section class="education grid grid-cols-2 gap-x-8 gap-y-2 print:gap-y-1 print:gap-x-4">
 		{#each education as edu}
 			<div class="education-entry">
 				<div class="flex justify-between items-baseline">
@@ -139,8 +141,9 @@
 			</div>
 		{/each}
 	</section>
+	
 
-	<footer class="print-footnote mt-auto pt-4 {isPrinting ? 'hidden' : ''}">
+	<footer class="print-footnote mt-auto pt-4 print:hidden">
 		<details>
 			<summary class="flex items-center gap-1 cursor-pointer list-none">
 				<span class="text-sm font-semibold">Related keywords</span>
@@ -202,18 +205,62 @@
 	@media print {
 		@page {
 			size: A4;
-			margin: 6mm 6mm;
+			margin: 10mm 12mm 12mm 10mm;
 		}
-		body {
-			transform: scale(0.78);
-			transform-origin: top left;
+
+		:global(body) {
+			margin: 0 !important;
+			padding: 0 !important;
+			font-size: 11pt !important;
+			line-height: 1.4 !important;
 		}
-		.max-w-3xl {
-			transform: scale(0.85);
-			transform-origin: top left;
-			width: 120%;
-			max-width: none;
-			margin: 0;
+
+		:global(main), :global(div) {
+			margin-top: 0 !important;
+		}
+
+		:global(.text-4xl) {
+			font-size: 26pt;
+		}
+
+		:global(.text-2xl) {
+			font-size: 15pt;
+		}
+
+		:global(.text-xl) {
+			font-size: 13pt;
+		}
+
+		:global(.text-base) {
+			font-size: 11pt;
+		}
+
+		:global(.text-sm) {
+			font-size: 10pt;
+		}
+
+		:global(.text-xs) {
+			font-size: 9pt;
+		}
+
+		:global(.mb-8) {
+			margin-bottom: 1.25rem !important;
+		}
+
+		:global(.mb-4) {
+			margin-bottom: 0.875rem !important;
+		}
+
+		:global(.mb-2) {
+			margin-bottom: 0.5rem !important;
+		}
+
+		:global(.gap-2) {
+			gap: 0.5rem !important;
+		}
+
+		:global(.p-8) {
+			padding: 1rem !important;
 		}
 
 		.print-footnote {

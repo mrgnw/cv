@@ -25,8 +25,8 @@
 
 <section class="mb-8">
 	{#each experience as exp}
-		<div class="mb-4">
-			<div class="flex flex-col sm:flex-row justify-between gap-4">
+		<div class="mb-4 print:mb-3">
+			<div class="flex flex-col sm:flex-row justify-between gap-4 print:gap-2">
 				<div class="flex-1">
 					<h3 class="text-xl font-semibold">
 						{exp.title}
@@ -56,7 +56,7 @@
 				</div>
 			</div>
 			{#each exp.description as paragraph}
-				<p class="mb-2 mt-1">{paragraph}</p>
+				<p class="mb-2 mt-1 print:mb-1.5 print:mt-0.5">{paragraph}</p>
 			{/each}
 		</div>
 	{/each}
