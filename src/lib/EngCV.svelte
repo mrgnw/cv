@@ -10,18 +10,14 @@
       title = mainData.title,
       email = mainData.email,
       github = mainData.github,
-      pdfLink = "/morgan-williams-cv",
       projects,
       experience = mainData.experience,
       skills = mainData.skills,
       education = mainData.education,
-      version,
     }: CVProps = $props();
   
-    // Group skills by category (for the LaTeX-style format)
     const groupedSkills = {
-      "Languages": skills.filter(s => s.includes("English") || s.includes("Russian") || s.includes("Spanish")),
-      "Technical": skills.filter(s => !s.includes("English") && !s.includes("Russian") && !s.includes("Spanish"))
+      "Technical": skills
     };
   
     function formatDate(date: string): string {
@@ -87,7 +83,7 @@
         {#each projects as project}
           <div class="mb-3">
             <div class="flex justify-between items-baseline">
-              <span class="font-bold">{project.name}</span>
+              <a href={project.url} class="font-bold hover:underline">{project.name}</a>
               <a href={project.url} class="text-sm hover:underline">{new URL(project.url).hostname}</a>
             </div>
             <p class="text-sm mt-0.5">{project.description}</p>

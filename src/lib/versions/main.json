@@ -1,8 +1,9 @@
 {
 	"name": "Morgan Williams",
 	"title": "Rapid full-stack development at scale",
-	"email": "hi@mrgnw.dev",
+	"email": "morganfwilliams@me.com",
 	"github": "https://github.com/mrgnw",
+	"portfolio": "https://morganwill.com",
 	"skills": [
 		"Python",
 		"PostgreSQL",
@@ -52,16 +53,16 @@
 	],
 	"education": [
 		{
-			"degree": "Coding Bootcamp",
-			"provider": "vschool.io",
-			"summary": "Python + JavaScript",
-			"year": "2014"
-		},
-		{
 			"degree": "BA in Russian Language & Literature",
 			"provider": "BYU",
 			"year": "2014",
 			"summary": "minor in advertising communications"
+		},
+		{
+			"degree": "Coding Bootcamp",
+			"provider": "vschool.io",
+			"summary": "Python + JavaScript",
+			"year": "2014"
 		}
 	],
 	"keywords": [
