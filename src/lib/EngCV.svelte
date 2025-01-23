@@ -3,6 +3,7 @@
     import { browser } from "$app/environment";
     import mainData from "$lib/versions/main.json";
     import { format } from "date-fns";
+    import { FileText } from "lucide-svelte";
   
     // Destructure props with defaults from mainData
     let {
@@ -14,8 +15,11 @@
       experience = mainData.experience,
       skills = mainData.skills,
       education = mainData.education,
+      version,
+      pdfLink = version ? `/morgan-williams.${version}-eng.pdf` : '/morgan-williams-eng.pdf'
     }: CVProps = $props();
   
+    const iconSize = 30;
     function formatDate(date: string): string {
       return format(new Date(date), "MMM yyyy");
     }
@@ -99,6 +103,18 @@
       {/each}
     </section>
   </div>
+  
+  <!-- PDF Download -->
+  <a
+      href={pdfLink}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Download Morgan's CV"
+      class="no-print fixed bottom-4 right-4 bg-white p-2 rounded-full shadow-lg"
+      data-sveltekit-preload-data="hover"
+  >
+      <FileText size={iconSize} />
+  </a>
   
   <style>
     @media print {
