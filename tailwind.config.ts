@@ -56,7 +56,10 @@ const config: Config = {
 			},
 			fontFamily: {
 				sans: [...fontFamily.sans]
-			}
+			},
+			screens: {
+				'print': {'raw': 'print'},
+			},
 		}
 	},
 	plugins: [
@@ -66,6 +69,10 @@ const config: Config = {
 					'@media print': {
 						display: 'none',
 					},
+				},
+				'.print-exact': {
+					'-webkit-print-color-adjust': 'exact',
+					'print-color-adjust': 'exact',
 				},
 			});
 		},

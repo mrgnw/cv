@@ -29,7 +29,7 @@ const getVersionNames = (specificVersions) => {
 	const versionsDir = path.join('src', 'lib', 'versions');
 	let files = fs.readdirSync(versionsDir)
 		.filter(file => file.endsWith('.json'))
-		.map(file => `/${path.parse(file).name}`);
+		.map(file => path.parse(file).name);
 
 	if (specificVersions?.includes('all')) {
 		return files;
@@ -37,24 +37,30 @@ const getVersionNames = (specificVersions) => {
 
 	// If specific versions are provided, only process those
 	if (specificVersions?.length) {
-		files = files.filter(file => specificVersions.includes(file.slice(1)));
+		files = files.filter(file => specificVersions.includes(file));
 	}
 
 	return files;
 };
 
-const waitForServer = (url, timeout = 10000) => new Promise((resolve, reject) => {
-	const startTime = Date.now();
-	(function ping() {
-		http.get(url, () => resolve()).on('error', () => {
-			if (Date.now() - startTime > timeout) {
-				reject(new Error('Server did not start in time'));
-			} else {
-				setTimeout(ping, 200);
-			}
-		});
-	})();
-});
+const waitForServer = (url) => {
+	return new Promise((resolve, reject) => {
+		const timeout = setTimeout(() => {
+			reject(new Error('Server start timeout'));
+		}, 30000);
+
+		const checkServer = () => {
+			http.get(url, (res) => {
+				clearTimeout(timeout);
+				resolve();
+			}).on('error', () => {
+				setTimeout(checkServer, 100);
+			});
+		};
+
+		checkServer();
+	});
+};
 
 (async () => {
 	// Get versions from command line args OR get changed versions
@@ -71,13 +77,13 @@ const waitForServer = (url, timeout = 10000) => new Promise((resolve, reject) =>
 		process.exit(1);
 	}
 
-	const routes = getVersionNames(specificVersions);
-	if (routes.length === 0) {
+	const versions = getVersionNames(specificVersions);
+	if (versions.length === 0) {
 		console.log('No versions to process');
 		process.exit(0);
 	}
 
-	console.log('Generating PDFs for versions:', routes.join(', '));
+	console.log('Generating PDFs for versions:', versions.join(', '));
 	const browser = await chromium.launch();
 	const page = await browser.newPage();
 
@@ -97,32 +103,33 @@ const waitForServer = (url, timeout = 10000) => new Promise((resolve, reject) =>
 		fs.mkdirSync('static');
 	}
 
-	for (const route of routes) {
+	// Generate both regular and engineering versions
+	for (const version of versions) {
 		try {
-			const url = `${serverUrl}${route}?print`;
-			const versionName = route === '/' ? 'index' : route.slice(1);
-
-			// Generate PDF path
-			const pdfName = versionName === 'main' ?
+			// Regular version
+			const url = `${serverUrl}/${version}?print`;
+			const pdfName = version === 'main' ?
 				'morgan-williams.pdf' :
-				`morgan-williams.${versionName}.pdf`;
+				`morgan-williams.${version}.pdf`;
 			const pdfPath = path.join('static', pdfName);
 
-			// Navigate to the page and capture the response
-			const response = await page.goto(url, { waitUntil: 'networkidle' });
-
-			// Check if the response is ok (status code 2xx)
-			if (!response || !response.ok()) {
-				console.error(`❌ ${response?.status()} ${route}`);
-				continue;
-			}
-
-			// Generate PDF
+			await page.goto(url, { waitUntil: 'networkidle' });
 			await page.pdf({ path: pdfPath, ...pdfOptions });
 			console.log(`🖨️  ${pdfPath}`);
 
+			// Engineering version
+			const engUrl = `${serverUrl}/eng/${version}?print`;
+			const engPdfName = version === 'main' ?
+				'morgan-williams-eng.pdf' :
+				`morgan-williams.${version}-eng.pdf`;
+			const engPdfPath = path.join('static', engPdfName);
+
+			await page.goto(engUrl, { waitUntil: 'networkidle' });
+			await page.pdf({ path: engPdfPath, ...pdfOptions });
+			console.log(`🖨️  ${engPdfPath}`);
+
 		} catch (error) {
-			console.error(`⚠️ ${route}:`, error);
+			console.error(`⚠️ ${version}:`, error);
 		}
 	}
 

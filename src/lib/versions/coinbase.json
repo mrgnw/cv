@@ -1,27 +1,51 @@
 {
 	"name": "Morgan Williams",
-	"title": "Rapid full-stack development at scale",
 	"email": "morganfwilliams@me.com",
 	"github": "https://github.com/mrgnw",
-	"portfolio": "https://morganwill.com",
+	"style": {
+		"margins": {
+			"left": "20mm",
+			"right": "20mm",
+			"top": "20mm",
+			"bottom": "20mm"
+		}
+	},
 	"skills": [
 		"Python",
-		"PostgreSQL",
-		"JavaScript",
-		"Svelte",
-		"AWS",
-		"Linux",
+		"APIs",
 		"ETL"
 	],
-	"tools": ["DuckDB", "FastAPI", "Airflow", "AWS", "Databricks", "Spark"],
+	"projects": [
+		{
+			"name": "Ananas",
+			"url": "https://ananas.xcc.es",
+			"description": "Multi-lingual translator with history",
+			"stack": [
+				"APIs",
+				"LLM",
+				"Serverless",
+				"Frontend"
+			]
+		},
+		{
+			"name": "Resume",
+			"url": "https://github.com/mrgnw/resume",
+			"description": "online CV with versions & automatic PDF generation",
+			"stack": [
+				"Backend",
+				"Frontend",
+				"Serverless"
+			]
+		}
+	],
 	"experience": [
 		{
 			"title": "Data Engineering Consultant",
 			"company": "National Care Dental",
 			"start": "2022-05-01",
-			"stack": ["Python", "AWS", "ETL", "SQL", "APIs", "Mentoring"],
+			"stack": ["Python", "APIs", "Training", "ETL", "AWS"],
 			"description": [
-				"Designed and implemented data infrastructure and pipelines, enabling faster business operations and enhanced data insights while cutting costs significantly.",
+				"Created API endpoints to enable clients and third-party sources to interface with company data.",
 				"Transitioned legacy workflows to modern data pipelines, accelerating tasks by 100x to 1000x through automation, reducing multi-hour processes to seconds or milliseconds.",
 				"Mentored data analysts in Python and SQL, expanding their skills and capabilities, resulting in a substantial increase in productivity."
 			]
@@ -31,11 +55,11 @@
 			"company": "Persefoni",
 			"start": "2021-08-01",
 			"end": "2022-05-31",
-			"stack": ["Python", "Databricks", "ETL", "SQL", "GoLang"],
+			"stack": ["Python", "GoLang", "Data Pipelines"],
 			"description": [
-				"Implemented ETL processes pipelines in Databricks for a rapidly growing climate-change startup",
 				"Created API endpoints in GoLang, learning new tech & collaborating across teams to interface multiple services.",
-				"Documented & created new processes to onboard, train, and increase teammate productivity."
+				"Documented & created new processes to onboard, train, and increase teammate productivity.",
+				"Implemented ETL data pipelines using PySpark capable of processing large datasets"
 			]
 		},
 		{
@@ -43,7 +67,7 @@
 			"company": "Zelis Healthcare",
 			"start": "2018-12-01",
 			"end": "2021-08-01",
-			"stack": ["Python", "Airflow", "Flask"],
+			"stack": ["Python", "APIs", "Data Pipelines"],
 			"description": [
 				"Created new ETL workflows in Airflow and optimized existing processing times up to 1000x.",
 				"Migrated multiple codebases to Python3.",
@@ -53,16 +77,16 @@
 	],
 	"education": [
 		{
-			"degree": "BA in Russian Language & Literature",
-			"provider": "BYU",
-			"year": "2014",
-			"summary": "minor in advertising communications"
-		},
-		{
 			"degree": "Coding Bootcamp",
 			"provider": "vschool.io",
 			"summary": "Python + JavaScript",
 			"year": "2014"
+		},
+		{
+			"degree": "BA in Russian",
+			"provider": "BYU",
+			"year": "2014",
+			"summary": "minor in advertising communications"
 		}
 	],
 	"keywords": [

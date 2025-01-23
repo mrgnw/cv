@@ -50,7 +50,6 @@ export interface CVProps {
 	title: string;
 	email: string;
 	github: string;
-	pdfLink: string;
 	projects: Project[];
 	experience: ExperienceItem[];
 	skills: string[];
