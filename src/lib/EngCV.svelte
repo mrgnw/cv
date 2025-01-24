@@ -25,6 +25,14 @@
     }
   
     const isPrinting = browser && new URLSearchParams(window.location.search).has("print");
+  
+    function formatUrl(url: string): string {
+        try {
+            return url.replace(/^https?:\/\/(www\.)?/, '');
+        } catch {
+            return url;
+        }
+    }
   </script>
   
   <div class="max-w-[800px] mx-auto p-8 bg-white text-black print:p-4 font-serif">
@@ -80,7 +88,7 @@
             <div class="flex justify-between items-baseline">
               <a href={project.url} class="font-bold hover:underline">{project.name}</a>
               <a href={project.url} class="text-sm hover:underline">
-                {project.url.replace(/^https?:\/\/(www\.)?/, '')}
+                {formatUrl(project.url)}
               </a>
             </div>
             <p class="text-sm mt-0.5">{project.description}</p>
