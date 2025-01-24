@@ -1,5 +1,5 @@
 <script lang="ts">
-  import CV from '$lib/CV.svelte';
+  import EngCV from '$lib/EngCV.svelte';
   import type { PageServerLoad } from './$types';
 
   interface Props {
@@ -8,18 +8,8 @@
 
   let { data }: Props = $props();
   const pdfLink = data.slug === 'main' ? 
-    '/morgan-williams.pdf' : 
-    `/morgan-williams.${data.slug}.pdf`;
+    '/morgan-williams-eng.pdf' : 
+    `/morgan-williams.${data.slug}-eng.pdf`;
 </script>
 
-<CV
-  name={data.name}
-  title={data.title}
-  email={data.email}
-  github={data.github}
-  {pdfLink}
-  skills={data.skills}
-  projects={data.projects}
-  experience={data.experience}
-  education={data.education}
-/>
+<EngCV {...data} {pdfLink} /> 
