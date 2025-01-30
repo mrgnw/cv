@@ -27,10 +27,6 @@ for (const path in versionFiles) {
 			}
 			// Remove BOM if present
 			const cleanContent = content.replace(/^\uFEFF/, '');
-			console.log(`Parsing ${path}, content:`, {
-				firstChars: cleanContent.slice(0, 20),
-				charCodes: Array.from(cleanContent.slice(0, 5)).map(c => c.charCodeAt(0))
-			});
 			versionMap[slug] = {
 				...JSON5.parse(cleanContent),
 				pdfLink: `/cv/${slug}/morgan-williams.pdf`,
