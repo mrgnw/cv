@@ -28,6 +28,7 @@ export interface CVData {
 		summary?: string;
 		year: string;
 	}>;
+	projects?: (string | Project)[];  // Can be either project names or full definitions
 }
 
 export interface ExperienceItem {

@@ -19,36 +19,14 @@
 		"AWS"
 	],
 	"projects": [
+		"Resume",
+		"Depth test",
+		"Ananas",
 		{
-			"name": "Resume",
-			"url": "https://github.com/mrgnw/resume",
-			"description": "online CV with automatic PDF generation",
-			"stack": [
-				"Svelte",
-				"Tailwind",
-				"Node",
-				"Cloudflare"
-			]
-		},
-		{
-			"name": "Depth test",
-			"url": "https://foto3.pages.dev",
-			"description": "Experiment with depth effects in Javascript",
-			"stack": [
-				"Svelte",
-				"ThreeJS"
-			]
-		},	
-		
-		{
-			"name": "Ananas",
-			"url": "https://ananas.xcc.es",
-			"description": "Multilanguage translator",
-			"stack": [
-				"Svelte",
-				"Cloudflare",
-				"Serverless"
-			]
+			"name": "Custom Project",
+			"url": "https://example.com",
+			"description": "A version-specific project",
+			"stack": ["Custom", "Stack"]
 		},
 		{
 			"name": "TextMe",
