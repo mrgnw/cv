@@ -4,10 +4,11 @@ import JSON5 from 'json5';
 /**
  * Dynamically import all JSON files in the versions directory.
  */
-const versionFiles = import.meta.glob<string>('/src/lib/versions/*.json', {
-	as: 'raw',
-	eager: true,
-});
+const versionFiles = {
+	...import.meta.glob<string>('/src/lib/versions/*.json', { as: 'raw', eager: true }),
+	...import.meta.glob<string>('/src/lib/versions/*.json5', { as: 'raw', eager: true }),
+	...import.meta.glob<string>('/src/lib/versions/*.jsonc', { as: 'raw', eager: true }),
+};
 
 /**
  * Maps each version slug to its corresponding CV data.
@@ -15,7 +16,7 @@ const versionFiles = import.meta.glob<string>('/src/lib/versions/*.json', {
 const versionMap: Record<string, CVData> = {};
 
 for (const path in versionFiles) {
-	const slugMatch = path.match(/\/src\/lib\/versions\/(.*)\.json$/);
+	const slugMatch = path.match(/\/src\/lib\/versions\/(.+?)\.(json[c5]?)$/);
 	if (slugMatch) {
 		const slug = slugMatch[1];
 		try {
