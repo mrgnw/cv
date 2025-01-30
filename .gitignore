@@ -1,5 +1,6 @@
 .pdf_gen_ts
 node_modules
+descriptions
 
 # Output
 .output
