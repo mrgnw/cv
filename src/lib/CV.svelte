@@ -32,7 +32,7 @@
 		email = mainData.email,
 		github = mainData.github,
 		pdfLink = "/morgan-williams-cv",
-		projects,
+		projects = mainData.projects,
 		experience = mainData.experience,
 		skills = mainData.skills,
 		education = mainData.education,
@@ -105,7 +105,8 @@
 	<Experience {experience} {highlightedSkill} />
 
 	<!-- Projects -->
-	{#if projects}
+	 wtf
+	{#if projects?.length > 0}
 		<div class="flex items-center gap-4 mb-2 w-[85%] print:mb-1">
 			<h2 class="text-2xl font-semibold shrink-0">Projects</h2>
 			<Separator class="flex-grow" />

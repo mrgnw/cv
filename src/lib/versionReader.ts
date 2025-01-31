@@ -96,12 +96,21 @@ export function coalesceVersion(slug: string): CVData | null {
 		return null;
 	}
 
-	const merged: CVData = { ...main, ...version };
+	// Create merged object without projects first
+	const { projects: mainProjects = [], ...mainRest } = main;
+	const { projects: versionProjects = [], ...versionRest } = version;
+	const merged: CVData = { ...mainRest, ...versionRest };
 
-	// Resolve projects if they exist in the version
-	if (version.projects) {
-		merged.projects = resolveProjects(version.projects);
-	}
+	// Resolve and merge projects
+	const resolvedMainProjects = resolveProjects(mainProjects || []);
+	const resolvedVersionProjects = resolveProjects(versionProjects || []);
+	
+	merged.projects = [
+		...resolvedMainProjects,
+		...(resolvedVersionProjects.filter(vp => 
+			!resolvedMainProjects.some(mp => mp.name === vp.name)
+		))
+	];
 
 	// Merge experience sections if they exist in both
 	if (main.experience && version.experience) {

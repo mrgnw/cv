@@ -5,18 +5,18 @@
     import { format } from "date-fns";
     import { FileText } from "lucide-svelte";
   
-    // Destructure props with defaults from mainData
+    // Destructure props
     let {
       name = mainData.name,
       title = mainData.title,
       email = mainData.email,
       github = mainData.github,
-      projects,
+      pdfLink = "/morgan-williams-cv",
+      projects = mainData.projects,
       experience = mainData.experience,
       skills = mainData.skills,
       education = mainData.education,
       version,
-      pdfLink = version ? `/morgan-williams.${version}-eng.pdf` : '/morgan-williams-eng.pdf'
     }: CVProps = $props();
   
     const iconSize = 30;

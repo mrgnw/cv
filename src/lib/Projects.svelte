@@ -27,6 +27,10 @@
 			{/each}
 		</div>
 	</section>
+{:else}
+	<div class="text-red-500">
+		No projects found. projects array is: {JSON.stringify(projects)}
+	</div>
 {/if}
 
 <style>
