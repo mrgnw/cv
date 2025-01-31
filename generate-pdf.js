@@ -7,7 +7,7 @@ import { execSync } from 'child_process';
 
 const getAllVersions = () => {
 	return fs.readdirSync(path.join('src', 'lib', 'versions'))
-		.filter(file => file.endsWith('.json'))
+		.filter(file => /\.(json[c5]?)$/.test(file))
 		.map(file => path.parse(file).name);
 };
 
@@ -28,7 +28,7 @@ const getAllVersions = () => {
 const getVersionNames = (specificVersions) => {
 	const versionsDir = path.join('src', 'lib', 'versions');
 	let files = fs.readdirSync(versionsDir)
-		.filter(file => file.endsWith('.json'))
+		.filter(file => /\.(json[c5]?)$/.test(file))
 		.map(file => path.parse(file).name);
 
 	if (specificVersions?.includes('all')) {
