@@ -62,6 +62,21 @@ const waitForServer = (url) => {
 	});
 };
 
+async function getPageCount(page) {
+	return await page.evaluate(() => {
+		const height = document.documentElement.scrollHeight;
+		const pageHeight = 1123; // A4 height in pixels at 96 DPI
+		return Math.ceil(height / pageHeight);
+	});
+}
+
+// Helper function to check PDF page count
+async function checkPdfPageCount(page, options) {
+	const pdf = await page.pdf({ ...options });
+	const pageCount = (pdf.toString().match(/\/Page\s*$/gm) || []).length;
+	return pageCount;
+}
+
 (async () => {
 	// Get versions from command line args OR get changed versions
 	const specificVersions = process.argv.length > 2 ?
@@ -116,23 +131,45 @@ const waitForServer = (url) => {
 				`morgan-williams.${version}.pdf`;
 			const pdfPath = path.join('static', pdfName);
 
-			await page.goto(url, { waitUntil: 'networkidle' });
-			await page.pdf({ path: pdfPath, ...pdfOptions });
-			console.log(`🖨️  ${pdfPath}`);
+			let projectsToRemove = 0;
+			let pageCount;
 
-			// Sans version (at /sans route)
+			do {
+				await page.goto(`${url}&removeProjects=${projectsToRemove}`, { waitUntil: 'networkidle' });
+				pageCount = await checkPdfPageCount(page, pdfOptions);
+				
+				if (pageCount > 1) {
+					projectsToRemove++;
+					console.log(`${pdfName}: Removing project ${projectsToRemove} (${pageCount} pages)`);
+				}
+			} while (pageCount > 1 && projectsToRemove < 5);
+
+			await page.pdf({ path: pdfPath, ...pdfOptions });
+			console.log(`🖨️  ${pdfPath}${projectsToRemove > 0 ? ` (removed ${projectsToRemove} projects)` : ''}`);
+
+			// Sans version
 			const sansUrl = `${serverUrl}/sans/${version}?print`;
 			const sansPdfName = version === 'main' ?
 				'morgan-williams-sans.pdf' :
 				`morgan-williams.${version}-sans.pdf`;
 			const sansPdfPath = path.join('static', 'sans', sansPdfName);
 
-			await page.goto(sansUrl, { waitUntil: 'networkidle' });
+			projectsToRemove = 0;
+			do {
+				await page.goto(`${sansUrl}&removeProjects=${projectsToRemove}`, { waitUntil: 'networkidle' });
+				pageCount = await checkPdfPageCount(page, pdfOptions);
+				
+				if (pageCount > 1) {
+					projectsToRemove++;
+					console.log(`${sansPdfName}: Removing project ${projectsToRemove} (${pageCount} pages)`);
+				}
+			} while (pageCount > 1 && projectsToRemove < 5);
+
 			await page.pdf({ path: sansPdfPath, ...pdfOptions });
-			console.log(`🖨️  ${sansPdfPath}`);
+			console.log(`🖨️  ${sansPdfPath}${projectsToRemove > 0 ? ` (removed ${projectsToRemove} projects)` : ''}`);
 
 		} catch (error) {
-			console.error(`⚠️ ${version}:`, error);
+			console.error(`Error generating PDFs for version ${version}:`, error);
 		}
 	}
 

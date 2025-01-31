@@ -43,6 +43,15 @@
 
 	const isPrinting =
 		browser && new URLSearchParams(window.location.search).has("print");
+
+	const searchParams = browser ? new URLSearchParams(window.location.search) : null;
+	const removeProjects = searchParams?.get('removeProjects') 
+		? parseInt(searchParams.get('removeProjects')) 
+		: 0;
+
+	if (removeProjects > 0 && projects?.length) {
+		projects = projects.slice(0, Math.max(0, projects.length - removeProjects));
+	}
 </script>
 
 <div class="max-w-3xl mx-auto p-8 bg-background text-foreground print:p-0 print:max-w-none print:m-0">
