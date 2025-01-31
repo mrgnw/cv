@@ -98,9 +98,12 @@ const waitForServer = (url) => {
 		},
 	};
 
-	// Ensure static directory exists
+	// Ensure static and sans directories exist
 	if (!fs.existsSync('static')) {
 		fs.mkdirSync('static');
+	}
+	if (!fs.existsSync('static/sans')) {
+		fs.mkdirSync('static/sans');
 	}
 
 	// Generate both regular and engineering versions
@@ -122,7 +125,7 @@ const waitForServer = (url) => {
 			const sansPdfName = version === 'main' ?
 				'morgan-williams-sans.pdf' :
 				`morgan-williams.${version}-sans.pdf`;
-			const sansPdfPath = path.join('static', sansPdfName);
+			const sansPdfPath = path.join('static', 'sans', sansPdfName);
 
 			await page.goto(sansUrl, { waitUntil: 'networkidle' });
 			await page.pdf({ path: sansPdfPath, ...pdfOptions });
