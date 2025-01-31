@@ -8,8 +8,8 @@
 
   let { data }: Props = $props();
   const pdfLink = data.slug === 'main' ? 
-    '/morgan-williams.pdf' : 
-    `/morgan-williams.${data.slug}.pdf`;
+    '/morgan-williams-sans.pdf' : 
+    `/morgan-williams.${data.slug}-sans.pdf`;
 </script>
 
 <CV

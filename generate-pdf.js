@@ -109,24 +109,24 @@ const waitForServer = (url) => {
 			// Engineering version (now the default route)
 			const url = `${serverUrl}/${version}?print`;
 			const pdfName = version === 'main' ?
-				'morgan-williams-eng.pdf' :
-				`morgan-williams.${version}-eng.pdf`;
+				'morgan-williams.pdf' :
+				`morgan-williams.${version}.pdf`;
 			const pdfPath = path.join('static', pdfName);
 
 			await page.goto(url, { waitUntil: 'networkidle' });
 			await page.pdf({ path: pdfPath, ...pdfOptions });
 			console.log(`🖨️  ${pdfPath}`);
 
-			// Regular version (now at /sans route)
-			const regularUrl = `${serverUrl}/sans/${version}?print`;
-			const regularPdfName = version === 'main' ?
-				'morgan-williams.pdf' :
-				`morgan-williams.${version}.pdf`;
-			const regularPdfPath = path.join('static', regularPdfName);
+			// Sans version (at /sans route)
+			const sansUrl = `${serverUrl}/sans/${version}?print`;
+			const sansPdfName = version === 'main' ?
+				'morgan-williams-sans.pdf' :
+				`morgan-williams.${version}-sans.pdf`;
+			const sansPdfPath = path.join('static', sansPdfName);
 
-			await page.goto(regularUrl, { waitUntil: 'networkidle' });
-			await page.pdf({ path: regularPdfPath, ...pdfOptions });
-			console.log(`🖨️  ${regularPdfPath}`);
+			await page.goto(sansUrl, { waitUntil: 'networkidle' });
+			await page.pdf({ path: sansPdfPath, ...pdfOptions });
+			console.log(`🖨️  ${sansPdfPath}`);
 
 		} catch (error) {
 			console.error(`⚠️ ${version}:`, error);
