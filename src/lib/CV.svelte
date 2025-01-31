@@ -105,7 +105,6 @@
 	<Experience {experience} {highlightedSkill} />
 
 	<!-- Projects -->
-	 wtf
 	{#if projects?.length > 0}
 		<div class="flex items-center gap-4 mb-2 w-[85%] print:mb-1">
 			<h2 class="text-2xl font-semibold shrink-0">Projects</h2>
