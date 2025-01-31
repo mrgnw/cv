@@ -25,6 +25,14 @@
     }
   
     const isPrinting = browser && new URLSearchParams(window.location.search).has("print");
+    const searchParams = browser ? new URLSearchParams(window.location.search) : null;
+    const removeProjects = searchParams?.get('removeProjects') 
+      ? parseInt(searchParams.get('removeProjects')) 
+      : 0;
+
+    if (removeProjects > 0 && projects?.length) {
+      projects = projects.slice(0, Math.max(0, projects.length - removeProjects));
+    }
   
     function formatUrl(url: string): string {
         try {
