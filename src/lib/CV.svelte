@@ -5,7 +5,7 @@
 	import Typewriter from "svelte-typewriter";
 	import { Button } from "$lib/components/ui/button";
 	import { Separator } from "$lib/components/ui/separator";
-	import { ChevronDown } from "lucide-svelte";
+	import { ChevronDown, FileText } from "lucide-svelte";
 	import { browser } from "$app/environment";
 
 	import mainData from "$lib/versions/main.json";
@@ -22,7 +22,6 @@
 		Linkedin,
 		Github,
 		CalendarClock,
-		FileText,
 	} from "lucide-svelte";
 
 	// Destructure props
