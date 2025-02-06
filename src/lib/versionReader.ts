@@ -29,7 +29,9 @@ for (const path in versionFiles) {
 			const cleanContent = content.replace(/^\uFEFF/, '');
 			versionMap[slug] = {
 				...JSON5.parse(cleanContent),
-				pdfLink: `/cv/${slug}/morgan-williams.pdf`,
+				pdfLink: slug === 'main' ? 
+					'/morgan-williams.pdf' : 
+					`/morgan-williams.${slug}.pdf`,
 			};
 		} catch (error) {
 			console.error(`Error parsing ${path}:`, error);

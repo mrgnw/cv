@@ -9,7 +9,7 @@
   let { data }: Props = $props();
   const pdfLink = data.slug === 'main' ? 
     '/morgan-williams.pdf' : 
-    `/morgan-williams.${data.slug}.pdf`;
+    `morgan-williams.${data.slug}.pdf`;
 </script>
 
-<EngCV {...data} {pdfLink} /> 
+<EngCV {...data} pdfLink={pdfLink} /> 
