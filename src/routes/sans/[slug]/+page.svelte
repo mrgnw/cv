@@ -1,5 +1,5 @@
 <script lang="ts">
-  import CV from '$lib/CV.svelte';
+  import CVSans from '$lib/CVSans.svelte';
   import type { PageServerLoad } from './$types';
 
   interface Props {
@@ -12,7 +12,7 @@
     `/sans/morgan-williams.${data.slug}-sans.pdf`;
 </script>
 
-<CV
+<CVSans
   name={data.name}
   title={data.title}
   email={data.email}
