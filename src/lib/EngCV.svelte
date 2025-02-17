@@ -66,8 +66,8 @@
     const labels = $derived(lang === 'es' ? es_labels : en_labels);
 
     const projectFiles = {
-      ...import.meta.glob<string>('/src/lib/projects/*.jsonc', { as: 'raw', eager: true }),
-      ...import.meta.glob<string>('/src/lib/versions/es/projects/*.jsonc', { as: 'raw', eager: true })
+      ...import.meta.glob<string>('/src/lib/projects/*.jsonc', { query: '?raw', import: 'default', eager: true }),
+      ...import.meta.glob<string>('/src/lib/versions/es/projects/*.jsonc', { query: '?raw', import: 'default', eager: true })
     };
 
     const projectList = $derived(() => {
@@ -86,7 +86,6 @@
     );
     const hasOtherLanguage = $derived(allVersions.includes(otherVersionSlug));
     const otherLangUrl = $derived(`/${otherVersionSlug}`);
-
   </script>
 
   <div class="max-w-[800px] mx-auto p-8 bg-white text-black print:p-4 font-serif">
@@ -106,21 +105,19 @@
 
     <!-- Language Switcher -->
     {#if hasOtherLanguage && !isPrinting}
-      <div class="absolute top-4 right-4 no-print">
-        <Button
-          variant="outline"
-          size="icon"
-          class="w-10 h-10 text-lg rounded-full"
-          asChild
+      <div class="no-print fixed bottom-4 right-16 flex items-center">
+        <a
+          href={otherLangUrl}
+          class="bg-white p-2 rounded-full shadow-lg hover:bg-gray-50 flex items-center justify-center"
+          style="width: {iconSize}px; height: {iconSize}px;"
+          aria-label={isSpanishVersion ? "Switch to English" : "Cambiar a Español"}
         >
-          <a href={otherLangUrl}>
-            {#if isSpanishVersion}
-              <span aria-label="Switch to English">🇺🇸</span>
-            {:else}
-              <span aria-label="Cambiar a Español">🇪🇸</span>
-            {/if}
-          </a>
-        </Button>
+          {#if isSpanishVersion}
+            <span class="text-xl">🇺🇸</span>
+          {:else}
+            <span class="text-xl">🇪🇸</span>
+          {/if}
+        </a>
       </div>
     {/if}
 
@@ -194,7 +191,8 @@
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Download Morgan's CV"
-      class="no-print fixed bottom-4 right-4 bg-white p-2 rounded-full shadow-lg"
+      class="no-print fixed bottom-4 right-4 bg-white p-2 rounded-full shadow-lg hover:bg-gray-50 flex items-center justify-center"
+      style="width: {iconSize}px; height: {iconSize}px;"
       data-sveltekit-preload-data="hover"
   >
       <FileText size={iconSize} />
