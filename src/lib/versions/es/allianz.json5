@@ -42,8 +42,10 @@
       "end": "2021-08-01",
       "description": [
         "Creé nuevos flujos de trabajo ETL en Airflow y optimicé tiempos de procesamiento existentes hasta 1000x",
-        "Migré múltiples bases de código a Python3",
-        "Creé APIs en Python e interfaces web internas para acceso seguro a datos de la empresa"
+        "Migré múltiples bases de código a Python3, incluyendo aplicaciones de Airflow, Flask y Celery",
+        "Creé APIs en Python e interfaces web internas para acceso seguro a datos",
+        "Lideré la migración del equipo de BI de MSSQL a PostgreSQL mientras mantenía soporte para MSSQL durante la transición",
+        "Implementé pipeline de datos seguro desde Salesforce al sistema ERP"
       ]
     }
   ],
