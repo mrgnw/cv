@@ -122,10 +122,10 @@
     </section>
   
     <!-- Projects -->
-    {#if projectList?.length}
+    {#if projects?.length}
       <section class="mb-6">
         <h2 class="text-lg font-bold border-b border-black pb-0.5 mb-2">{labels.projects}</h2>
-        {#each projectList as project}
+        {#each projects as project}
           <div class="mb-3">
             <div class="flex justify-between items-baseline">
               <a href={project.url} class="font-bold hover:underline">{project.name}</a>

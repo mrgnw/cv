@@ -12,6 +12,11 @@
     "Cloud Infrastructure",
     "Data Pipeline Development"
   ],
+  "projects": [
+    "Resume",
+    "Ananas",
+    "TextMe"
+  ],
   "experience": [
     {
       "title": "Data Engineering Consultant",

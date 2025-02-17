@@ -12,6 +12,10 @@
     "Infraestructura en la Nube",
     "Desarrollo de Pipelines de Datos"
   ],
+  "projects": [
+    "Resume",
+    "Depth test"
+  ],
   "experience": [
     {
       "title": "Consultor de Ingeniería de Datos",
@@ -52,6 +56,12 @@
     }
   ],
   "education": [
+    {
+			"degree": "Escuela de Desarollo Web",
+			"provider": "vschool.io",
+			"summary": "Python + JavaScript",
+			"year": "2014"
+		},
     {
       "degree": "Licenciatura en Lengua y Literatura Rusa",
       "provider": "BYU",
