@@ -12,4 +12,4 @@
     `morgan-williams.${data.slug}.pdf`;
 </script>
 
-<EngCV {...data} pdfLink={pdfLink} /> 
+<EngCV {...data} version={data.slug} pdfLink={pdfLink} />

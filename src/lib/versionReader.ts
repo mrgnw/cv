@@ -5,9 +5,9 @@ import JSON5 from 'json5';
  * Dynamically import all JSON files in the versions directory.
  */
 const versionFiles = {
-	...import.meta.glob<string>('/src/lib/versions/*.json', { as: 'raw', eager: true }),
-	...import.meta.glob<string>('/src/lib/versions/*.json5', { as: 'raw', eager: true }),
-	...import.meta.glob<string>('/src/lib/versions/*.jsonc', { as: 'raw', eager: true }),
+	...import.meta.glob<string>('/src/lib/versions/*.json', { query: '?raw', import: 'default', eager: true }),
+	...import.meta.glob<string>('/src/lib/versions/*.json5', { query: '?raw', import: 'default', eager: true }),
+	...import.meta.glob<string>('/src/lib/versions/*.jsonc', { query: '?raw', import: 'default', eager: true }),
 };
 
 /**
@@ -18,7 +18,7 @@ const versionMap: Record<string, CVData> = {};
 for (const path in versionFiles) {
 	const slugMatch = path.match(/\/src\/lib\/versions\/(.+?)\.(json[c5]?)$/);
 	if (slugMatch) {
-		const slug = slugMatch[1];
+		const [, slug] = slugMatch;
 		try {
 			const content = versionFiles[path];
 			if (!content) {
@@ -27,53 +27,19 @@ for (const path in versionFiles) {
 			}
 			// Remove BOM if present
 			const cleanContent = content.replace(/^\uFEFF/, '');
+			const isSpanish = slug.endsWith('.es');
+			const baseSlug = isSpanish ? slug.slice(0, -3) : slug;
 			versionMap[slug] = {
 				...JSON5.parse(cleanContent),
-				pdfLink: slug === 'main' ? 
-					'/morgan-williams.pdf' : 
-					`/morgan-williams.${slug}.pdf`,
+				pdfLink: isSpanish ? 
+					(baseSlug === 'main' ? '/es/morgan-williams.pdf' : `/es/morgan-williams.${baseSlug}.pdf`) :
+					(baseSlug === 'main' ? '/morgan-williams.pdf' : `/morgan-williams.${baseSlug}.pdf`),
 			};
 		} catch (error) {
 			console.error(`Error parsing ${path}:`, error);
 			throw error;
 		}
 	}
-}
-
-// Import and parse projects
-const projectFiles = import.meta.glob<string>('/src/lib/projects.jsonc', { as: 'raw', eager: true });
-const projectContent = projectFiles['/src/lib/projects.jsonc'];
-
-if (!projectContent) {
-	console.error('Could not find projects.jsonc file');
-	throw new Error('Projects file not found');
-}
-
-// Remove BOM if present and parse
-const cleanProjectContent = projectContent.replace(/^\uFEFF/, '');
-const projectsList = JSON5.parse(cleanProjectContent) as Project[];
-
-// Create projects map
-const projectsMap = new Map<string, Project>(
-	projectsList.map(project => [project.name, project])
-);
-
-function resolveProjects(projects: (string | Project)[] | undefined): Project[] {
-	if (!projects) return [];
-	
-	return projects.map(project => {
-		if (typeof project === "string") {
-			// If project is specified by name, look it up in projectsMap
-			const fullProject = projectsMap.get(project);
-			if (!fullProject) {
-				console.warn(`Project "${project}" not found in projects.jsonc`);
-				return null;
-			}
-			return fullProject;
-		}
-		// If it's a full project definition, use it as is
-		return project;
-	}).filter((p): p is Project => p !== null);
 }
 
 /**
@@ -98,21 +64,54 @@ export function coalesceVersion(slug: string): CVData | null {
 		return null;
 	}
 
+	// Import and parse projects
+	const projectFiles = {
+		...import.meta.glob<string>('/src/lib/projects.jsonc', { query: '?raw', import: 'default', eager: true }),
+		...import.meta.glob<string>('/src/lib/projects-es.jsonc', { query: '?raw', import: 'default', eager: true }),
+	};
+
+	const getProjectsPath = (slug: string) => `/src/lib/projects${slug.endsWith('.es') ? '-es' : ''}.jsonc`;
+
+	const projectContent = projectFiles[getProjectsPath(slug)];
+	if (!projectContent) {
+		console.error(`Could not find projects file for ${slug}`);
+		throw new Error('Projects file not found');
+	}
+
+	// Remove BOM if present and parse
+	const cleanProjectContent = projectContent.replace(/^\uFEFF/, '');
+	const projectsList = JSON5.parse(cleanProjectContent) as Project[];
+
+	// Create projects map
+	const projectsMap = new Map<string, Project>(
+		projectsList.map(project => [project.name, project])
+	);
+
+	function resolveProjects(projects: (string | Project)[] | undefined): Project[] {
+		if (!projects) return [];
+		
+		return projects.map(project => {
+			if (typeof project === "string") {
+				// If project is specified by name, look it up in projectsMap
+				const fullProject = projectsMap.get(project);
+				if (!fullProject) {
+					console.warn(`Project "${project}" not found in projects.jsonc`);
+					return null;
+				}
+				return fullProject;
+			}
+			// If it's a full project definition, use it as is
+			return project;
+		}).filter((p): p is Project => p !== null);
+	}
+
 	// Create merged object without projects first
 	const { projects: mainProjects = [], ...mainRest } = main;
 	const { projects: versionProjects = [], ...versionRest } = version;
 	const merged: CVData = { ...mainRest, ...versionRest };
 
-	// Resolve and merge projects
-	const resolvedMainProjects = resolveProjects(mainProjects || []);
-	const resolvedVersionProjects = resolveProjects(versionProjects || []);
-	
-	merged.projects = [
-		...resolvedMainProjects,
-		...(resolvedVersionProjects.filter(vp => 
-			!resolvedMainProjects.some(mp => mp.name === vp.name)
-		))
-	];
+	// Resolve projects from version only
+	merged.projects = resolveProjects(versionProjects || []);
 
 	// Merge experience sections if they exist in both
 	if (main.experience && version.experience) {

@@ -6,9 +6,25 @@ import { execSync } from 'child_process';
 
 
 const getAllVersions = () => {
-	return fs.readdirSync(path.join('src', 'lib', 'versions'))
+	const versions = [];
+	const versionsDir = path.join('src', 'lib', 'versions');
+	const esDir = path.join(versionsDir, 'es');
+
+	// Get main versions
+	const mainVersions = fs.readdirSync(versionsDir)
 		.filter(file => /\.(json[c5]?)$/.test(file))
 		.map(file => path.parse(file).name);
+	versions.push(...mainVersions);
+
+	// Get Spanish versions if they exist
+	if (fs.existsSync(esDir)) {
+		const esVersions = fs.readdirSync(esDir)
+			.filter(file => /\.(json[c5]?)$/.test(file))
+			.map(file => `es/${path.parse(file).name}`);
+		versions.push(...esVersions);
+	}
+
+	return versions;
 };
 
 // const getChangedVersions = () => {
@@ -26,10 +42,22 @@ const getAllVersions = () => {
 // };
 
 const getVersionNames = (specificVersions) => {
+	const versions = [];
 	const versionsDir = path.join('src', 'lib', 'versions');
+	const esDir = path.join(versionsDir, 'es');
+
+	// Get main versions
 	let files = fs.readdirSync(versionsDir)
 		.filter(file => /\.(json[c5]?)$/.test(file))
 		.map(file => path.parse(file).name);
+
+	// Get Spanish versions if they exist
+	if (fs.existsSync(esDir)) {
+		const esFiles = fs.readdirSync(esDir)
+			.filter(file => /\.(json[c5]?)$/.test(file))
+			.map(file => `es/${path.parse(file).name}`);
+		files.push(...esFiles);
+	}
 
 	if (specificVersions?.includes('all')) {
 		return files;
@@ -124,11 +152,15 @@ async function checkPdfPageCount(page, options) {
 	// Generate both regular and engineering versions
 	for (const version of versions) {
 		try {
+			const isSpanish = version.startsWith('es/');
+			const versionName = isSpanish ? version.replace('es/', '') : version;
+			const langPrefix = isSpanish ? '/es' : '';
+
 			// Engineering version (now the default route)
-			const url = `${serverUrl}/${version}?print`;
-			const pdfName = version === 'main' ?
-				'morgan-williams.pdf' :
-				`morgan-williams.${version}.pdf`;
+			const url = `${serverUrl}${langPrefix}/${versionName}?print`;
+			const pdfName = versionName === 'main' ?
+				`morgan-williams${isSpanish ? '.es' : ''}.pdf` :
+				`morgan-williams.${versionName}${isSpanish ? '.es' : ''}.pdf`;
 			const pdfPath = path.join('static', pdfName);
 
 			let projectsToRemove = 0;
@@ -140,7 +172,7 @@ async function checkPdfPageCount(page, options) {
 				
 				if (pageCount > 1) {
 					projectsToRemove++;
-					console.log(`${pdfName}: Removing project ${projectsToRemove} (${pageCount} pages)`);
+					console.log(`  - project ${projectsToRemove} (${pageCount} pages)`);
 				}
 			} while (pageCount > 1 && projectsToRemove < 5);
 
@@ -148,10 +180,10 @@ async function checkPdfPageCount(page, options) {
 			console.log(`🖨️  ${pdfPath}${projectsToRemove > 0 ? ` (removed ${projectsToRemove} projects)` : ''}`);
 
 			// Sans version
-			const sansUrl = `${serverUrl}/sans/${version}?print`;
-			const sansPdfName = version === 'main' ?
-				'morgan-williams-sans.pdf' :
-				`morgan-williams.${version}-sans.pdf`;
+			const sansUrl = `${serverUrl}/sans${langPrefix}/${versionName}?print`;
+			const sansPdfName = versionName === 'main' ?
+				`morgan-williams-sans${isSpanish ? '.es' : ''}.pdf` :
+				`morgan-williams.${versionName}-sans${isSpanish ? '.es' : ''}.pdf`;
 			const sansPdfPath = path.join('static', 'sans', sansPdfName);
 
 			projectsToRemove = 0;
@@ -161,7 +193,7 @@ async function checkPdfPageCount(page, options) {
 				
 				if (pageCount > 1) {
 					projectsToRemove++;
-					console.log(`${sansPdfName}: Removing project ${projectsToRemove} (${pageCount} pages)`);
+					console.log(`  - project ${projectsToRemove} (${pageCount} pages)`);
 				}
 			} while (pageCount > 1 && projectsToRemove < 5);
 

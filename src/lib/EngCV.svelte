@@ -4,7 +4,11 @@
     import mainData from "$lib/versions/main.json";
     import { format } from "date-fns";
     import { FileText } from "lucide-svelte";
-  
+    import JSON5 from 'json5';
+    import { Button } from "$lib/components/ui/button";
+    import { getAllVersions } from "$lib/versionReader";
+    import { page } from "$app/stores";
+
     // Destructure props
     let {
       name = mainData.name,
@@ -16,14 +20,15 @@
       experience = mainData.experience,
       skills = mainData.skills,
       education = mainData.education,
-      version,
+      version = $page.params.slug || 'main',
+      lang = 'en'
     }: CVProps = $props();
-  
+
     const iconSize = 30;
     function formatDate(date: string): string {
       return format(new Date(date), "MMM yyyy");
     }
-  
+
     const isPrinting = browser && new URLSearchParams(window.location.search).has("print");
     const searchParams = browser ? new URLSearchParams(window.location.search) : null;
     const removeProjects = searchParams?.get('removeProjects') 
@@ -33,7 +38,7 @@
     if (removeProjects > 0 && projects?.length) {
       projects = projects.slice(0, Math.max(0, projects.length - removeProjects));
     }
-  
+
     function formatUrl(url: string): string {
         try {
             return url.replace(/^https?:\/\/(www\.)?/, '');
@@ -41,8 +46,49 @@
             return url;
         }
     }
+
+    const es_labels = {
+      skills: 'Habilidades',
+      experience: 'Experiencia',
+      projects: 'Proyectos',
+      education: 'Educación',
+      present: 'Presente'
+    };
+
+    const en_labels = {
+      skills: 'Skills',
+      experience: 'Experience',
+      projects: 'Projects',
+      education: 'Education',
+      present: 'Present'
+    };
+
+    const labels = $derived(lang === 'es' ? es_labels : en_labels);
+
+    const projectFiles = {
+      ...import.meta.glob<string>('/src/lib/projects/*.jsonc', { as: 'raw', eager: true }),
+      ...import.meta.glob<string>('/src/lib/versions/es/projects/*.jsonc', { as: 'raw', eager: true })
+    };
+
+    const projectList = $derived(() => {
+      const paths = Object.keys(projectFiles);
+      const projects = paths.map(path => {
+        const content = projectFiles[path];
+        return content ? JSON5.parse(content) : [];
+      });
+      return projects.flat();
+    });
+
+    const allVersions = getAllVersions();
+    const isSpanishVersion = $derived(version?.endsWith('.es'));
+    const otherVersionSlug = $derived(
+      isSpanishVersion ? version.replace('.es', '') : `${version}.es`
+    );
+    const hasOtherLanguage = $derived(allVersions.includes(otherVersionSlug));
+    const otherLangUrl = $derived(`/${otherVersionSlug}`);
+
   </script>
-  
+
   <div class="max-w-[800px] mx-auto p-8 bg-white text-black print:p-4 font-serif">
     <!-- Name -->
     <header class="text-center mb-4">
@@ -53,20 +99,42 @@
         <a href={`mailto:${email}`} class="hover:underline">{email}</a>
         <span>|</span>
         <a href={github} class="hover:underline">github.com/mrgnw</a>
+        <span>|</span>
+        <a href="https://linkedin.com/in/mrgnw" class="hover:underline">linkedin.com/in/mrgnw</a>
       </div>
     </header>
-  
+
+    <!-- Language Switcher -->
+    {#if hasOtherLanguage && !isPrinting}
+      <div class="absolute top-4 right-4 no-print">
+        <Button
+          variant="outline"
+          size="icon"
+          class="w-10 h-10 text-lg rounded-full"
+          asChild
+        >
+          <a href={otherLangUrl}>
+            {#if isSpanishVersion}
+              <span aria-label="Switch to English">🇺🇸</span>
+            {:else}
+              <span aria-label="Cambiar a Español">🇪🇸</span>
+            {/if}
+          </a>
+        </Button>
+      </div>
+    {/if}
+
     <!-- Skills -->
     <section class="mb-6">
-      <h2 class="text-lg font-bold border-b border-black pb-0.5 mb-2">Skills</h2>
+      <h2 class="text-lg font-bold border-b border-black pb-0.5 mb-2">{labels.skills}</h2>
       <div class="flex flex-wrap gap-x-8">
         {skills.join(', ')}
       </div>
     </section>
-  
+
     <!-- Experience -->
     <section class="mb-6">
-      <h2 class="text-lg font-bold border-b border-black pb-0.5 mb-2">Experience</h2>
+      <h2 class="text-lg font-bold border-b border-black pb-0.5 mb-2">{labels.experience}</h2>
       {#each experience as job}
         <div class="mb-4">
           <div class="flex justify-between items-baseline">
@@ -75,7 +143,7 @@
               <span>{job.company}</span>
             </div>
             <span class="text-sm">
-              {formatDate(job.start)} – {job.end ? formatDate(job.end) : "Present"}
+              {formatDate(job.start)} – {job.end ? formatDate(job.end) : labels.present}
             </span>
           </div>
           <ul class="list-disc ml-4 mt-1">
@@ -86,16 +154,16 @@
         </div>
       {/each}
     </section>
-  
-    <!-- Projects (if any) -->
+
+    <!-- Projects -->
     {#if projects?.length}
       <section class="mb-6">
-        <h2 class="text-lg font-bold border-b border-black pb-0.5 mb-2">Projects</h2>
+        <h2 class="text-lg font-bold border-b border-black pb-0.5 mb-2">{labels.projects}</h2>
         {#each projects as project}
           <div class="mb-3">
             <div class="flex justify-between items-baseline">
-              <a href={project.url} class="font-bold hover:underline">{project.name}</a>
-              <a href={project.url} class="text-sm hover:underline">
+              <a href={project.url} target="_blank" rel="noopener noreferrer" class="font-bold hover:underline">{project.localized_name || project.name}</a>
+              <a href={project.url} target="_blank" rel="noopener noreferrer" class="text-sm hover:underline">
                 {formatUrl(project.url)}
               </a>
             </div>
@@ -104,10 +172,10 @@
         {/each}
       </section>
     {/if}
-  
+
     <!-- Education -->
     <section>
-      <h2 class="text-lg font-bold border-b border-black pb-0.5 mb-2">Education</h2>
+      <h2 class="text-lg font-bold border-b border-black pb-0.5 mb-2">{labels.education}</h2>
       {#each education as edu}
         <div class="flex justify-between items-baseline mb-1">
           <div>
@@ -119,7 +187,7 @@
       {/each}
     </section>
   </div>
-  
+
   <!-- PDF Download -->
   <a
       href={pdfLink}
@@ -131,7 +199,7 @@
   >
       <FileText size={iconSize} />
   </a>
-  
+
   <style>
     @media print {
       @page {
