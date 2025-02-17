@@ -8,6 +8,9 @@ const versionFiles = {
 	...import.meta.glob<string>('/src/lib/versions/*.json', { as: 'raw', eager: true }),
 	...import.meta.glob<string>('/src/lib/versions/*.json5', { as: 'raw', eager: true }),
 	...import.meta.glob<string>('/src/lib/versions/*.jsonc', { as: 'raw', eager: true }),
+	...import.meta.glob<string>('/src/lib/versions/es/*.json', { as: 'raw', eager: true }),
+	...import.meta.glob<string>('/src/lib/versions/es/*.json5', { as: 'raw', eager: true }),
+	...import.meta.glob<string>('/src/lib/versions/es/*.jsonc', { as: 'raw', eager: true }),
 };
 
 /**
@@ -16,9 +19,10 @@ const versionFiles = {
 const versionMap: Record<string, CVData> = {};
 
 for (const path in versionFiles) {
-	const slugMatch = path.match(/\/src\/lib\/versions\/(.+?)\.(json[c5]?)$/);
+	const slugMatch = path.match(/\/src\/lib\/versions\/(es\/)?(.+?)\.(json[c5]?)$/);
 	if (slugMatch) {
-		const slug = slugMatch[1];
+		const isSpanish = !!slugMatch[1];
+		const slug = isSpanish ? `es/${slugMatch[2]}` : slugMatch[2];
 		try {
 			const content = versionFiles[path];
 			if (!content) {
@@ -29,9 +33,9 @@ for (const path in versionFiles) {
 			const cleanContent = content.replace(/^\uFEFF/, '');
 			versionMap[slug] = {
 				...JSON5.parse(cleanContent),
-				pdfLink: slug === 'main' ? 
-					'/morgan-williams.pdf' : 
-					`/morgan-williams.${slug}.pdf`,
+				pdfLink: isSpanish ? 
+					(slug === 'es/main' ? '/es/morgan-williams.pdf' : `/es/morgan-williams.${slugMatch[2]}.pdf`) :
+					(slug === 'main' ? '/morgan-williams.pdf' : `/morgan-williams.${slug}.pdf`),
 			};
 		} catch (error) {
 			console.error(`Error parsing ${path}:`, error);

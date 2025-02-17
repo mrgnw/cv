@@ -17,6 +17,7 @@
       skills = mainData.skills,
       education = mainData.education,
       version,
+      lang = 'en'
     }: CVProps = $props();
   
     const iconSize = 30;
@@ -41,6 +42,24 @@
             return url;
         }
     }
+
+    const es_labels = {
+      skills: 'Habilidades',
+      experience: 'Experiencia',
+      projects: 'Proyectos',
+      education: 'Educación',
+      present: 'Presente'
+    };
+
+    const en_labels = {
+      skills: 'Skills',
+      experience: 'Experience',
+      projects: 'Projects',
+      education: 'Education',
+      present: 'Present'
+    };
+
+    const labels = $derived(lang === 'es' ? es_labels : en_labels);
   </script>
   
   <div class="max-w-[800px] mx-auto p-8 bg-white text-black print:p-4 font-serif">
@@ -58,7 +77,7 @@
   
     <!-- Skills -->
     <section class="mb-6">
-      <h2 class="text-lg font-bold border-b border-black pb-0.5 mb-2">Skills</h2>
+      <h2 class="text-lg font-bold border-b border-black pb-0.5 mb-2">{labels.skills}</h2>
       <div class="flex flex-wrap gap-x-8">
         {skills.join(', ')}
       </div>
@@ -66,7 +85,7 @@
   
     <!-- Experience -->
     <section class="mb-6">
-      <h2 class="text-lg font-bold border-b border-black pb-0.5 mb-2">Experience</h2>
+      <h2 class="text-lg font-bold border-b border-black pb-0.5 mb-2">{labels.experience}</h2>
       {#each experience as job}
         <div class="mb-4">
           <div class="flex justify-between items-baseline">
@@ -75,7 +94,7 @@
               <span>{job.company}</span>
             </div>
             <span class="text-sm">
-              {formatDate(job.start)} – {job.end ? formatDate(job.end) : "Present"}
+              {formatDate(job.start)} – {job.end ? formatDate(job.end) : labels.present}
             </span>
           </div>
           <ul class="list-disc ml-4 mt-1">
@@ -90,7 +109,7 @@
     <!-- Projects (if any) -->
     {#if projects?.length}
       <section class="mb-6">
-        <h2 class="text-lg font-bold border-b border-black pb-0.5 mb-2">Projects</h2>
+        <h2 class="text-lg font-bold border-b border-black pb-0.5 mb-2">{labels.projects}</h2>
         {#each projects as project}
           <div class="mb-3">
             <div class="flex justify-between items-baseline">
@@ -107,7 +126,7 @@
   
     <!-- Education -->
     <section>
-      <h2 class="text-lg font-bold border-b border-black pb-0.5 mb-2">Education</h2>
+      <h2 class="text-lg font-bold border-b border-black pb-0.5 mb-2">{labels.education}</h2>
       {#each education as edu}
         <div class="flex justify-between items-baseline mb-1">
           <div>
