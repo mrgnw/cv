@@ -87,6 +87,8 @@
         <a href={`mailto:${email}`} class="hover:underline">{email}</a>
         <span>|</span>
         <a href={github} class="hover:underline">github.com/mrgnw</a>
+        <span>|</span>
+        <a href="https://linkedin.com/in/mrgnw" class="hover:underline">linkedin.com/in/mrgnw</a>
       </div>
     </header>
   
@@ -128,8 +130,8 @@
         {#each projects as project}
           <div class="mb-3">
             <div class="flex justify-between items-baseline">
-              <a href={project.url} class="font-bold hover:underline">{project.localized_name || project.name}</a>
-              <a href={project.url} class="text-sm hover:underline">
+              <a href={project.url} target="_blank" rel="noopener noreferrer" class="font-bold hover:underline">{project.localized_name || project.name}</a>
+              <a href={project.url} target="_blank" rel="noopener noreferrer" class="text-sm hover:underline">
                 {formatUrl(project.url)}
               </a>
             </div>
