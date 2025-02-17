@@ -8,11 +8,11 @@
   }
 
   let { data }: Props = $props();
-  const pdfLink = $derived(data, (data) => data.slug === 'main' ? 
+  const pdfLink = $derived(data.slug === 'main' ? 
     '/morgan-williams.pdf' : 
     `morgan-williams.${data.slug}.pdf`);
   
-  const lang = $derived(page, (page) => page.url.searchParams.get('lang') || 'en');
+  const lang = $derived($page.url.searchParams.get('lang') || 'en');
 </script>
 
-<EngCV {...data} pdfLink={pdfLink} {lang} />
+<EngCV {...data} {pdfLink} {lang} />
