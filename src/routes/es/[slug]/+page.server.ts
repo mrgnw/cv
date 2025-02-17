@@ -11,5 +11,5 @@ export const load = (async ({ params }) => {
         error(404, 'Spanish CV version not found');
     }
 
-    return { ...data, slug: `es/${slug}` };
+    return { ...data, slug };
 }) satisfies PageServerLoad;

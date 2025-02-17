@@ -1,18 +1,15 @@
 <script lang="ts">
   import EngCV from '$lib/EngCV.svelte';
   import type { PageServerLoad } from './$types';
-  import { page } from '$app/stores';
 
   interface Props {
     data: PageServerLoad;
   }
 
   let { data }: Props = $props();
-  const pdfLink = $derived(data.slug === 'main' ? 
+  const pdfLink = data.slug === 'main' ? 
     '/morgan-williams.pdf' : 
-    `morgan-williams.${data.slug}.pdf`);
-  
-  const lang = $derived($page.url.searchParams.get('lang') || 'en');
+    `morgan-williams.${data.slug}.pdf`;
 </script>
 
-<EngCV {...data} {pdfLink} {lang} />
+<EngCV {...data} pdfLink={pdfLink} /> 

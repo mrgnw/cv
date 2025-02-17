@@ -21,8 +21,7 @@
         "Designed and implemented data infrastructure and pipelines, enabling faster business operations while ensuring data security",
         "Transitioned legacy workflows to modern data pipelines, accelerating tasks by 100x to 1000x through automation",
         "Mentored data analysts in Python and SQL, expanding their skills and capabilities",
-        "Created API endpoints to enable secure data access for clients and third-party sources",
-        "Implemented secure sales structure calculations using recursive SQL queries"
+        "Created API endpoints to enable secure data access for clients and third-party sources"
       ]
     },
     {
@@ -33,8 +32,7 @@
       "description": [
         "Implemented ETL data pipelines using PySpark capable of processing large datasets",
         "Created API endpoints in GoLang, collaborating across teams to interface multiple services",
-        "Documented and created new processes to onboard, train, and increase teammate productivity",
-        "Developed secure data pipelines for processing market, currency, and regulatory data"
+        "Documented and created new processes to onboard, train, and increase teammate productivity"
       ]
     },
     {
@@ -44,10 +42,8 @@
       "end": "2021-08-01",
       "description": [
         "Created new ETL workflows in Airflow and optimized existing processing times up to 1000x",
-        "Migrated multiple codebases to Python3, including Airflow, Flask, and Celery applications",
-        "Created Python APIs and internal web interfaces for secure company data access",
-        "Led migration of BI team from MSSQL to PostgreSQL while maintaining MSSQL support during transition",
-        "Implemented secure data pipeline from Salesforce to ERP system"
+        "Migrated multiple codebases to Python3",
+        "Created Python APIs and internal web interfaces for secure company data access"
       ]
     }
   ],

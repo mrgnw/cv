@@ -157,7 +157,7 @@ async function checkPdfPageCount(page, options) {
 			const langPrefix = isSpanish ? '/es' : '';
 
 			// Engineering version (now the default route)
-			const url = `${serverUrl}${langPrefix}/${versionName}?print${isSpanish ? '&lang=es' : ''}`;
+			const url = `${serverUrl}${langPrefix}/${versionName}?print`;
 			const pdfName = versionName === 'main' ?
 				`morgan-williams${isSpanish ? '.es' : ''}.pdf` :
 				`morgan-williams.${versionName}${isSpanish ? '.es' : ''}.pdf`;
@@ -179,28 +179,27 @@ async function checkPdfPageCount(page, options) {
 			await page.pdf({ path: pdfPath, ...pdfOptions });
 			console.log(`🖨️  ${pdfPath}${projectsToRemove > 0 ? ` (removed ${projectsToRemove} projects)` : ''}`);
 
-			// Sans version - only for non-Spanish versions
-			if (!isSpanish) {
-				const sansUrl = `${serverUrl}/sans/${versionName}?print`;
-				const sansPdfName = versionName === 'main' ?
-					'morgan-williams-sans.pdf' :
-					`morgan-williams.${versionName}-sans.pdf`;
-				const sansPdfPath = path.join('static', 'sans', sansPdfName);
+			// Sans version
+			const sansUrl = `${serverUrl}/sans${langPrefix}/${versionName}?print`;
+			const sansPdfName = versionName === 'main' ?
+				`morgan-williams-sans${isSpanish ? '.es' : ''}.pdf` :
+				`morgan-williams.${versionName}-sans${isSpanish ? '.es' : ''}.pdf`;
+			const sansPdfPath = path.join('static', 'sans', sansPdfName);
 
-				projectsToRemove = 0;
-				do {
-					await page.goto(`${sansUrl}&removeProjects=${projectsToRemove}`, { waitUntil: 'networkidle' });
-					pageCount = await checkPdfPageCount(page, pdfOptions);
-					
-					if (pageCount > 1) {
-						projectsToRemove++;
-						console.log(`${sansPdfName}: Removing project ${projectsToRemove} (${pageCount} pages)`);
-					}
-				} while (pageCount > 1 && projectsToRemove < 5);
+			projectsToRemove = 0;
+			do {
+				await page.goto(`${sansUrl}&removeProjects=${projectsToRemove}`, { waitUntil: 'networkidle' });
+				pageCount = await checkPdfPageCount(page, pdfOptions);
+				
+				if (pageCount > 1) {
+					projectsToRemove++;
+					console.log(`${sansPdfName}: Removing project ${projectsToRemove} (${pageCount} pages)`);
+				}
+			} while (pageCount > 1 && projectsToRemove < 5);
 
-				await page.pdf({ path: sansPdfPath, ...pdfOptions });
-				console.log(`🖨️  ${sansPdfPath}${projectsToRemove > 0 ? ` (removed ${projectsToRemove} projects)` : ''}`);
-			}
+			await page.pdf({ path: sansPdfPath, ...pdfOptions });
+			console.log(`🖨️  ${sansPdfPath}${projectsToRemove > 0 ? ` (removed ${projectsToRemove} projects)` : ''}`);
+
 		} catch (error) {
 			console.error(`Error generating PDFs for version ${version}:`, error);
 		}

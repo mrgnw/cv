@@ -4,6 +4,7 @@
     import mainData from "$lib/versions/main.json";
     import { format } from "date-fns";
     import { FileText } from "lucide-svelte";
+    import JSON5 from 'json5';
   
     // Destructure props
     let {
@@ -60,6 +61,20 @@
     };
 
     const labels = $derived(lang === 'es' ? es_labels : en_labels);
+
+    const projectFiles = {
+      ...import.meta.glob<string>('/src/lib/projects/*.jsonc', { as: 'raw', eager: true }),
+      ...import.meta.glob<string>('/src/lib/versions/es/projects/*.jsonc', { as: 'raw', eager: true })
+    };
+
+    const projectList = $derived(() => {
+      const paths = Object.keys(projectFiles);
+      const projects = paths.map(path => {
+        const content = projectFiles[path];
+        return content ? JSON5.parse(content) : [];
+      });
+      return projects.flat();
+    });
   </script>
   
   <div class="max-w-[800px] mx-auto p-8 bg-white text-black print:p-4 font-serif">
@@ -106,11 +121,11 @@
       {/each}
     </section>
   
-    <!-- Projects (if any) -->
-    {#if projects?.length}
+    <!-- Projects -->
+    {#if projectList?.length}
       <section class="mb-6">
         <h2 class="text-lg font-bold border-b border-black pb-0.5 mb-2">{labels.projects}</h2>
-        {#each projects as project}
+        {#each projectList as project}
           <div class="mb-3">
             <div class="flex justify-between items-baseline">
               <a href={project.url} class="font-bold hover:underline">{project.name}</a>

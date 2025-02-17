@@ -1,0 +1,51 @@
+[
+    {
+        "name": "Resume",
+        "url": "https://github.com/mrgnw/resume",
+        "description": "CV en línea con generación automática de PDF",
+        "stack": [
+            "Svelte",
+            "Tailwind",
+            "Node",
+            "Cloudflare"
+        ]
+    },
+    {
+        "name": "Depth test",
+        "url": "https://foto3.pages.dev",
+        "description": "Experimento con efectos de profundidad en Javascript",
+        "stack": [
+            "Svelte",
+            "ThreeJS"
+        ]
+    },
+    {
+        "name": "Ananas",
+        "url": "https://ananas.xcc.es",
+        "description": "Traductor multilingüe",
+        "stack": [
+            "Svelte",
+            "Cloudflare",
+            "Serverless"
+        ]
+    },
+    {
+        "name": "TextMe",
+        "url": "https://textme.cc",
+        "description": "Envía mensajes de WhatsApp y Telegram a un número de teléfono",
+        "stack": [
+            "JS",
+            "Svelte"
+        ]
+    },
+    {
+        "name": "The Zen of Svelte",
+        "url": "https://a.xcc.es/zen-of-svelte",
+        "description": "Svelte es un excelente framework frontend incluso para desarrolladores de Python",
+        "year": "2020",
+        "stack": [
+            "Svelte",
+            "Speaking"
+        ]
+    }
+]
