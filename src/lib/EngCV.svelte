@@ -5,7 +5,10 @@
     import { format } from "date-fns";
     import { FileText } from "lucide-svelte";
     import JSON5 from 'json5';
-  
+    import { Button } from "$lib/components/ui/button";
+    import { getAllVersions } from "$lib/versionReader";
+    import { page } from "$app/stores";
+
     // Destructure props
     let {
       name = mainData.name,
@@ -17,15 +20,15 @@
       experience = mainData.experience,
       skills = mainData.skills,
       education = mainData.education,
-      version,
+      version = $page.params.slug || 'main',
       lang = 'en'
     }: CVProps = $props();
-  
+
     const iconSize = 30;
     function formatDate(date: string): string {
       return format(new Date(date), "MMM yyyy");
     }
-  
+
     const isPrinting = browser && new URLSearchParams(window.location.search).has("print");
     const searchParams = browser ? new URLSearchParams(window.location.search) : null;
     const removeProjects = searchParams?.get('removeProjects') 
@@ -35,7 +38,7 @@
     if (removeProjects > 0 && projects?.length) {
       projects = projects.slice(0, Math.max(0, projects.length - removeProjects));
     }
-  
+
     function formatUrl(url: string): string {
         try {
             return url.replace(/^https?:\/\/(www\.)?/, '');
@@ -75,8 +78,17 @@
       });
       return projects.flat();
     });
+
+    const allVersions = getAllVersions();
+    const isSpanishVersion = $derived(version?.endsWith('.es'));
+    const otherVersionSlug = $derived(
+      isSpanishVersion ? version.replace('.es', '') : `${version}.es`
+    );
+    const hasOtherLanguage = $derived(allVersions.includes(otherVersionSlug));
+    const otherLangUrl = $derived(`/${otherVersionSlug}`);
+
   </script>
-  
+
   <div class="max-w-[800px] mx-auto p-8 bg-white text-black print:p-4 font-serif">
     <!-- Name -->
     <header class="text-center mb-4">
@@ -91,7 +103,27 @@
         <a href="https://linkedin.com/in/mrgnw" class="hover:underline">linkedin.com/in/mrgnw</a>
       </div>
     </header>
-  
+
+    <!-- Language Switcher -->
+    {#if hasOtherLanguage && !isPrinting}
+      <div class="absolute top-4 right-4 no-print">
+        <Button
+          variant="outline"
+          size="icon"
+          class="w-10 h-10 text-lg rounded-full"
+          asChild
+        >
+          <a href={otherLangUrl}>
+            {#if isSpanishVersion}
+              <span aria-label="Switch to English">🇺🇸</span>
+            {:else}
+              <span aria-label="Cambiar a Español">🇪🇸</span>
+            {/if}
+          </a>
+        </Button>
+      </div>
+    {/if}
+
     <!-- Skills -->
     <section class="mb-6">
       <h2 class="text-lg font-bold border-b border-black pb-0.5 mb-2">{labels.skills}</h2>
@@ -99,7 +131,7 @@
         {skills.join(', ')}
       </div>
     </section>
-  
+
     <!-- Experience -->
     <section class="mb-6">
       <h2 class="text-lg font-bold border-b border-black pb-0.5 mb-2">{labels.experience}</h2>
@@ -122,7 +154,7 @@
         </div>
       {/each}
     </section>
-  
+
     <!-- Projects -->
     {#if projects?.length}
       <section class="mb-6">
@@ -140,7 +172,7 @@
         {/each}
       </section>
     {/if}
-  
+
     <!-- Education -->
     <section>
       <h2 class="text-lg font-bold border-b border-black pb-0.5 mb-2">{labels.education}</h2>
@@ -155,7 +187,7 @@
       {/each}
     </section>
   </div>
-  
+
   <!-- PDF Download -->
   <a
       href={pdfLink}
@@ -167,7 +199,7 @@
   >
       <FileText size={iconSize} />
   </a>
-  
+
   <style>
     @media print {
       @page {

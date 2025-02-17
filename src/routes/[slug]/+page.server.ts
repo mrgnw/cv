@@ -4,7 +4,7 @@ import { coalesceVersion } from '$lib/versionReader';
 
 export const load = (async ({ params }) => {
     const { slug } = params;
-    const data = coalesceVersion(slug.endsWith('.es') ? slug : slug);
+    const data = coalesceVersion(slug);
 
     if (!data) {
         console.error(`Error loading CV version "${slug}"`);
