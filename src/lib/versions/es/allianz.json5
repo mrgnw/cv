@@ -18,10 +18,11 @@
       "company": "National Care Dental",
       "start": "2022-05-01",
       "description": [
-        "Diseñé e implementé infraestructura y pipelines de datos, permitiendo operaciones comerciales más rápidas mientras aseguraba la seguridad de los datos",
-        "Transicioné flujos de trabajo heredados a pipelines de datos modernos, acelerando tareas de 100x a 1000x mediante automatización",
-        "Mentoré a analistas de datos en Python y SQL, expandiendo sus habilidades y capacidades",
-        "Creé endpoints de API para permitir acceso seguro a datos para clientes y fuentes de terceros"
+        "Diseñé e implementé infraestructura y pipelines de datos, permitiendo operaciones comerciales más rápidas mientras aseguraba la seguridad de datos",
+        "Transformé flujos de trabajo heredados a pipelines de datos modernos, acelerando tareas de 100x a 1000x mediante automatización",
+        "Mentoré analistas de datos en Python y SQL, expandiendo sus habilidades y capacidades",
+        "Creé endpoints de API para permitir acceso seguro a datos para clientes y fuentes de terceros",
+        "Implementé cálculos seguros de estructura de ventas usando consultas SQL recursivas"
       ]
     },
     {
@@ -30,9 +31,10 @@
       "start": "2021-08-01",
       "end": "2022-05-31",
       "description": [
-        "Implementé pipelines de datos ETL usando PySpark capaces de procesar grandes conjuntos de datos",
+        "Implementé pipelines ETL de datos usando PySpark capaces de procesar grandes conjuntos de datos",
         "Creé endpoints de API en GoLang, colaborando entre equipos para interconectar múltiples servicios",
-        "Documenté y creé nuevos procesos para incorporar, entrenar y aumentar la productividad del equipo"
+        "Documenté y creé nuevos procesos para incorporar, entrenar y aumentar la productividad del equipo",
+        "Desarrollé pipelines seguros de datos para procesar datos de mercados, divisas y regulaciones"
       ]
     },
     {
