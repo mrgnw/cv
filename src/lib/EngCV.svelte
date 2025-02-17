@@ -128,7 +128,7 @@
         {#each projects as project}
           <div class="mb-3">
             <div class="flex justify-between items-baseline">
-              <a href={project.url} class="font-bold hover:underline">{project.name}</a>
+              <a href={project.url} class="font-bold hover:underline">{project.localized_name || project.name}</a>
               <a href={project.url} class="text-sm hover:underline">
                 {formatUrl(project.url)}
               </a>

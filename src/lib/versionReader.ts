@@ -5,9 +5,9 @@ import JSON5 from 'json5';
  * Dynamically import all JSON files in the versions directory.
  */
 const versionFiles = {
-	...import.meta.glob<string>('/src/lib/versions/*.json', { as: 'raw', eager: true }),
-	...import.meta.glob<string>('/src/lib/versions/*.json5', { as: 'raw', eager: true }),
-	...import.meta.glob<string>('/src/lib/versions/*.jsonc', { as: 'raw', eager: true }),
+	...import.meta.glob<string>('/src/lib/versions/*.json', { query: '?raw', import: 'default', eager: true }),
+	...import.meta.glob<string>('/src/lib/versions/*.json5', { query: '?raw', import: 'default', eager: true }),
+	...import.meta.glob<string>('/src/lib/versions/*.jsonc', { query: '?raw', import: 'default', eager: true }),
 };
 
 /**
@@ -66,8 +66,8 @@ export function coalesceVersion(slug: string): CVData | null {
 
 	// Import and parse projects
 	const projectFiles = {
-		...import.meta.glob<string>('/src/lib/projects.jsonc', { as: 'raw', eager: true }),
-		...import.meta.glob<string>('/src/lib/projects-es.jsonc', { as: 'raw', eager: true }),
+		...import.meta.glob<string>('/src/lib/projects.jsonc', { query: '?raw', import: 'default', eager: true }),
+		...import.meta.glob<string>('/src/lib/projects-es.jsonc', { query: '?raw', import: 'default', eager: true }),
 	};
 
 	const getProjectsPath = (slug: string) => `/src/lib/projects${slug.endsWith('.es') ? '-es' : ''}.jsonc`;

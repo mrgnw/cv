@@ -1,6 +1,7 @@
 [
     {
         "name": "Resume",
+        "localized_name": "CV",
         "url": "https://github.com/mrgnw/resume",
         "description": "CV en línea con generación automática de PDF",
         "stack": [
@@ -12,6 +13,7 @@
     },
     {
         "name": "Depth test",
+        "localized_name": "Efecto de visualización de fotografías en 3D",
         "url": "https://foto3.pages.dev",
         "description": "Experimento con efectos de profundidad en Javascript",
         "stack": [

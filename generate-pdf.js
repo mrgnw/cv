@@ -172,7 +172,7 @@ async function checkPdfPageCount(page, options) {
 				
 				if (pageCount > 1) {
 					projectsToRemove++;
-					console.log(`${pdfName}: Removing project ${projectsToRemove} (${pageCount} pages)`);
+					console.log(`  - project ${projectsToRemove} (${pageCount} pages)`);
 				}
 			} while (pageCount > 1 && projectsToRemove < 5);
 
@@ -193,7 +193,7 @@ async function checkPdfPageCount(page, options) {
 				
 				if (pageCount > 1) {
 					projectsToRemove++;
-					console.log(`${sansPdfName}: Removing project ${projectsToRemove} (${pageCount} pages)`);
+					console.log(`  - project ${projectsToRemove} (${pageCount} pages)`);
 				}
 			} while (pageCount > 1 && projectsToRemove < 5);
 
