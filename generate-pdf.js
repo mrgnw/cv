@@ -105,107 +105,111 @@ async function checkPdfPageCount(page, options) {
 	return pageCount;
 }
 
+export function generatePDF() {
+    // PDF generation disabled for now
+    console.log('PDF generation disabled');
+}
+
+// Configuration option to control sans version generation
+const GENERATE_SANS_VERSION = false; // Set to true to enable sans version generation
+
+// Helper function to generate PDF for a specific version and style
+async function generateVersionPDF(page, serverUrl, version, options, isSansStyle = false) {
+  const isSpanish = version.startsWith('es/');
+  const versionName = isSpanish ? version.replace('es/', '') : version;
+  const langPrefix = isSpanish ? '/es' : '';
+  
+  // Build URL and paths based on style
+  const stylePrefix = isSansStyle ? '/sans' : '';
+  const url = `${serverUrl}${stylePrefix}${langPrefix}/${versionName}?print`;
+  
+  const styleInfix = isSansStyle ? '-sans' : '';
+  const pdfName = versionName === 'main' ?
+    `morgan-williams${styleInfix}${isSpanish ? '.es' : ''}.pdf` :
+    `morgan-williams.${versionName}${styleInfix}${isSpanish ? '.es' : ''}.pdf`;
+  
+  const outputDir = isSansStyle ? path.join('static', 'sans') : 'static';
+  const pdfPath = path.join(outputDir, pdfName);
+  
+  let projectsToRemove = 0;
+  let pageCount;
+  
+  do {
+    await page.goto(`${url}&removeProjects=${projectsToRemove}`, { waitUntil: 'networkidle' });
+    pageCount = await checkPdfPageCount(page, options);
+    
+    if (pageCount > 1) {
+      projectsToRemove++;
+      console.log(`  - project ${projectsToRemove} (${pageCount} pages)`);
+    }
+  } while (pageCount > 1 && projectsToRemove < 5);
+  
+  await page.pdf({ path: pdfPath, ...options });
+  console.log(`🖨️  ${pdfPath}${projectsToRemove > 0 ? ` (removed ${projectsToRemove} projects)` : ''}`);
+}
+
 (async () => {
-	// Get versions from command line args OR get changed versions
-	const specificVersions = process.argv.length > 2 ?
-		process.argv.slice(2) :
-		getAllVersions();
+  // Get versions from command line args OR get changed versions
+  const specificVersions = process.argv.length > 2 ?
+    process.argv.slice(2) :
+    getAllVersions();
 
-	const serverUrl = 'http://localhost:4173';
-	console.log('Waiting for the preview server to start...');
-	try {
-		await waitForServer(serverUrl);
-	} catch (error) {
-		console.error(error);
-		process.exit(1);
-	}
+  const serverUrl = 'http://localhost:4173';
+  console.log('Waiting for the preview server to start...');
+  try {
+    await waitForServer(serverUrl);
+  } catch (error) {
+    console.error(error);
+    process.exit(1);
+  }
 
-	const versions = getVersionNames(specificVersions);
-	if (versions.length === 0) {
-		console.log('No versions to process');
-		process.exit(0);
-	}
+  const versions = getVersionNames(specificVersions);
+  if (versions.length === 0) {
+    console.log('No versions to process');
+    process.exit(0);
+  }
 
-	console.log('Generating PDFs for versions:', versions.join(', '));
-	const browser = await chromium.launch();
-	const page = await browser.newPage();
+  console.log('Generating PDFs for versions:', versions.join(', '));
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
 
-	const pdfOptions = {
-		format: 'A4',
-		printBackground: false,
-		margin: {
-			top: '6mm',
-			bottom: '6mm',
-			left: '8mm',
-			right: '8mm',
-		},
-	};
+  const pdfOptions = {
+    format: 'A4',
+    printBackground: false,
+    margin: {
+      top: '6mm',
+      bottom: '6mm',
+      left: '8mm',
+      right: '8mm',
+    },
+  };
 
-	// Ensure static and sans directories exist
-	if (!fs.existsSync('static')) {
-		fs.mkdirSync('static');
-	}
-	if (!fs.existsSync('static/sans')) {
-		fs.mkdirSync('static/sans');
-	}
+  // Ensure static directory exists
+  if (!fs.existsSync('static')) {
+    fs.mkdirSync('static');
+  }
+  
+  // Ensure sans directory exists if needed
+  if (GENERATE_SANS_VERSION && !fs.existsSync('static/sans')) {
+    fs.mkdirSync('static/sans');
+  }
 
-	// Generate both regular and engineering versions
-	for (const version of versions) {
-		try {
-			const isSpanish = version.startsWith('es/');
-			const versionName = isSpanish ? version.replace('es/', '') : version;
-			const langPrefix = isSpanish ? '/es' : '';
+  // Process each version
+  for (const version of versions) {
+    try {
+      // Generate regular version
+      await generateVersionPDF(page, serverUrl, version, pdfOptions, false);
+      
+      // Optionally generate sans version
+      if (GENERATE_SANS_VERSION) {
+        await generateVersionPDF(page, serverUrl, version, pdfOptions, true);
+      }
+    } catch (error) {
+      console.error(`Error generating PDFs for version ${version}:`, error);
+    }
+  }
 
-			// Engineering version (now the default route)
-			const url = `${serverUrl}${langPrefix}/${versionName}?print`;
-			const pdfName = versionName === 'main' ?
-				`morgan-williams${isSpanish ? '.es' : ''}.pdf` :
-				`morgan-williams.${versionName}${isSpanish ? '.es' : ''}.pdf`;
-			const pdfPath = path.join('static', pdfName);
-
-			let projectsToRemove = 0;
-			let pageCount;
-
-			do {
-				await page.goto(`${url}&removeProjects=${projectsToRemove}`, { waitUntil: 'networkidle' });
-				pageCount = await checkPdfPageCount(page, pdfOptions);
-				
-				if (pageCount > 1) {
-					projectsToRemove++;
-					console.log(`  - project ${projectsToRemove} (${pageCount} pages)`);
-				}
-			} while (pageCount > 1 && projectsToRemove < 5);
-
-			await page.pdf({ path: pdfPath, ...pdfOptions });
-			console.log(`🖨️  ${pdfPath}${projectsToRemove > 0 ? ` (removed ${projectsToRemove} projects)` : ''}`);
-
-			// Sans version
-			const sansUrl = `${serverUrl}/sans${langPrefix}/${versionName}?print`;
-			const sansPdfName = versionName === 'main' ?
-				`morgan-williams-sans${isSpanish ? '.es' : ''}.pdf` :
-				`morgan-williams.${versionName}-sans${isSpanish ? '.es' : ''}.pdf`;
-			const sansPdfPath = path.join('static', 'sans', sansPdfName);
-
-			projectsToRemove = 0;
-			do {
-				await page.goto(`${sansUrl}&removeProjects=${projectsToRemove}`, { waitUntil: 'networkidle' });
-				pageCount = await checkPdfPageCount(page, pdfOptions);
-				
-				if (pageCount > 1) {
-					projectsToRemove++;
-					console.log(`  - project ${projectsToRemove} (${pageCount} pages)`);
-				}
-			} while (pageCount > 1 && projectsToRemove < 5);
-
-			await page.pdf({ path: sansPdfPath, ...pdfOptions });
-			console.log(`🖨️  ${sansPdfPath}${projectsToRemove > 0 ? ` (removed ${projectsToRemove} projects)` : ''}`);
-
-		} catch (error) {
-			console.error(`Error generating PDFs for version ${version}:`, error);
-		}
-	}
-
-	await browser.close();
-	console.log('✅ Done');
-	process.exit(0);
+  await browser.close();
+  console.log('✅ Done');
+  process.exit(0);
 })();
