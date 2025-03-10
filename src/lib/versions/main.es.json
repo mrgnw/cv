@@ -16,7 +16,7 @@
   "tools": ["DuckDB", "FastAPI", "Airflow", "AWS", "Databricks", "Spark"],
   "projects": [
     "Resume",
-    "Ananas",
+    "Traductor multilingüe",
     "TextMe"
   ],
   "experience": [

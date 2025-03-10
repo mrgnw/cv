@@ -1,0 +1,51 @@
+{
+  title: "Full-Stack Developer",
+  github: "https://github.com/mrgnw",
+  skills: ["Python", "Svelte", "JavaScript", "APIs", "AWS", "Data"],
+  tools: [
+    "SvelteKit",
+    "FastAPI",
+    "Express.js",
+    "Tailwind CSS",
+    "Docker",
+    "AWS",
+  ],
+  projects: [
+	{
+      name: "The Zen of Svelte  - SvelteSummit lightning talk 2020",
+      url: "https://a.xcc.es/zen-of-svelte",
+      display_url: "youtube",
+      description: "Svelte is a great frontend framework even for Python developers",
+      year: "2020",
+      stack: ["Svelte", "Speaking"],
+    },
+    "Multilingual translator",
+    "Resume",
+	{
+        "name": "3D photo depth experiment",
+        "url": "https://foto3.pages.dev",
+        "description": "Experiment with depth effects in Javascript",
+        "stack": [
+            "Svelte",
+            "ThreeJS"
+        ]
+    },
+    {
+      name: "TextMe",
+      url: "https://textme.cc",
+      description: "Send WhatsApp, Telegram messages to a phone number",
+      stack: ["JS", "Svelte"],
+    },
+  ],
+  experience: [
+    null,
+    null,
+    {
+      description: [
+        "Developed Python-based APIs and UIs for internal tools",
+        "Streamlined business processes with Airflow ETL workflows, improving performance up to 1000x",
+        "Upgraded legacy codebases to Python 3 for better performance and maintainability",
+      ],
+    },
+  ],
+}

@@ -17,7 +17,7 @@
 	],
 	"projects": [
 		{
-			"name": "Ananas",
+			"name": "Multilingual Translator",
 			"url": "https://ananas.xcc.es",
 			"description": "Multi-lingual translator with history",
 			"stack": [
