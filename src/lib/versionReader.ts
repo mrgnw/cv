@@ -169,7 +169,9 @@ function mergeDescriptions(
 	const mergedDescription: string[] = [];
 
 	for (let i = 0; i < maxLength; i++) {
-		const versionLine = versionDescription[i]?.trim();
+		const versionLine = typeof versionDescription[i] === "string"
+			? versionDescription[i].trim()
+			: "";
 		mergedDescription[i] = versionLine || mainDescription[i] || "";
 	}
 
