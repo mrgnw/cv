@@ -48,6 +48,35 @@ const getVersionNames = (specificVersions) => {
 	return allVersions;
 };
 
+/**
+ * Detect which port the preview server is running on
+ */
+const detectServerPort = async () => {
+	const ports = [4173, 4174, 4175, 4176, 4177];
+	
+	for (const port of ports) {
+		const url = `http://localhost:${port}`;
+		try {
+			await new Promise((resolve, reject) => {
+				const req = http.get(url, (res) => {
+					resolve();
+				});
+				req.on('error', reject);
+				req.setTimeout(2000, () => {
+					req.destroy();
+					reject(new Error('Timeout'));
+				});
+			});
+			console.log(`✅ Found preview server on port ${port}`);
+			return url;
+		} catch (error) {
+			// Try next port
+		}
+	}
+	
+	throw new Error('Preview server not found on any expected port (4173-4177)');
+};
+
 const waitForServer = (url) => {
 	return new Promise((resolve, reject) => {
 		const timeout = setTimeout(() => {
@@ -127,12 +156,13 @@ async function generateVersionPDF(page, serverUrl, version, options, isSansStyle
     process.argv.slice(2) :
     getAvailableVersions();
 
-  const serverUrl = 'http://localhost:4173';
-  console.log('Waiting for the preview server to start...');
+  console.log('🔍 Detecting preview server...');
+  let serverUrl;
   try {
-    await waitForServer(serverUrl);
+    serverUrl = await detectServerPort();
   } catch (error) {
-    console.error(error);
+    console.error('❌', error.message);
+    console.log('💡 Make sure to run `npm run preview` first');
     process.exit(1);
   }
 

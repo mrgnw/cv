@@ -175,6 +175,39 @@ async function checkPdfPageCount(page) {
 }
 
 /**
+ * Detect which port the preview server is running on
+ */
+async function detectServerPort() {
+	const ports = [4173, 4174, 4175, 4176, 4177];
+	
+	for (const port of ports) {
+		const url = `http://localhost:${port}`;
+		try {
+			await new Promise((resolve, reject) => {
+				const req = http.get(url, (res) => {
+					if (res.statusCode === 200) {
+						resolve();
+					} else {
+						reject();
+					}
+				});
+				req.on('error', reject);
+				req.setTimeout(1000, () => {
+					req.destroy();
+					reject();
+				});
+			});
+			console.log(`✅ Found preview server on port ${port}`);
+			return url;
+		} catch (error) {
+			// Try next port
+		}
+	}
+	
+	throw new Error('Preview server not found on any expected port (4173-4177)');
+}
+
+/**
  * Wait for server with exponential backoff
  */
 function waitForServer(url) {
@@ -206,13 +239,12 @@ function waitForServer(url) {
 		process.argv.slice(2) :
 		getAllVersions();
 
-	const serverUrl = 'http://localhost:4173';
-	
 	console.log('🚀 Optimized PDF Generation Starting...');
-	console.log('Waiting for the preview server to start...');
+	console.log('🔍 Detecting preview server...');
 	
+	let serverUrl;
 	try {
-		await waitForServer(serverUrl);
+		serverUrl = await detectServerPort();
 	} catch (error) {
 		console.error('❌', error.message);
 		console.log('💡 Run `npm run preview` in another terminal first');
