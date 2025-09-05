@@ -7,8 +7,6 @@
 	import { Separator } from "$lib/components/ui/separator";
 	import { ChevronDown, FileText } from "lucide-svelte";
 	import { browser } from "$app/environment";
-
-	import mainData from "$lib/versions/main.json";
 	let highlightedSkill = $state("");
 
 	function highlightStack(skill: string) {
@@ -26,15 +24,15 @@
 
 	// Destructure props
 	let {
-		name = mainData.name,
-		title = mainData.title,
-		email = mainData.email,
-		github = mainData.github,
+		name,
+		title,
+		email,
+		github,
 		pdfLink = "/morgan-williams-cv",
-		projects = mainData.projects,
-		experience = mainData.experience,
-		skills = mainData.skills,
-		education = mainData.education,
+		projects,
+		experience,
+		skills,
+		education,
 		version,
 	}: CVProps = $props();
 
@@ -45,7 +43,7 @@
 
 	const searchParams = browser ? new URLSearchParams(window.location.search) : null;
 	const removeProjects = searchParams?.get('removeProjects') 
-		? parseInt(searchParams.get('removeProjects')) 
+		? parseInt(searchParams.get('removeProjects')!) 
 		: 0;
 
 	if (removeProjects > 0 && projects?.length) {
@@ -152,6 +150,8 @@
 	
 
 	<footer class="print-footnote mt-auto pt-4 print:hidden">
+		<!-- Keywords section temporarily disabled during refactor -->
+		<!--
 		<details>
 			<summary class="flex items-center gap-1 cursor-pointer list-none">
 				<span class="text-sm font-semibold">Related keywords</span>
@@ -169,6 +169,7 @@
 				{/each}
 			</p>
 		</details>
+		-->
 	</footer>
 </div>
 

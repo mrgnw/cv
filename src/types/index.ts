@@ -10,9 +10,27 @@ export interface Experience {
 }
 export interface Project {
 	name: string;
+	localized_name?: string;
 	url: string;
 	description: string;
 	stack?: string[];
+}
+
+export interface RawCVData {
+	name: string;
+	title: string;
+	email: string;
+	github: string;
+	experience: Array<Experience>;
+	skills: string[];
+	education: Array<{
+		degree: string;
+		provider: string;
+		summary?: string;
+		year: string;
+	}>;
+	projects?: (string | Project)[];  // Can be either project names or full definitions
+	pdfLink?: string;
 }
 
 export interface CVData {
@@ -28,7 +46,8 @@ export interface CVData {
 		summary?: string;
 		year: string;
 	}>;
-	projects?: (string | Project)[];  // Can be either project names or full definitions
+	projects: Project[];  // Required: should be resolved by coalesceVersion
+	pdfLink?: string;  // Added for dynamic PDF link generation
 }
 
 export interface ExperienceItem {
@@ -44,6 +63,15 @@ export interface EducationItem {
 	provider: string;
 	summary?: string;
 	year: string;
+	achievements?: string[];
+}
+
+export interface VersionMeta {
+	slug: string;
+	job: string | null;
+	company: string | null;
+	path: string;
+	sourceType: 'generic' | 'scoped' | 'base';
 }
 
 export interface CVProps {
@@ -51,8 +79,11 @@ export interface CVProps {
 	title: string;
 	email: string;
 	github: string;
-	projects: Project[];
+	projects: Project[];  // Required and fully resolved
 	experience: ExperienceItem[];
 	skills: string[];
 	education: EducationItem[];
+	pdfLink?: string;
+	version?: string;
+	lang?: string;
 }

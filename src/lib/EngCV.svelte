@@ -1,26 +1,24 @@
 <script lang="ts">
     import type { CVProps } from "../types";
     import { browser } from "$app/environment";
-    import mainData from "$lib/versions/main.json";
     import { format } from "date-fns";
     import { FileText } from "lucide-svelte";
     import JSON5 from 'json5';
     import { Button } from "$lib/components/ui/button";
     import { getAllVersions } from "$lib/versionReader";
-    import { page } from "$app/stores";
 
     // Destructure props
     let {
-      name = mainData.name,
-      title = mainData.title,
-      email = mainData.email,
-      github = mainData.github,
+      name,
+      title,
+      email,
+      github,
       pdfLink = "/morgan-williams-cv",
-      projects = mainData.projects,
-      experience = mainData.experience,
-      skills = mainData.skills,
-      education = mainData.education,
-      version = $page.params.slug || 'main',
+      projects,
+      experience,
+      skills,
+      education,
+      version = 'main',
       lang = 'en'
     }: CVProps = $props();
 
@@ -32,7 +30,7 @@
     const isPrinting = browser && new URLSearchParams(window.location.search).has("print");
     const searchParams = browser ? new URLSearchParams(window.location.search) : null;
     const removeProjects = searchParams?.get('removeProjects') 
-      ? parseInt(searchParams.get('removeProjects')) 
+      ? parseInt(searchParams.get('removeProjects')!) 
       : 0;
 
     if (removeProjects > 0 && projects?.length) {

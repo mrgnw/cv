@@ -1,9 +1,9 @@
 <script lang="ts">
   import EngCV from '$lib/EngCV.svelte';
-  import type { PageServerLoad } from './$types';
+  import type { PageData } from './$types';
 
   interface Props {
-    data: PageServerLoad;
+    data: PageData;
   }
 
   let { data }: Props = $props();
