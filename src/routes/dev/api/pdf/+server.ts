@@ -21,6 +21,8 @@ export const POST = async (event) => {
   const body = await request.json().catch(() => ({}));
   const { versions = [], force = false } = body as { versions?: string[]; force?: boolean };
 
+  console.log('🔄 PDF Generation Request:', { versions, force, timestamp: new Date().toISOString() });
+
   // Build argument list
   const args = ['pdf-cli.js'];
   if (force) args.push('--force');
@@ -30,12 +32,33 @@ export const POST = async (event) => {
     args.push(...versions);
   }
 
+  console.log('🚀 Executing command:', 'node', args.join(' '));
+
   const start = Date.now();
   const result = await run('node', args);
   const duration = ((Date.now() - start) / 1000).toFixed(2);
 
+  console.log('📊 PDF Generation Result:', { 
+    success: result.code === 0, 
+    duration: duration + 's',
+    exitCode: result.code,
+    stdoutLength: result.stdout.length,
+    stderrLength: result.stderr.length
+  });
+
+  if (result.stdout) {
+    console.log('📄 STDOUT:', result.stdout);
+  }
+  
+  if (result.stderr) {
+    console.log('🚨 STDERR:', result.stderr);
+  }
+
   if (result.code !== 0) {
+    console.error('❌ PDF generation failed with exit code:', result.code);
     return json({ ok: false, duration, stdout: result.stdout, stderr: result.stderr }, { status: 500 });
   }
+  
+  console.log('✅ PDF generation completed successfully');
   return json({ ok: true, duration, stdout: result.stdout, stderr: result.stderr });
 };

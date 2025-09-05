@@ -1,9 +1,11 @@
-# Node + Bun
-FROM node:23 AS bun-base
+# Use official Playwright image with Node.js and browsers pre-installed
+FROM mcr.microsoft.com/playwright:v1.55.0-noble AS playwright-base
+
+# Install bun
 RUN npm install -g bun
 WORKDIR /app
 
-FROM bun-base AS dev
+FROM playwright-base AS dev
 COPY package*.json ./
 RUN bun install
 

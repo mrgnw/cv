@@ -22,7 +22,7 @@ let chokidarWatch = null; // lazy load for watch mode
 import { getAllVersions, getAllVersionMeta, getVersionFileMap } from './pdf-version-reader.js';
 
 // ---------------- Configuration ----------------
-const PORTS = [4173, 4174, 4175, 4176, 4177];
+const PORTS = [5173, 4173, 4174, 4175, 4176, 4177]; // Dev server (5173) first, then preview ports
 const CACHE_FILE = '.pdf-cache.json';
 const MAX_REMOVE_PROJECTS = 5;
 const GLOBAL_FILES = [
@@ -77,10 +77,19 @@ async function detectServer() {
 
 async function ensureServer() {
   const found = await detectServer();
-  if (found) { log(`✅ Preview server detected on port ${found.port}`); return found.url; }
-  // Ensure build exists (vite preview needs dist output)
-  const distIndex = path.join('dist','index.html');
+  if (found) { 
+    if (found.port === 5173) {
+      log(`✅ Dev server detected on port ${found.port}`);
+    } else {
+      log(`✅ Preview server detected on port ${found.port}`);
+    }
+    return found.url; 
+  }
+  
+  // Only build and start preview if no dev server is running and we're not skipping builds
   if (!process.env.PDF_SKIP_BUILD) {
+    // Ensure build exists (vite preview needs dist output)
+    const distIndex = path.join('dist','index.html');
     const needBuild = !fs.existsSync(distIndex) || process.env.PDF_FORCE_REBUILD === '1';
     if (needBuild) {
       log(`🏗️  ${fs.existsSync(distIndex) ? 'Rebuilding site (PDF_FORCE_REBUILD=1)...' : 'Building site (missing dist)...'}`);
@@ -93,20 +102,21 @@ async function ensureServer() {
     } else {
       log('🔁 Reusing existing dist (set PDF_FORCE_REBUILD=1 to force rebuild)');
     }
+    
+    log('🚀 Starting preview server...');
+    // detached so it keeps running
+    const child = spawn('npm', ['run', 'preview'], { stdio: QUIET ? 'ignore' : 'inherit', detached: true });
+    child.unref();
+    const start = Date.now();
+    while (Date.now() - start < 30000) {
+      const again = await detectServer();
+      if (again) { log(`✅ Preview server started on port ${again.port}`); return again.url; }
+      await new Promise(r => setTimeout(r, 500));
+    }
+    throw new Error('Preview server not reachable after 30s');
   } else {
-    log('⚠️  Skipping build because PDF_SKIP_BUILD is set');
+    throw new Error('No server detected and PDF_SKIP_BUILD is set. Start a dev server with "npm run dev" or preview server with "npm run preview"');
   }
-  log('🚀 Starting preview server...');
-  // detached so it keeps running
-  const child = spawn('npm', ['run', 'preview'], { stdio: QUIET ? 'ignore' : 'inherit', detached: true });
-  child.unref();
-  const start = Date.now();
-  while (Date.now() - start < 30000) {
-    const again = await detectServer();
-    if (again) { log(`✅ Preview server started on port ${again.port}`); return again.url; }
-    await new Promise(r => setTimeout(r, 500));
-  }
-  throw new Error('Preview server not reachable after 30s');
 }
 
 // ---------------- Version & Dependency Graph ----------------
