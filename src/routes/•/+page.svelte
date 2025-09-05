@@ -13,6 +13,15 @@
     let lastResult = $state<{ ok: boolean; duration: string; stdout?: string; stderr?: string; timestamp?: string } | null>(null);
     let resultHistory = $state<Array<{ ok: boolean; duration: string; stdout?: string; stderr?: string; timestamp: string; versions?: string[] }>>([]);
     let requestId = $state<string | null>(null);
+    let hoveredSlug = $state<string | null>(null);
+    let previewType = $state<'page' | 'pdf' | null>(null);
+    let mouseX = $state(0);
+    let mouseY = $state(0);
+
+    function handleMouseMove(event: MouseEvent) {
+        mouseX = event.clientX;
+        mouseY = event.clientY;
+    }
 
     // Persist results across page reloads
     if (browser) {
@@ -358,7 +367,7 @@
     <Separator />
 
     <!-- Version List -->
-    <div>
+    <div onmousemove={handleMouseMove}>
         {#each meta as m}
             <div class="flex items-center gap-3 py-1 hover:bg-gray-50 rounded px-2">
                 <button 
@@ -374,17 +383,58 @@
                     {/if}
                 </button>
                 
-                <a href="/{m.slug}" class="font-mono text-blue-600 hover:text-blue-800 text-sm font-medium">
+                <a 
+                    href="/{m.slug}" 
+                    class="font-mono text-blue-600 hover:text-blue-800 text-sm font-medium"
+                    onmouseenter={() => { hoveredSlug = m.slug; previewType = 'page'; }}
+                    onmouseleave={() => { hoveredSlug = null; previewType = null; }}
+                >
                     {m.slug}
                 </a>
                 
-                <span 
-                    class="text-gray-600 text-sm"
+                <a 
+                    href="/morgan-williams{m.slug === 'main' ? '' : `.${m.slug}`}.pdf"
+                    class="text-gray-600 hover:text-blue-600 text-sm"
                     title="File: {m.path}"
+                    target="_blank"
+                    onmouseenter={() => { hoveredSlug = m.slug; previewType = 'pdf'; }}
+                    onmouseleave={() => { hoveredSlug = null; previewType = null; }}
                 >
                     morgan-williams{m.slug === 'main' ? '' : `.${m.slug}`}.pdf
-                </span>
+                </a>
             </div>
         {/each}
     </div>
+    
+    <!-- Preview Tooltip -->
+    {#if hoveredSlug && previewType}
+        <div 
+            class="fixed z-50 pointer-events-none border border-gray-200 bg-white shadow-lg rounded-lg overflow-hidden"
+            style="left: {mouseX + 10}px; top: {mouseY - 150}px; width: 300px; height: 400px;"
+        >
+            {#if previewType === 'page'}
+                <div class="h-full">
+                    <div class="bg-gray-100 px-3 py-2 text-xs font-medium text-gray-700 border-b">
+                        Page Preview: /{hoveredSlug}
+                    </div>
+                    <iframe 
+                        src="/{hoveredSlug}" 
+                        class="w-full h-full border-0"
+                        title="Page preview"
+                    ></iframe>
+                </div>
+            {:else if previewType === 'pdf'}
+                <div class="h-full">
+                    <div class="bg-gray-100 px-3 py-2 text-xs font-medium text-gray-700 border-b">
+                        PDF Preview: morgan-williams{hoveredSlug === 'main' ? '' : `.${hoveredSlug}`}.pdf
+                    </div>
+                    <iframe 
+                        src="/morgan-williams{hoveredSlug === 'main' ? '' : `.${hoveredSlug}`}.pdf#toolbar=0&navpanes=0&scrollbar=0" 
+                        class="w-full h-full border-0"
+                        title="PDF preview"
+                    ></iframe>
+                </div>
+            {/if}
+        </div>
+    {/if}
 </div>
