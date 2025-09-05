@@ -11,7 +11,11 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"install-browsers": "playwright install",
 		"pdfs": "vite build && bunx concurrently -k --kill-signal SIGTERM \"bun run preview\" \"bun run pdf-script\" || true",
-		"pdf-script": "bun generate-pdf.js"
+		"pdf-script": "bun generate-pdf.js",
+		"pdf": "node pdf-dev.js",
+		"pdf:watch": "node pdf-dev.js --watch",
+		"pdf:force": "node pdf-dev.js --force",
+		"pdf:optimized": "node generate-pdf-optimized.js"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-cloudflare": "^4.7.2",
