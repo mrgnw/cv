@@ -31,6 +31,7 @@
 		"@iconify/svelte": "^4.0.2",
 		"@sveltejs/adapter-static": "^3.0.5",
 		"bits-ui": "^0.21.16",
+		"caniuse-lite": "^1.0.30001741",
 		"clsx": "^2.1.1",
 		"date-fns": "^4.1.0",
 		"json5": "^2.2.3",

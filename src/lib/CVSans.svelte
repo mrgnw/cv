@@ -58,6 +58,8 @@
 			<div class="text-muted-foreground">
 				{#each skills as skill, index}
 					<span
+						role="button"
+						tabindex="0"
 						class="cursor-pointer hover:text-foreground transition-colors inline-block"
 						onmouseenter={() => highlightStack(skill)}
 						onmouseleave={() => highlightStack("")}
@@ -191,23 +193,10 @@
 		--font-size: 1.25rem;
 	}
 
-	.typewriter-wrapper {
-		min-height: calc(var(--line-height) * var(--font-size) * 2);
-		display: flex;
-		flex-direction: column;
-		justify-content: flex-start;
-		overflow: hidden;
-	}
-
-	.typewriter-wrapper :global(p) {
-		font-size: var(--font-size);
-		line-height: var(--line-height);
-		margin: 0;
-	}
-
 	@media (min-width: 640px) {
-		.typewriter-wrapper {
-			min-height: calc(var(--line-height) * var(--font-size));
+		:root {
+			--line-height: 1.5;
+			--font-size: 1rem;
 		}
 	}
 
@@ -280,7 +269,7 @@
 			border-top: none;
 		}
 
-		.print-keywords {
+		:global(.print-keywords) {
 			font-size: 1pt;
 			color: transparent;
 			user-select: none;
@@ -297,26 +286,16 @@
 		.no-print {
 			display: none !important;
 		}
-
-		.print-only {
-			display: block !important;
-		}
-	}
-
-	@media screen {
-		.print-only {
-			display: none;
-		}
 	}
 
 	/* Remove default arrow from details summary */
-	details > summary::marker,
-	details > summary::-webkit-details-marker {
+	:global(details > summary::marker),
+	:global(details > summary::-webkit-details-marker) {
 		display: none;
 	}
 
 	/* Rotate chevron when details is open */
-	details[open] > summary > :global(svg) {
+	:global(details[open] > summary > svg) {
 		transform: rotate(180deg);
 	}
 </style>
