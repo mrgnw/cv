@@ -76,14 +76,6 @@
       });
       return projects.flat();
     });
-
-    const allVersions = getAllVersions();
-    const isSpanishVersion = $derived(version?.endsWith('.es'));
-    const otherVersionSlug = $derived(
-      isSpanishVersion ? version.replace('.es', '') : `${version}.es`
-    );
-    const hasOtherLanguage = $derived(allVersions.includes(otherVersionSlug));
-    const otherLangUrl = $derived(`/${otherVersionSlug}`);
   </script>
 
   <div class="max-w-[800px] mx-auto p-8 bg-white text-black print:p-4 font-serif">
@@ -100,24 +92,6 @@
         <a href="https://linkedin.com/in/mrgnw" class="hover:underline">linkedin.com/in/mrgnw</a>
       </div>
     </header>
-
-    <!-- Language Switcher -->
-    {#if hasOtherLanguage && !isPrinting}
-      <div class="no-print fixed bottom-4 right-16 flex items-center">
-        <a
-          href={otherLangUrl}
-          class="bg-white p-2 rounded-full shadow-lg hover:bg-gray-50 flex items-center justify-center"
-          style="width: {iconSize}px; height: {iconSize}px;"
-          aria-label={isSpanishVersion ? "Switch to English" : "Cambiar a Español"}
-        >
-          {#if isSpanishVersion}
-            <span class="text-xl">🇺🇸</span>
-          {:else}
-            <span class="text-xl">🇪🇸</span>
-          {/if}
-        </a>
-      </div>
-    {/if}
 
     <!-- Skills -->
     <section class="mb-6">
