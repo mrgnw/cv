@@ -4,27 +4,19 @@ import path from 'path';
 import http from 'http';
 import { execSync } from 'child_process';
 
+// Import our Node.js compatible version reader functions
+import { getAllVersions, getAllVersionMeta } from './pdf-version-reader.js';
 
-const getAllVersions = () => {
-	const versions = [];
-	const versionsDir = path.join('src', 'lib', 'versions');
-	const esDir = path.join(versionsDir, 'es');
 
-	// Get main versions
-	const mainVersions = fs.readdirSync(versionsDir)
-		.filter(file => /\.(json[c5]?)$/.test(file))
-		.map(file => path.parse(file).name);
-	versions.push(...mainVersions);
-
-	// Get Spanish versions if they exist
-	if (fs.existsSync(esDir)) {
-		const esVersions = fs.readdirSync(esDir)
-			.filter(file => /\.(json[c5]?)$/.test(file))
-			.map(file => `es/${path.parse(file).name}`);
-		versions.push(...esVersions);
+// Use our new version reader to get available versions
+const getAvailableVersions = () => {
+	try {
+		return getAllVersions();
+	} catch (error) {
+		console.error('Error getting versions from version reader:', error);
+		// Fallback to empty array
+		return [];
 	}
-
-	return versions;
 };
 
 // const getChangedVersions = () => {
@@ -42,33 +34,18 @@ const getAllVersions = () => {
 // };
 
 const getVersionNames = (specificVersions) => {
-	const versions = [];
-	const versionsDir = path.join('src', 'lib', 'versions');
-	const esDir = path.join(versionsDir, 'es');
-
-	// Get main versions
-	let files = fs.readdirSync(versionsDir)
-		.filter(file => /\.(json[c5]?)$/.test(file))
-		.map(file => path.parse(file).name);
-
-	// Get Spanish versions if they exist
-	if (fs.existsSync(esDir)) {
-		const esFiles = fs.readdirSync(esDir)
-			.filter(file => /\.(json[c5]?)$/.test(file))
-			.map(file => `es/${path.parse(file).name}`);
-		files.push(...esFiles);
-	}
+	const allVersions = getAvailableVersions();
 
 	if (specificVersions?.includes('all')) {
-		return files;
+		return allVersions;
 	}
 
 	// If specific versions are provided, only process those
 	if (specificVersions?.length) {
-		files = files.filter(file => specificVersions.includes(file));
+		return allVersions.filter(version => specificVersions.includes(version));
 	}
 
-	return files;
+	return allVersions;
 };
 
 const waitForServer = (url) => {
@@ -115,18 +92,14 @@ const GENERATE_SANS_VERSION = false; // Set to true to enable sans version gener
 
 // Helper function to generate PDF for a specific version and style
 async function generateVersionPDF(page, serverUrl, version, options, isSansStyle = false) {
-  const isSpanish = version.startsWith('es/');
-  const versionName = isSpanish ? version.replace('es/', '') : version;
-  const langPrefix = isSpanish ? '/es' : '';
-  
-  // Build URL and paths based on style
+  // Build URL and paths based on style (simplified - no Spanish handling)
   const stylePrefix = isSansStyle ? '/sans' : '';
-  const url = `${serverUrl}${stylePrefix}${langPrefix}/${versionName}?print`;
+  const url = `${serverUrl}${stylePrefix}/${version}?print`;
   
   const styleInfix = isSansStyle ? '-sans' : '';
-  const pdfName = versionName === 'main' ?
-    `morgan-williams${styleInfix}${isSpanish ? '.es' : ''}.pdf` :
-    `morgan-williams.${versionName}${styleInfix}${isSpanish ? '.es' : ''}.pdf`;
+  const pdfName = version === 'main' ?
+    `morgan-williams${styleInfix}.pdf` :
+    `morgan-williams.${version}${styleInfix}.pdf`;
   
   const outputDir = isSansStyle ? path.join('static', 'sans') : 'static';
   const pdfPath = path.join(outputDir, pdfName);
@@ -149,10 +122,10 @@ async function generateVersionPDF(page, serverUrl, version, options, isSansStyle
 }
 
 (async () => {
-  // Get versions from command line args OR get changed versions
+  // Get versions from command line args OR get all available versions
   const specificVersions = process.argv.length > 2 ?
     process.argv.slice(2) :
-    getAllVersions();
+    getAvailableVersions();
 
   const serverUrl = 'http://localhost:4173';
   console.log('Waiting for the preview server to start...');
