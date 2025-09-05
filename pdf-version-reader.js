@@ -62,50 +62,48 @@ function getVersionFiles(dir) {
 /**
  * Get all available version slugs (Node.js compatible)
  */
-export function getAllVersions() {
+// Internal caches to avoid re-walking filesystem repeatedly
+let _cached = null;
+let _cachedMTimeSignature = '';
+
+function computeDirSignature(dir) {
+	const files = getVersionFiles(dir);
+	const stats = files.map(f => fs.statSync(f).mtimeMs).join('|');
+	return stats;
+}
+
+function buildCache() {
 	const versionsDir = path.join('src', 'lib', 'versions');
-	
 	if (!fs.existsSync(versionsDir)) {
-		console.error('Versions directory not found:', versionsDir);
-		return [];
+		return { versions: [], meta: [], map: {} };
 	}
-	
 	const files = getVersionFiles(versionsDir);
 	const tempEntries = [];
-	
-	// Parse all files
 	for (const filePath of files) {
 		try {
 			const { job, company, sourceType } = parseVersionPath(filePath);
-			// Skip the 'es' file as it's a Spanish version
-			if (job === 'es' && !company) continue;
-			
+			if (job === 'es' && !company) continue; // skip Spanish base if any
 			tempEntries.push({ filePath, job, company, sourceType });
-		} catch (error) {
-			console.error(`Error parsing path ${filePath}:`, error);
+		} catch (err) {
+			console.error('Error parsing version path', filePath, err);
 		}
 	}
-	
-	// Count company occurrences
 	const companyCount = new Map();
-	tempEntries.forEach(entry => {
-		if (entry.company) {
-			const normalizedCompany = normalizeSlug(entry.company);
-			companyCount.set(normalizedCompany, (companyCount.get(normalizedCompany) || 0) + 1);
+	tempEntries.forEach(e => {
+		if (e.company) {
+			const c = normalizeSlug(e.company);
+			companyCount.set(c, (companyCount.get(c) || 0) + 1);
 		}
 	});
-	
-	// Generate slugs and check for collisions
 	const slugConflicts = new Map();
+	const slugToEntry = new Map();
 	for (const entry of tempEntries) {
 		let slug;
-		
 		if (entry.sourceType === 'base') {
 			slug = 'main';
 		} else if (entry.company) {
 			const normalizedCompany = normalizeSlug(entry.company);
 			const normalizedJob = normalizeSlug(entry.job);
-			
 			if (companyCount.get(normalizedCompany) === 1) {
 				slug = normalizedCompany;
 			} else {
@@ -114,35 +112,56 @@ export function getAllVersions() {
 		} else {
 			slug = normalizeSlug(entry.job);
 		}
-		
-		// Track collisions
 		if (slugConflicts.has(slug)) {
 			slugConflicts.get(slug).push(entry.filePath);
 		} else {
 			slugConflicts.set(slug, [entry.filePath]);
 		}
+		slugToEntry.set(slug, entry);
 	}
-	
-	// Validate no conflicts
 	for (const [slug, paths] of slugConflicts) {
-		if (paths.length > 1) {
-			throw new Error(`Slug collision detected for "${slug}": ${paths.join(', ')}`);
-		}
+		if (paths.length > 1) throw new Error(`Slug collision detected for "${slug}": ${paths.join(', ')}`);
 	}
-	
-	return Array.from(slugConflicts.keys());
+	const versions = Array.from(slugToEntry.keys());
+	const meta = versions.map(slug => {
+		const entry = slugToEntry.get(slug);
+		return {
+			slug,
+			job: entry.job,
+			company: entry.company,
+			path: entry.filePath,
+			sourceType: entry.sourceType
+		};
+	});
+	const map = {};
+	for (const m of meta) map[m.slug] = m.path;
+	return { versions, meta, map };
+}
+
+function ensureCache() {
+	const versionsDir = path.join('src', 'lib', 'versions');
+	const sig = fs.existsSync(versionsDir) ? computeDirSignature(versionsDir) : '';
+	if (!_cached || sig !== _cachedMTimeSignature) {
+		_cached = buildCache();
+		_cachedMTimeSignature = sig;
+	}
+}
+
+export function getAllVersions() {
+	ensureCache();
+	return _cached.versions;
 }
 
 /**
  * Get version metadata (simplified for PDF generation)
  */
 export function getAllVersionMeta() {
-	// For PDF generation, we mainly just need the slugs
-	return getAllVersions().map(slug => ({
-		slug,
-		job: null, // Not needed for PDF generation
-		company: null, // Not needed for PDF generation
-		path: '', // Not needed for PDF generation
-		sourceType: 'unknown' // Not needed for PDF generation
-	}));
+	ensureCache();
+	return _cached.meta;
 }
+
+export function getVersionFileMap() {
+	ensureCache();
+	return { ..._cached.map };
+}
+

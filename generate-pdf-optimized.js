@@ -179,32 +179,37 @@ async function checkPdfPageCount(page) {
  */
 async function detectServerPort() {
 	const ports = [4173, 4174, 4175, 4176, 4177];
+	const maxAttempts = 15; // 15 seconds total
 	
-	for (const port of ports) {
-		const url = `http://localhost:${port}`;
-		try {
-			await new Promise((resolve, reject) => {
-				const req = http.get(url, (res) => {
-					if (res.statusCode === 200) {
+	for (let attempt = 0; attempt < maxAttempts; attempt++) {
+		for (const port of ports) {
+			const url = `http://localhost:${port}`;
+			try {
+				await new Promise((resolve, reject) => {
+					const req = http.get(url, (res) => {
 						resolve();
-					} else {
-						reject();
-					}
+					});
+					req.on('error', reject);
+					req.setTimeout(1000, () => {
+						req.destroy();
+						reject(new Error('Timeout'));
+					});
 				});
-				req.on('error', reject);
-				req.setTimeout(1000, () => {
-					req.destroy();
-					reject();
-				});
-			});
-			console.log(`✅ Found preview server on port ${port}`);
-			return url;
-		} catch (error) {
-			// Try next port
+				console.log(`✅ Found preview server on port ${port}`);
+				return url;
+			} catch (error) {
+				// Try next port
+			}
+		}
+		
+		// Wait 1 second before trying again
+		if (attempt < maxAttempts - 1) {
+			console.log(`⏳ Waiting for server to start... (${attempt + 1}/${maxAttempts})`);
+			await new Promise(resolve => setTimeout(resolve, 1000));
 		}
 	}
 	
-	throw new Error('Preview server not found on any expected port (4173-4177)');
+	throw new Error('Preview server not found on any expected port (4173-4177) after 15 seconds');
 }
 
 /**

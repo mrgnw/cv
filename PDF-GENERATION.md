@@ -29,22 +29,22 @@ src/lib/projects-es.jsonc      # Spanish project definitions
 
 ## 🎮 **Usage Examples**
 
-### **Basic Commands**
+### **Basic Commands (Unified CLI)**
 ```bash
-# Smart PDF generation (with incremental detection)
+# Incremental PDF generation (only stale versions)
 npm run pdf
 
-# Generate specific versions only
+# Generate specific versions
 npm run pdf main allianz-backend
 
-# Watch for changes with intelligent regeneration
+# Watch mode (persistent browser, selective regen)
 npm run pdf:watch
 
-# Force regenerate all (uses optimized parallel generator)
+# Force regenerate all targeted versions (ignore cache)
 npm run pdf:force
 
-# Use optimized generator directly
-npm run pdf:optimized all
+# List versions & stale status
+npm run pdf:list
 ```
 
 ### **Watch Mode Demo**
@@ -68,12 +68,11 @@ $ npm run pdf:watch
 
 # Edit src/lib/CVSans.svelte  
 🔄 Global file changed: src/lib/CVSans.svelte
-🔄 Global files changed, regenerating all PDFs...
+🔄 Global change detected → regenerating only stale PDFs (or all if forced)
 🖨️  static/morgan-williams.pdf
 🖨️  static/morgan-williams.coinbase.pdf
 🖨️  static/morgan-williams.allianz-data.pdf
-# ... (all 11 PDFs)
-✅ Full PDF regeneration complete
+✅ Regeneration complete
 ```
 
 ## ⚡ **Performance Benefits**
@@ -81,7 +80,7 @@ $ npm run pdf:watch
 | Scenario | Before | After | Speedup |
 |----------|--------|-------|---------|
 | **Single version change** | Regenerate all 11 PDFs (~45s) | Regenerate 1 PDF (~4s) | **11x faster** |
-| **Global component change** | Regenerate all 11 PDFs (~45s) | Parallel generation (~15s) | **3x faster** |
+| **Global component change** | Regenerate all 11 PDFs (~45s) | Parallel generation (unlimited concurrency) (~10-15s) | **3-4x faster** |
 | **Multiple version changes** | Regenerate all 11 PDFs | Batch regenerate only changed | **5-8x faster** |
 | **No changes** | Always regenerate | Skip unchanged (cache) | **∞x faster** |
 
@@ -100,17 +99,7 @@ npm run pdf:watch
 ```
 
 ### **Git Integration**
-```bash
-# Commits are fast (no PDF generation)
-git commit -m "Update backend requirements"
-
-# Push triggers automatic PDF sync
-git push origin main
-# 🔍 Checking for version file changes since last push...
-# 📄 Version files changed: src/lib/versions/backend/allianz.json5
-# 🔄 Regenerating PDFs before push...
-# ✅ PDFs updated successfully
-```
+Generation is now decoupled; run `npm run pdf` locally before committing if you want updated artifacts. A future hook can call `node pdf-cli.js --changed` (not yet implemented) to only regen versions touched by the last commit range.
 
 ## 🎯 **File-to-PDF Mapping**
 
@@ -127,9 +116,9 @@ src/lib/versions/dx.json                     → morgan-williams.dx.pdf
 ## 🚀 **Advanced Features**
 
 ### **Intelligent Batching**
-- Multiple rapid changes get batched together
-- Debounced updates prevent excessive regeneration
-- Smart deduplication of version targets
+- Rapid edits are debounced (400ms) and coalesced
+- Global edits trigger a single regen pass
+- Unlimited concurrency by default (override with PDF_CONCURRENCY)
 
 ### **Error Handling**
 - Graceful fallback if version mapping fails
@@ -137,9 +126,9 @@ src/lib/versions/dx.json                     → morgan-williams.dx.pdf
 - Clear error reporting with suggested fixes
 
 ### **Resource Management**
-- Automatic server detection and startup
-- Parallel PDF generation with configurable concurrency
-- Memory-efficient processing for large version sets
+- Automatic preview server detection & startup
+- Parallel PDF generation (page pool sized by PDF_CONCURRENCY env var; default unlimited for small sets)
+- Persistent browser in watch mode reduces launch overhead
 
 ---
 
