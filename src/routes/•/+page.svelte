@@ -364,45 +364,41 @@
     <Separator />
 
     <!-- Version List -->
-    <div class="space-y-3">
+    <div class="space-y-2">
         {#each meta as m}
-            <div class="flex items-center justify-between py-2 px-1 hover:bg-gray-50 rounded">
+            <div class="flex items-center justify-between py-2 px-3 hover:bg-gray-50 rounded border">
                 <div class="flex items-center gap-3 min-w-0 flex-1">
-                    <a href="/{m.slug}" class="font-mono text-blue-600 hover:text-blue-800 text-sm font-medium">
-                        {m.slug}
-                    </a>
-                    <span class="text-gray-600 text-sm truncate">
-                        {m.path.replace('/src/lib/versions/', '')}
-                    </span>
-                    {#if m.job || m.company}
-                        <div class="flex gap-1">
-                            {#if m.job}
-                                <Badge variant="secondary" class="text-xs">{m.job}</Badge>
-                            {/if}
-                            {#if m.company}
-                                <Badge variant="outline" class="text-xs">{m.company}</Badge>
-                            {/if}
-                        </div>
-                    {/if}
+                    <Button 
+                        onclick={() => triggerGeneration(true, [m.slug])}
+                        disabled={generating}
+                        variant="ghost"
+                        size="sm"
+                        class="h-8 w-8 p-0 flex-shrink-0"
+                        title="Regenerate PDF"
+                    >
+                        {#if generating && generatingVersion === m.slug}
+                            <svg class="h-4 w-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                        {:else}
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12v8a2 2 0 002 2h8m0 0V10a2 2 0 012-2h2m-6 9l3-3m0 0l3 3m-3-3v12"></path>
+                            </svg>
+                        {/if}
+                    </Button>
+                    
+                    <div class="flex items-center gap-3 min-w-0 flex-1">
+                        <a href="/{m.slug}" class="font-mono text-blue-600 hover:text-blue-800 text-sm font-medium flex-shrink-0">
+                            {m.slug}
+                        </a>
+                        <span 
+                            class="text-gray-600 text-sm truncate"
+                            title="File: {m.path}"
+                        >
+                            morgan-williams{m.slug === 'main' ? '' : `.${m.slug}`}.pdf
+                        </span>
+                    </div>
                 </div>
-                
-                <Button 
-                    onclick={() => triggerGeneration(true, [m.slug])}
-                    disabled={generating}
-                    variant="ghost"
-                    size="sm"
-                    class="ml-4 h-8 w-8 p-0"
-                >
-                    {#if generating && generatingVersion === m.slug}
-                        <svg class="h-4 w-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                        </svg>
-                    {:else}
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                    {/if}
-                </Button>
             </div>
         {/each}
     </div>

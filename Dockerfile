@@ -15,4 +15,7 @@ ENV NODE_ENV=development
 ENV HOST=0.0.0.0
 EXPOSE 5173
 
-CMD ["bun", "run", "dev", "--host"]
+# Make startup script executable
+RUN chmod +x docker-start.sh
+
+CMD ["./docker-start.sh"]
