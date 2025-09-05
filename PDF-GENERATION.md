@@ -45,6 +45,12 @@ npm run pdf:force
 
 # List versions & stale status
 npm run pdf:list
+
+# Generate only versions changed vs origin/main
+npm run pdf:changed
+
+# Generate only versions changed vs another ref (example feature branch base)
+node pdf-cli.js --changed=origin/develop
 ```
 
 ### **Watch Mode Demo**

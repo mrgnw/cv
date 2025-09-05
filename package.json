@@ -15,7 +15,8 @@
 		"pdf:force": "node pdf-cli.js --force",
 		"pdf:list": "node pdf-cli.js --list",
 		"pdfs": "node pdf-cli.js all",
-		"pdfs:force": "node pdf-cli.js all --force"
+		"pdfs:force": "node pdf-cli.js all --force",
+		"pdf:changed": "node pdf-cli.js --changed"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-cloudflare": "^4.7.2",

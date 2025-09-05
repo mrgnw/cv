@@ -39,6 +39,12 @@ const FORCE = flags.has('--force');
 const WATCH = flags.has('--watch');
 const LIST = flags.has('--list');
 const QUIET = flags.has('--quiet');
+// --changed or --changed=BASE (git diff base..HEAD)
+let CHANGED_BASE = null;
+for (const f of [...flags]) {
+  if (f === '--changed') CHANGED_BASE = 'origin/main';
+  else if (f.startsWith('--changed=')) CHANGED_BASE = f.split('=')[1] || 'origin/main';
+}
 
 // concurrency: unlimited by default (small version set). Could cap by CPU if needed.
 const ENV_CONCURRENCY = parseInt(process.env.PDF_CONCURRENCY || '', 10);
@@ -105,12 +111,69 @@ async function ensureServer() {
 
 // ---------------- Version & Dependency Graph ----------------
 function getTargetVersions() {
+  if (CHANGED_BASE) {
+    const changed = computeChangedVersions(CHANGED_BASE);
+    if (changed.mode === 'all') return getAllVersions();
+    if (changed.slugs.length === 0) {
+      log(`ℹ️  No version-related changes vs ${CHANGED_BASE}; nothing to do.`);
+      return [];
+    }
+    log(`🔍 Changed versions vs ${CHANGED_BASE}: ${changed.slugs.join(', ')}`);
+    return changed.slugs;
+  }
   const all = getAllVersions();
   if (requestedVersions.length === 0) return all;
   const unknown = requestedVersions.filter(v => v !== 'all' && !all.includes(v));
   if (unknown.length) log(`⚠️ Unknown versions ignored: ${unknown.join(', ')}`);
   if (requestedVersions.includes('all')) return all;
   return all.filter(v => requestedVersions.includes(v));
+}
+
+// Determine changed versions via git diff
+function computeChangedVersions(baseRef) {
+  try {
+    // Verify git repo
+    const isRepo = spawnSyncSafe('git', ['rev-parse', '--is-inside-work-tree']);
+    if (!/true/.test(isRepo.trim())) return { slugs: [], mode: 'none' };
+    // Fetch base if missing (best effort, ignore errors)
+    spawnSyncSafe('git', ['fetch', '--quiet', '--no-tags', '--depth=1', (baseRef.split('...')[0]||baseRef)], true);
+    const diffOut = spawnSyncSafe('git', ['diff', '--name-only', `${baseRef}...HEAD`]);
+    const files = diffOut.split('\n').filter(Boolean);
+    const versionFileMap = getVersionFileMap();
+    const inverse = Object.entries(versionFileMap).reduce((acc,[slug,file]) => { acc[file]=slug; return acc; }, {});
+    const versionSlugs = new Set();
+    let globalTouched = false;
+    for (const f of files) {
+      if (GLOBAL_FILES.includes(f)) { globalTouched = true; break; }
+      if (f.startsWith('src/lib/versions/')) {
+        // attempt to map by normalized path
+        const slug = inverse[f];
+        if (slug) versionSlugs.add(slug);
+        else {
+          // Could be new file; rebuild cache then retry once
+          getAllVersions();
+          const updated = getVersionFileMap();
+          const inv2 = Object.entries(updated).reduce((acc,[s,file]) => { acc[file]=s; return acc; }, {});
+          if (inv2[f]) versionSlugs.add(inv2[f]);
+        }
+      }
+    }
+    if (globalTouched) return { slugs: [], mode: 'all' };
+    return { slugs: [...versionSlugs], mode: 'some' };
+  } catch (e) {
+    logErr('⚠️  Failed to compute changed versions:', e.message);
+    return { slugs: [], mode: 'error' };
+  }
+}
+
+function spawnSyncSafe(cmd, args, ignoreErrors=false) {
+  try {
+    const res = require('child_process').spawnSync(cmd, args, { encoding: 'utf-8' });
+    if (res.status !== 0 && !ignoreErrors) throw new Error(res.stderr || `Command failed: ${cmd} ${args.join(' ')}`);
+    return res.stdout || '';
+  } catch (e) {
+    if (!ignoreErrors) throw e; else return '';
+  }
 }
 
 function pdfPathFor(slug) {
