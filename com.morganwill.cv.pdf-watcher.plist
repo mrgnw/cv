@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.morganwill.cv.pdf-watcher</string>
+    
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/m/dev/cv/pdf-daemon.sh</string>
+    </array>
+    
+    <key>WorkingDirectory</key>
+    <string>/Users/m/dev/cv</string>
+    
+    <key>RunAtLoad</key>
+    <true/>
+    
+    <key>KeepAlive</key>
+    <true/>
+    
+    <key>StandardOutPath</key>
+    <string>/Users/m/dev/cv/logs/pdf-daemon.log</string>
+    
+    <key>StandardErrorPath</key>
+    <string>/Users/m/dev/cv/logs/pdf-daemon-error.log</string>
+    
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin</string>
+        <key>NODE_ENV</key>
+        <string>development</string>
+    </dict>
+    
+    <key>ThrottleInterval</key>
+    <integer>5</integer>
+</dict>
+</plist>

@@ -247,39 +247,52 @@
 
         committing = true;
         
-        console.log('🔄 Starting PDF generation + commit/push trigger');
+        console.log('🔄 Starting remote PDF generation + local git workflow');
         
         try {
-            const res = await fetch('/dev/api/pdf-commit', { 
+            // Step 1: Trigger PDF generation on remote server
+            console.log('🌐 Triggering remote PDF generation...');
+            const pdfRes = await fetch('https://cv.skate-in.ts.net/dev/api/pdf', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ force: false })
+            });
+            
+            if (!pdfRes.ok) {
+                throw new Error(`Remote PDF generation failed: ${pdfRes.status}`);
+            }
+            
+            const pdfData = await pdfRes.json();
+            console.log('✅ Remote PDF generation completed:', pdfData);
+            
+            // Step 2: Wait a moment then trigger local git operations
+            console.log('⏳ Waiting 5 seconds for files to sync...');
+            await new Promise(resolve => setTimeout(resolve, 5000));
+            
+            // Step 3: Create trigger for local git operations
+            const gitRes = await fetch('/dev/api/pdf-commit', { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' }
             });
             
-            console.log('📨 Response status:', res.status);
-            
-            if (!res.ok) {
-                throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-            }
-            
-            const data = await res.json();
-            console.log('📄 Response data:', data);
+            const gitData = await gitRes.json();
             
             lastCommitResult = { 
-                ok: data.ok, 
-                duration: '0s', 
-                stdout: data.message + '\n\nCommand: ' + data.command + '\n\n' + data.note,
-                stderr: data.ok ? '' : data.error,
+                ok: pdfData.ok && gitData.ok, 
+                duration: pdfData.duration || '0s', 
+                stdout: `PDF Generation:\n${pdfData.stdout || 'Success'}\n\nGit Workflow:\n${gitData.message || 'Trigger created'}`,
+                stderr: pdfData.stderr || gitData.error || '',
                 timestamp: new Date().toLocaleTimeString()
             };
             
         } catch (e: any) {
-            console.error('❌ Commit/push trigger failed:', e);
+            console.error('❌ Auto-workflow failed:', e);
             
             lastCommitResult = { 
                 ok: false, 
                 duration: '0s', 
                 stderr: e.message,
-                stdout: 'Check Docker container logs with: docker-compose logs -f app',
+                stdout: 'Remote PDF generation and git workflow failed',
                 timestamp: new Date().toLocaleTimeString()
             };
         } finally {
@@ -375,7 +388,7 @@
                 variant="outline"
                 class="bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
             >
-                {committing ? 'Creating Trigger...' : '🚀 Generate + Commit + Push (Host)'}
+                {committing ? 'Creating Trigger...' : '🤖 Auto-Generate & Deploy'}
             </Button>
 
             <Button 
