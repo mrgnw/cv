@@ -1,21 +1,28 @@
 import { json } from '@sveltejs/kit';
-import { spawn } from 'child_process';
+import { dev } from '$app/environment';
 
 function run(cmd: string, args: string[]): Promise<{ code: number; stdout: string; stderr: string }> {
-  return new Promise((resolve) => {
-    const child = spawn(cmd, args, { stdio: ['ignore', 'pipe', 'pipe'] });
-    let stdout = '';
-    let stderr = '';
-    child.stdout.on('data', d => stdout += d.toString());
-    child.stderr.on('data', d => stderr += d.toString());
-    child.on('close', code => resolve({ code: code ?? 1, stdout, stderr }));
+  if (!dev) {
+    return Promise.resolve({ code: 1, stdout: '', stderr: 'Not available in production' });
+  }
+  
+  // Dynamic import in development only
+  return import('child_process').then(({ spawn }) => {
+    return new Promise((resolve) => {
+      const child = spawn(cmd, args, { stdio: ['ignore', 'pipe', 'pipe'] });
+      let stdout = '';
+      let stderr = '';
+      child.stdout.on('data', (d: any) => stdout += d.toString());
+      child.stderr.on('data', (d: any) => stderr += d.toString());
+      child.on('close', (code: any) => resolve({ code: code ?? 1, stdout, stderr }));
+    });
   });
 }
 
 export const POST = async (event) => {
   const { request } = event;
-  if (process.env.NODE_ENV === 'production') {
-    return json({ error: 'Disabled in production' }, { status: 403 });
+  if (!dev) {
+    return json({ error: 'Development API not available in production' }, { status: 404 });
   }
 
   const body = await request.json().catch(() => ({}));

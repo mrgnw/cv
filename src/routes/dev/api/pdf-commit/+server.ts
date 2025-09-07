@@ -1,15 +1,18 @@
 import { json } from '@sveltejs/kit';
-import { writeFileSync, readFileSync, existsSync } from 'fs';
+import { dev } from '$app/environment';
 
 export const POST = async (event) => {
   const { request } = event;
-  if (process.env.NODE_ENV === 'production') {
-    return json({ error: 'Disabled in production' }, { status: 403 });
+  if (!dev) {
+    return json({ error: 'Development API not available in production' }, { status: 404 });
   }
 
   console.log('🚀 Git workflow request:', { timestamp: new Date().toISOString() });
 
   try {
+    // Dynamic import for Node.js modules in development only
+    const { writeFileSync } = await import('fs');
+    
     // Create a trigger file that the host can watch for
     const triggerFile = '/app/.git-trigger';
     const timestamp = new Date().toISOString();
@@ -41,14 +44,21 @@ export const POST = async (event) => {
 };
 
 export const GET = async () => {
-  // Check trigger file status
-  const triggerFile = '/app/.git-trigger';
-  
-  if (!existsSync(triggerFile)) {
-    return json({ status: 'no_trigger' });
+  if (!dev) {
+    return json({ error: 'Development API not available in production' }, { status: 404 });
   }
 
   try {
+    // Dynamic import for Node.js modules in development only
+    const { readFileSync, existsSync } = await import('fs');
+    
+    // Check trigger file status
+    const triggerFile = '/app/.git-trigger';
+    
+    if (!existsSync(triggerFile)) {
+      return json({ status: 'no_trigger' });
+    }
+
     const content = JSON.parse(readFileSync(triggerFile, 'utf-8'));
     return json({ 
       status: 'trigger_exists', 
