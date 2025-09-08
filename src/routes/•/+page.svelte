@@ -32,38 +32,25 @@
     })();
 
     // Build groups based on current grouping option
-    type Group = { name: string; items: VersionMeta[] };
-    let groups = $state<Group[]>([]);
-    $effect(() => {
-        const by = groupBy; // track dependency
+    const groups = $derived(() => {
         const buckets = new Map<string, VersionMeta[]>();
         for (const m of sortedMeta) {
             const key = m.slug === 'main'
                 ? 'Base'
-                : by === 'company'
+                : groupBy === 'company'
                     ? (m.company || 'Other')
                     : (m.job || 'Other');
             if (!buckets.has(key)) buckets.set(key, []);
             buckets.get(key)!.push(m);
         }
-        const arr: Group[] = Array.from(buckets.entries()).map(([name, items]) => ({ name, items }));
+        const arr = Array.from(buckets.entries()).map(([name, items]) => ({ name, items }));
         arr.sort((a, b) => {
             if (a.name === 'Base') return -1;
             if (b.name === 'Base') return 1;
             return a.name.localeCompare(b.name);
         });
-        groups = arr;
+        return arr;
     });
-
-    function groupBtnClass(option: 'company' | 'job') {
-        const isActive = groupBy === option;
-        return [
-            'px-2 py-1 text-sm',
-            'border-r last:border-r-0',
-            'transition-colors',
-            isActive ? 'bg-gray-200 text-gray-900' : 'bg-white text-gray-600 hover:bg-gray-50'
-        ].join(' ');
-    }
 
     function displayName(m: VersionMeta): string {
         if (m.slug === 'main') return 'main';
@@ -563,16 +550,25 @@
 
     <!-- Group by control and Version List -->
     <div class="space-y-3">
-        <div class="flex items-center justify-between gap-3">
-            <div class="text-sm text-gray-600">Group by</div>
+        <div class="h-6 group relative">
             <div class="inline-flex rounded-md border border-gray-200 overflow-hidden">
-                <button class={groupBtnClass('company')} onclick={() => (groupBy = 'company')} aria-pressed={groupBy === 'company'}>Company</button>
-                <button class={groupBtnClass('job')} onclick={() => (groupBy = 'job')} aria-pressed={groupBy === 'job'}>Job</button>
+                <button 
+                    class="px-2 py-1 text-sm border-r transition-colors {groupBy === 'company' ? 'bg-gray-200 text-gray-900' : 'bg-white text-gray-600 hover:bg-gray-50'}"
+                    onclick={() => (groupBy = 'company')}
+                >
+                    Company
+                </button>
+                <button 
+                    class="px-2 py-1 text-sm transition-colors {groupBy === 'job' ? 'bg-gray-200 text-gray-900' : 'bg-white text-gray-600 hover:bg-gray-50'}"
+                    onclick={() => (groupBy = 'job')}
+                >
+                    Job
+                </button>
             </div>
         </div>
 
         <div class="space-y-4">
-            {#each groups as group}
+            {#each groups() as group}
                 <section>
                     {#if group.items.length > 1}
                         <div class="flex items-center justify-between py-1">
