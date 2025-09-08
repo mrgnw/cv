@@ -15,52 +15,6 @@
     let lastResult = $state<{ ok: boolean; duration: string; stdout?: string; stderr?: string; timestamp?: string } | null>(null);
     let lastCommitResult = $state<{ ok: boolean; duration: string; stdout?: string; stderr?: string; timestamp?: string } | null>(null);
     let resultHistory = $state<Array<{ ok: boolean; duration: string; stdout?: string; stderr?: string; timestamp: string; versions?: string[] }>>([]);
-    let requestId = $state<string | null>(null);
-    let hoveredSlug = $state<string | null>(null);
-    let previewType = $state<'page' | 'pdf' | null>(null);
-    let mouseX = $state(0);
-    let mouseY = $state(0);
-    let previewContainer = $state<HTMLDivElement | null>(null);
-    let previewCache = $state<Record<string, HTMLIFrameElement>>({});
-
-    function handleMouseMove(event: MouseEvent) {
-        mouseX = event.clientX;
-        mouseY = event.clientY;
-    }
-
-    function getOrCreateIframe(slug: string, type: 'page' | 'pdf'): HTMLIFrameElement {
-        const key = `${slug}-${type}`;
-        
-        if (!previewCache[key]) {
-            const iframe = document.createElement('iframe');
-            iframe.className = 'w-full h-full border-0';
-            iframe.title = `${type} preview`;
-            
-            if (type === 'page') {
-                iframe.src = `/${slug}`;
-                iframe.style.cssText = 'transform: scale(0.5); transform-origin: top left; width: 200%; height: 200%;';
-            } else {
-                iframe.src = `/morgan-williams${slug === 'main' ? '' : `.${slug}`}.pdf#toolbar=0&navpanes=0&scrollbar=0`;
-            }
-            
-            previewCache[key] = iframe;
-        }
-        
-        return previewCache[key];
-    }
-
-    function updatePreview(slug: string | null, type: 'page' | 'pdf' | null) {
-        if (!previewContainer) return;
-        
-        // Clear container
-        previewContainer.innerHTML = '';
-        
-        if (slug && type) {
-            // Append the cached iframe
-            const iframe = getOrCreateIframe(slug, type);
-            previewContainer.appendChild(iframe);
-        }
-    }
 
     // Persist results across page reloads
     if (browser) {
@@ -303,23 +257,12 @@
 </script>
 
 <svelte:head>
-    <title>• Debug & Tools - Morgan Williams</title>
-    <!-- Prevent indexing and crawling -->
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
     <meta name="googlebot" content="noindex, nofollow">
     <meta name="bingbot" content="noindex, nofollow">
 </svelte:head>
 
 <div class="container mx-auto p-6 space-y-6 max-w-4xl">
-    {#if isDev}
-    <div>
-        <h1 class="text-2xl font-semibold text-gray-900 mb-2">• Debug & Tools</h1>
-        <p class="text-gray-600 text-sm">
-            PDF generation and version management
-        </p>
-            
-    </div>
-    {/if}
 
     <!-- Generation Status Banner -->
     {#if isDev && generating}
@@ -550,7 +493,7 @@
     <Separator />
 
     <!-- Version List -->
-    <div onmousemove={handleMouseMove}>
+    <div>
         {#each meta as m}
             <div class="flex items-center gap-3 py-1 hover:bg-gray-50 rounded px-2">
                 {#if isDev}
@@ -571,8 +514,6 @@
                 <a 
                     href="/{m.slug}" 
                     class="font-mono text-blue-600 hover:text-blue-800 text-sm font-medium"
-                    onmouseenter={() => { hoveredSlug = m.slug; previewType = 'page'; updatePreview(m.slug, 'page'); }}
-                    onmouseleave={() => { hoveredSlug = null; previewType = null; updatePreview(null, null); }}
                 >
                     {m.slug}
                 </a>
@@ -582,27 +523,10 @@
                     class="text-gray-600 hover:text-blue-600 text-sm"
                     title="File: {m.path}"
                     target="_blank"
-                    onmouseenter={() => { hoveredSlug = m.slug; previewType = 'pdf'; updatePreview(m.slug, 'pdf'); }}
-                    onmouseleave={() => { hoveredSlug = null; previewType = null; updatePreview(null, null); }}
                 >
                     morgan-williams{m.slug === 'main' ? '' : `.${m.slug}`}.pdf
                 </a>
             </div>
         {/each}
     </div>
-    
-    <!-- Preview Tooltip -->
-    {#if hoveredSlug && previewType}
-        <div 
-            class="fixed z-50 pointer-events-none border border-gray-200 bg-white shadow-lg rounded-lg overflow-hidden"
-            style="left: {mouseX + 15}px; top: {mouseY - 250}px; width: {previewType === 'page' ? '480px' : '300px'}; height: {previewType === 'page' ? '600px' : '400px'};"
-        >
-            <div class="h-full">
-                <div class="bg-gray-100 px-3 py-2 text-xs font-medium text-gray-700 border-b">
-                    {previewType === 'page' ? `Page Preview: /${hoveredSlug}` : `PDF Preview: morgan-williams${hoveredSlug === 'main' ? '' : `.${hoveredSlug}`}.pdf`}
-                </div>
-                <div bind:this={previewContainer} class="w-full h-full"></div>
-            </div>
-        </div>
-    {/if}
 </div>
