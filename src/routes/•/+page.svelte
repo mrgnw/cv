@@ -264,9 +264,8 @@
 </svelte:head>
 
 <div class="container mx-auto p-6 space-y-6 max-w-4xl">
-    <!-- visible in dev only -->
     {#if isDev}
-    <!-- Generation Status Banner -->
+        <!-- Generation Status Banner -->
     {#if generating}
         <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <div class="flex items-center gap-3">
@@ -491,6 +490,7 @@
     {/if}
 
     <Separator />
+    {/if}
 
     <!-- Version List -->
     <div>
@@ -527,10 +527,4 @@
             </div>
         {/each}
     </div>
-    {:else}
-        <div class="text-center">
-            <h1 class="text-2xl font-semibold text-gray-900 mb-2">Access Restricted</h1>
-            <p class="text-gray-600">This page is only available in development mode.</p>
-        </div>
-    {/if}
 </div>
