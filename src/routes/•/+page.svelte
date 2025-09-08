@@ -17,8 +17,8 @@
     let lastCommitResult = $state<{ ok: boolean; duration: string; stdout?: string; stderr?: string; timestamp?: string } | null>(null);
     let resultHistory = $state<Array<{ ok: boolean; duration: string; stdout?: string; stderr?: string; timestamp: string; versions?: string[] }>>([]);
     let requestId = $state<string | null>(null);
-    // Minimal grouping control for Version List
-    let groupBy = $state<'none' | 'company' | 'job'>('none');
+    // Minimal grouping control for Version List (default to company)
+    let groupBy = $state<'company' | 'job'>('company');
 
     // Sort meta once for consistent display (main first)
     const sortedMeta: VersionMeta[] = (() => {
@@ -36,10 +36,6 @@
     let groups = $state<Group[]>([]);
     $effect(() => {
         const by = groupBy; // track dependency
-        if (by === 'none') {
-            groups = [];
-            return;
-        }
         const buckets = new Map<string, VersionMeta[]>();
         for (const m of sortedMeta) {
             const key = m.slug === 'main'
@@ -59,7 +55,7 @@
         groups = arr;
     });
 
-    function groupBtnClass(option: 'none' | 'company' | 'job') {
+    function groupBtnClass(option: 'company' | 'job') {
         const isActive = groupBy === option;
         return [
             'px-2 py-1 text-sm',
@@ -67,6 +63,13 @@
             'transition-colors',
             isActive ? 'bg-gray-200 text-gray-900' : 'bg-white text-gray-600 hover:bg-gray-50'
         ].join(' ');
+    }
+
+    function displayName(m: VersionMeta): string {
+        if (m.slug === 'main') return 'main';
+        if (groupBy === 'company') return m.job ?? m.slug;
+        // When grouping by job, show the company (fallback to slug)
+        return m.company ?? m.slug;
     }
 
     // Restore state on mount (history, grouping, in-progress generation)
@@ -87,8 +90,10 @@
         }
 
         const savedGroup = localStorage.getItem('cv-group-by');
-        if (savedGroup === 'none' || savedGroup === 'company' || savedGroup === 'job') {
+        if (savedGroup === 'company' || savedGroup === 'job') {
             groupBy = savedGroup as typeof groupBy;
+        } else {
+            groupBy = 'company';
         }
 
         const savedGenerating = localStorage.getItem('pdf-generating');
@@ -561,96 +566,58 @@
         <div class="flex items-center justify-between gap-3">
             <div class="text-sm text-gray-600">Group by</div>
             <div class="inline-flex rounded-md border border-gray-200 overflow-hidden">
-                <button class={groupBtnClass('none')} onclick={() => (groupBy = 'none')} aria-pressed={groupBy === 'none'}>None</button>
                 <button class={groupBtnClass('company')} onclick={() => (groupBy = 'company')} aria-pressed={groupBy === 'company'}>Company</button>
                 <button class={groupBtnClass('job')} onclick={() => (groupBy = 'job')} aria-pressed={groupBy === 'job'}>Job</button>
             </div>
         </div>
 
-        {#if groupBy === 'none'}
-            <div>
-                {#each sortedMeta as m}
-                    <div class="flex items-center gap-3 py-1 hover:bg-gray-50 rounded px-2">
-                        {#if isDev}
-                            <button 
-                                onclick={() => triggerGeneration(true, [m.slug])}
-                                disabled={generating}
-                                class="text-gray-500 hover:text-gray-700 disabled:opacity-50"
-                                title="Regenerate PDF"
-                            >
-                                {#if generating && generatingVersion === m.slug}
-                                    ⟳
-                                {:else}
-                                    ↻
-                                {/if}
-                            </button>
-                        {/if}
-
-                        <a 
-                            href="/{m.slug}" 
-                            class="font-mono text-blue-600 hover:text-blue-800 text-sm font-medium"
-                        >
-                            {m.slug}
-                        </a>
-
-                        <a 
-                            href="/morgan-williams{m.slug === 'main' ? '' : `.${m.slug}`}.pdf"
-                            class="text-gray-600 hover:text-blue-600 text-sm"
-                            title="File: {m.path}"
-                            target="_blank"
-                        >
-                            morgan-williams{m.slug === 'main' ? '' : `.${m.slug}`}.pdf
-                        </a>
-                    </div>
-                {/each}
-            </div>
-        {:else}
-            <div class="space-y-4">
-                {#each groups as group}
-                    <section>
+        <div class="space-y-4">
+            {#each groups as group}
+                <section>
+                    {#if group.items.length > 1}
                         <div class="flex items-center justify-between py-1">
                             <h2 class="text-sm font-medium text-gray-700">{group.name}</h2>
                             <span class="text-xs text-gray-500 bg-gray-100 rounded px-2 py-0.5">{group.items.length}</span>
                         </div>
-                        <div>
-                            {#each group.items as m}
-                                <div class="flex items-center gap-3 py-1 hover:bg-gray-50 rounded px-2">
-                                    {#if isDev}
-                                        <button 
-                                            onclick={() => triggerGeneration(true, [m.slug])}
-                                            disabled={generating}
-                                            class="text-gray-500 hover:text-gray-700 disabled:opacity-50"
-                                            title="Regenerate PDF"
-                                        >
-                                            {#if generating && generatingVersion === m.slug}
-                                                ⟳
-                                            {:else}
-                                                ↻
-                                            {/if}
-                                        </button>
-                                    {/if}
-
-                                    <a 
-                                        href="/{m.slug}" 
-                                        class="font-mono text-blue-600 hover:text-blue-800 text-sm font-medium"
+                    {/if}
+                    <div>
+                        {#each group.items as m}
+                            <div class="flex items-center gap-3 py-1 hover:bg-gray-50 rounded px-2">
+                                {#if isDev}
+                                    <button 
+                                        onclick={() => triggerGeneration(true, [m.slug])}
+                                        disabled={generating}
+                                        class="text-gray-500 hover:text-gray-700 disabled:opacity-50"
+                                        title="Regenerate PDF"
                                     >
-                                        {m.slug}
-                                    </a>
+                                        {#if generating && generatingVersion === m.slug}
+                                            ⟳
+                                        {:else}
+                                            ↻
+                                        {/if}
+                                    </button>
+                                {/if}
 
-                                    <a 
-                                        href="/morgan-williams{m.slug === 'main' ? '' : `.${m.slug}`}.pdf"
-                                        class="text-gray-600 hover:text-blue-600 text-sm"
-                                        title="File: {m.path}"
-                                        target="_blank"
-                                    >
-                                        morgan-williams{m.slug === 'main' ? '' : `.${m.slug}`}.pdf
-                                    </a>
-                                </div>
-                            {/each}
-                        </div>
-                    </section>
-                {/each}
-            </div>
-        {/if}
+                                <a 
+                                    href="/{m.slug}" 
+                                    class="font-mono text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                >
+                                    {displayName(m)}
+                                </a>
+
+                                <a 
+                                    href="/morgan-williams{m.slug === 'main' ? '' : `.${m.slug}`}.pdf"
+                                    class="text-gray-600 hover:text-blue-600 text-sm"
+                                    title="File: {m.path}"
+                                    target="_blank"
+                                >
+                                    morgan-williams{m.slug === 'main' ? '' : `.${m.slug}`}.pdf
+                                </a>
+                            </div>
+                        {/each}
+                    </div>
+                </section>
+            {/each}
+        </div>
     </div>
 </div>
