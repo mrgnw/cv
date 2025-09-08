@@ -15,6 +15,7 @@
     let lastResult = $state<{ ok: boolean; duration: string; stdout?: string; stderr?: string; timestamp?: string } | null>(null);
     let lastCommitResult = $state<{ ok: boolean; duration: string; stdout?: string; stderr?: string; timestamp?: string } | null>(null);
     let resultHistory = $state<Array<{ ok: boolean; duration: string; stdout?: string; stderr?: string; timestamp: string; versions?: string[] }>>([]);
+    let requestId = $state<string | null>(null);
 
     // Persist results across page reloads
     if (browser) {
@@ -263,9 +264,10 @@
 </svelte:head>
 
 <div class="container mx-auto p-6 space-y-6 max-w-4xl">
-
+    <!-- visible in dev only -->
+    {#if isDev}
     <!-- Generation Status Banner -->
-    {#if isDev && generating}
+    {#if generating}
         <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <div class="flex items-center gap-3">
                 <svg class="h-5 w-5 animate-spin text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -287,7 +289,7 @@
     {/if}
 
     <!-- Commit/Push Status Banner -->
-    {#if isDev && committing}
+    {#if committing}
         <div class="p-4 bg-purple-50 border border-purple-200 rounded-lg">
             <div class="flex items-center gap-3">
                 <svg class="h-5 w-5 animate-spin text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -306,8 +308,7 @@
     {/if}
 
     <!-- Quick Actions -->
-    {#if isDev}
-        <div class="flex gap-3 flex-wrap">
+    <div class="flex gap-3 flex-wrap">
             <Button 
                 onclick={() => triggerGeneration(false)} 
                 disabled={generating || committing}
@@ -371,10 +372,9 @@
                 </Button>
             {/if}
         </div>
-    {/if}
 
     <!-- Result Display -->
-    {#if isDev && lastResult}
+    {#if lastResult}
         <div class="p-4 rounded-lg border {lastResult.ok ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}">
             <div class="flex items-center justify-between mb-2">
                 <span class="text-sm font-medium">
@@ -423,7 +423,7 @@
     {/if}
 
     <!-- Commit/Push Result Display -->
-    {#if isDev && lastCommitResult}
+    {#if lastCommitResult}
         <div class="p-4 rounded-lg border {lastCommitResult.ok ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}">
             <div class="flex items-center justify-between mb-2">
                 <span class="text-sm font-medium">
@@ -467,7 +467,7 @@
     {/if}
 
     <!-- Result History -->
-    {#if isDev && resultHistory.length > 1}
+    {#if resultHistory.length > 1}
         <details class="space-y-2">
             <summary class="cursor-pointer text-sm font-medium text-gray-700 hover:text-gray-900">
                 Recent History ({resultHistory.length - 1} more)
@@ -496,20 +496,18 @@
     <div>
         {#each meta as m}
             <div class="flex items-center gap-3 py-1 hover:bg-gray-50 rounded px-2">
-                {#if isDev}
-                    <button 
-                        onclick={() => triggerGeneration(true, [m.slug])}
-                        disabled={generating}
-                        class="text-gray-500 hover:text-gray-700 disabled:opacity-50"
-                        title="Regenerate PDF"
-                    >
-                        {#if generating && generatingVersion === m.slug}
-                            ⟳
-                        {:else}
-                            ↻
-                        {/if}
-                    </button>
-                {/if}
+                <button 
+                    onclick={() => triggerGeneration(true, [m.slug])}
+                    disabled={generating}
+                    class="text-gray-500 hover:text-gray-700 disabled:opacity-50"
+                    title="Regenerate PDF"
+                >
+                    {#if generating && generatingVersion === m.slug}
+                        ⟳
+                    {:else}
+                        ↻
+                    {/if}
+                </button>
                 
                 <a 
                     href="/{m.slug}" 
@@ -529,4 +527,10 @@
             </div>
         {/each}
     </div>
+    {:else}
+        <div class="text-center">
+            <h1 class="text-2xl font-semibold text-gray-900 mb-2">Access Restricted</h1>
+            <p class="text-gray-600">This page is only available in development mode.</p>
+        </div>
+    {/if}
 </div>
