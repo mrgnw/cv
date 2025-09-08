@@ -17,20 +17,20 @@
     let lastCommitResult = $state<any>(null);
     let resultHistory = $state<any[]>([]);
     let requestId = $state<string | null>(null);
-    let groupBy = $state<'company' | 'job'>('company');
+    let groupBy = $state<'skill' | 'company'>('skill');
 
     const sortedMeta = [...meta].sort((a, b) => 
         a.slug === 'main' ? -1 : b.slug === 'main' ? 1 : a.slug.localeCompare(b.slug)
     );
 
-    // Debug logging
-    console.log('Debug info:', { meta: meta.length, sortedMeta: sortedMeta.length, groupBy });
+    // Debug logging (reactive)
+    let debugInfo = $derived({ meta: meta.length, sortedMeta: sortedMeta.length, groupBy });
 
     let groups = $derived((() => {
         const buckets = new Map<string, VersionMeta[]>();
         for (const m of sortedMeta) {
             const key = m.slug === 'main' ? 'Base' : 
-                       groupBy === 'company' ? (m.company || 'Other') : (m.job || 'Other');
+                       groupBy === 'skill' ? (m.job || 'Other') : (m.company || 'Other');
             if (!buckets.has(key)) buckets.set(key, []);
             buckets.get(key)!.push(m);
         }
@@ -44,7 +44,7 @@
 
     function displayName(m: VersionMeta): string {
         if (m.slug === 'main') return 'main';
-        return groupBy === 'company' ? (m.job ?? m.slug) : (m.company ?? m.slug);
+        return groupBy === 'skill' ? (m.company ?? m.slug) : (m.job ?? m.slug);
     }
 
     onMount(() => {
@@ -61,7 +61,7 @@
 
         // Restore grouping
         const savedGroup = localStorage.getItem('cv-group-by');
-        if (savedGroup === 'company' || savedGroup === 'job') {
+        if (savedGroup === 'skill' || savedGroup === 'company') {
             groupBy = savedGroup;
         }
 
@@ -81,8 +81,10 @@
         } catch {}
     });
 
-    $effect(() => {
+    // Save grouping preference reactively when it changes
+    let saveGroupBy = $derived.by(() => {
         if (browser) localStorage.setItem('cv-group-by', groupBy);
+        return groupBy;
     });
 
     function saveToHistory(result: any, versions?: string[]) {
@@ -318,10 +320,10 @@
     <!-- Version List -->
     <div class="space-y-3">
         <div class="inline-flex rounded-md border border-gray-200 overflow-hidden">
-            <button class="px-2 py-1 text-sm border-r transition-colors {groupBy === 'company' ? 'bg-gray-200 text-gray-900' : 'bg-white text-gray-600 hover:bg-gray-50'}"
+            <button class="px-2 py-1 text-sm border-r transition-colors {groupBy === 'skill' ? 'bg-gray-200 text-gray-900' : 'bg-white text-gray-600 hover:bg-gray-50'}"
+                    onclick={() => (groupBy = 'skill')}>Skill</button>
+            <button class="px-2 py-1 text-sm transition-colors {groupBy === 'company' ? 'bg-gray-200 text-gray-900' : 'bg-white text-gray-600 hover:bg-gray-50'}"
                     onclick={() => (groupBy = 'company')}>Company</button>
-            <button class="px-2 py-1 text-sm transition-colors {groupBy === 'job' ? 'bg-gray-200 text-gray-900' : 'bg-white text-gray-600 hover:bg-gray-50'}"
-                    onclick={() => (groupBy = 'job')}>Job</button>
         </div>
 
         <div class="space-y-4">
