@@ -1,5 +1,6 @@
 <script lang="ts">
     import { Button } from "$lib/components/ui/button/index.js";
+    import { getAllVersionMeta } from '$lib/versionReader';
     import { Separator } from "$lib/components/ui/separator/index.js";
     import { browser } from '$app/environment';
     
@@ -48,15 +49,18 @@
         return previewCache[key];
     }
 
-    $effect(() => {
-        if (previewContainer && hoveredSlug && previewType) {
-            // Clear container
-            previewContainer.innerHTML = '';
+    function updatePreview(slug: string | null, type: 'page' | 'pdf' | null) {
+        if (!previewContainer) return;
+        
+        // Clear container
+        previewContainer.innerHTML = '';
+        
+        if (slug && type) {
             // Append the cached iframe
-            const iframe = getOrCreateIframe(hoveredSlug, previewType);
+            const iframe = getOrCreateIframe(slug, type);
             previewContainer.appendChild(iframe);
         }
-    });
+    }
 
     // Persist results across page reloads
     if (browser) {
@@ -306,8 +310,8 @@
     <meta name="bingbot" content="noindex, nofollow">
 </svelte:head>
 
-{#if isDev}
 <div class="container mx-auto p-6 space-y-6 max-w-4xl">
+    {#if isDev}
     <div>
         <h1 class="text-2xl font-semibold text-gray-900 mb-2">• Debug & Tools</h1>
         <p class="text-gray-600 text-sm">
@@ -315,7 +319,7 @@
         </p>
             
     </div>
-{/if}
+    {/if}
 
     <!-- Generation Status Banner -->
     {#if isDev && generating}
@@ -567,8 +571,8 @@
                 <a 
                     href="/{m.slug}" 
                     class="font-mono text-blue-600 hover:text-blue-800 text-sm font-medium"
-                    onmouseenter={() => { hoveredSlug = m.slug; previewType = 'page'; }}
-                    onmouseleave={() => { hoveredSlug = null; previewType = null; }}
+                    onmouseenter={() => { hoveredSlug = m.slug; previewType = 'page'; updatePreview(m.slug, 'page'); }}
+                    onmouseleave={() => { hoveredSlug = null; previewType = null; updatePreview(null, null); }}
                 >
                     {m.slug}
                 </a>
@@ -578,8 +582,8 @@
                     class="text-gray-600 hover:text-blue-600 text-sm"
                     title="File: {m.path}"
                     target="_blank"
-                    onmouseenter={() => { hoveredSlug = m.slug; previewType = 'pdf'; }}
-                    onmouseleave={() => { hoveredSlug = null; previewType = null; }}
+                    onmouseenter={() => { hoveredSlug = m.slug; previewType = 'pdf'; updatePreview(m.slug, 'pdf'); }}
+                    onmouseleave={() => { hoveredSlug = null; previewType = null; updatePreview(null, null); }}
                 >
                     morgan-williams{m.slug === 'main' ? '' : `.${m.slug}`}.pdf
                 </a>
