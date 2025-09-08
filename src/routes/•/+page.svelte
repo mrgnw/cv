@@ -1,14 +1,11 @@
 <script lang="ts">
-    import { getAllVersions, getAllVersionMeta } from '$lib/versionReader';
     import { Button } from "$lib/components/ui/button/index.js";
     import { Separator } from "$lib/components/ui/separator/index.js";
-    import { Badge } from "$lib/components/ui/badge/index.js";
     import { browser } from '$app/environment';
     
     const { data } = $props();
     const isDev = data.dev;
     
-    const versions = getAllVersions();
     const meta = getAllVersionMeta();
     
     let generating = $state(false);
@@ -309,18 +306,16 @@
     <meta name="bingbot" content="noindex, nofollow">
 </svelte:head>
 
+{#if isDev}
 <div class="container mx-auto p-6 space-y-6 max-w-4xl">
     <div>
         <h1 class="text-2xl font-semibold text-gray-900 mb-2">• Debug & Tools</h1>
         <p class="text-gray-600 text-sm">
-            {isDev ? 'PDF generation and version management' : 'Version overview and previews'}
+            PDF generation and version management
         </p>
-        {#if !isDev}
-            <p class="text-amber-600 text-xs mt-1">
-                🔒 Production mode - PDF generation disabled
-            </p>
-        {/if}
+            
     </div>
+{/if}
 
     <!-- Generation Status Banner -->
     {#if isDev && generating}
