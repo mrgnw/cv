@@ -3,6 +3,7 @@
     import { getAllVersionMeta } from '$lib/versionReader';
     import { Separator } from "$lib/components/ui/separator/index.js";
     import { browser } from '$app/environment';
+    import type { VersionMeta } from '../../types';
     
     const { data } = $props();
     const isDev = data.dev;
@@ -16,39 +17,102 @@
     let lastCommitResult = $state<{ ok: boolean; duration: string; stdout?: string; stderr?: string; timestamp?: string } | null>(null);
     let resultHistory = $state<Array<{ ok: boolean; duration: string; stdout?: string; stderr?: string; timestamp: string; versions?: string[] }>>([]);
     let requestId = $state<string | null>(null);
+    // Minimal grouping control for Version List
+    let groupBy = $state<'none' | 'company' | 'job'>('none');
 
-    // Persist results across page reloads
-    if (browser) {
-        const savedHistory = localStorage.getItem('pdf-generation-history');
-        if (savedHistory) {
-            try {
-                const parsed = JSON.parse(savedHistory);
-                resultHistory = parsed;
-                if (parsed.length > 0) {
-                    lastResult = parsed[0];
+    // Sort meta once for consistent display (main first)
+    const sortedMeta: VersionMeta[] = (() => {
+        const list = [...meta];
+        list.sort((a, b) => {
+            if (a.slug === 'main' && b.slug !== 'main') return -1;
+            if (b.slug === 'main' && a.slug !== 'main') return 1;
+            return a.slug.localeCompare(b.slug);
+        });
+        return list;
+    })();
+
+    // Build groups based on current grouping option
+    type Group = { name: string; items: VersionMeta[] };
+    let groups = $state<Group[]>([]);
+    $effect(() => {
+        const by = groupBy; // track dependency
+        if (by === 'none') {
+            groups = [];
+            return;
+        }
+        const buckets = new Map<string, VersionMeta[]>();
+        for (const m of sortedMeta) {
+            const key = m.slug === 'main'
+                ? 'Base'
+                : by === 'company'
+                    ? (m.company || 'Other')
+                    : (m.job || 'Other');
+            if (!buckets.has(key)) buckets.set(key, []);
+            buckets.get(key)!.push(m);
+        }
+        const arr: Group[] = Array.from(buckets.entries()).map(([name, items]) => ({ name, items }));
+        arr.sort((a, b) => {
+            if (a.name === 'Base') return -1;
+            if (b.name === 'Base') return 1;
+            return a.name.localeCompare(b.name);
+        });
+        groups = arr;
+    });
+
+    function groupBtnClass(option: 'none' | 'company' | 'job') {
+        const isActive = groupBy === option;
+        return [
+            'px-2 py-1 text-sm',
+            'border-r last:border-r-0',
+            'transition-colors',
+            isActive ? 'bg-gray-200 text-gray-900' : 'bg-white text-gray-600 hover:bg-gray-50'
+        ].join(' ');
+    }
+
+    // Restore state on mount (history, grouping, in-progress generation)
+    import { onMount } from 'svelte';
+    onMount(() => {
+        if (!browser) return;
+        try {
+            const saved = localStorage.getItem('pdf-generation-history');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed)) {
+                    resultHistory = parsed;
+                    lastResult = resultHistory[0] ?? null;
                 }
-            } catch (e) {
-                console.warn('Failed to parse saved history:', e);
             }
+        } catch (e) {
+            console.warn('Failed to parse saved history:', e);
         }
 
-        // Check if we were in the middle of generating when page refreshed
+        const savedGroup = localStorage.getItem('cv-group-by');
+        if (savedGroup === 'none' || savedGroup === 'company' || savedGroup === 'job') {
+            groupBy = savedGroup as typeof groupBy;
+        }
+
         const savedGenerating = localStorage.getItem('pdf-generating');
         if (savedGenerating) {
-            const { timestamp, id } = JSON.parse(savedGenerating);
-            // If less than 30 seconds ago, assume still generating
-            if (Date.now() - timestamp < 30000) {
-                generating = true;
-                requestId = id;
-                console.log('🔄 Resumed generation state after page refresh');
-                
-                // Poll for completion
-                pollForCompletion(id);
-            } else {
+            try {
+                const { timestamp, id } = JSON.parse(savedGenerating);
+                if (Date.now() - timestamp < 30000) {
+                    generating = true;
+                    requestId = id;
+                    console.log('🔄 Resumed generation state after page refresh');
+                    pollForCompletion(id);
+                } else {
+                    localStorage.removeItem('pdf-generating');
+                }
+            } catch {
                 localStorage.removeItem('pdf-generating');
             }
         }
-    }
+    });
+
+    // Persist grouping preference
+    $effect(() => {
+        if (browser) localStorage.setItem('cv-group-by', groupBy);
+    });
 
     function saveGeneratingState(id: string) {
         if (browser) {
@@ -492,39 +556,101 @@
     <Separator />
     {/if}
 
-    <!-- Version List -->
-    <div>
-        {#each meta as m}
-            <div class="flex items-center gap-3 py-1 hover:bg-gray-50 rounded px-2">
-                <button 
-                    onclick={() => triggerGeneration(true, [m.slug])}
-                    disabled={generating}
-                    class="text-gray-500 hover:text-gray-700 disabled:opacity-50"
-                    title="Regenerate PDF"
-                >
-                    {#if generating && generatingVersion === m.slug}
-                        ⟳
-                    {:else}
-                        ↻
-                    {/if}
-                </button>
-                
-                <a 
-                    href="/{m.slug}" 
-                    class="font-mono text-blue-600 hover:text-blue-800 text-sm font-medium"
-                >
-                    {m.slug}
-                </a>
-                
-                <a 
-                    href="/morgan-williams{m.slug === 'main' ? '' : `.${m.slug}`}.pdf"
-                    class="text-gray-600 hover:text-blue-600 text-sm"
-                    title="File: {m.path}"
-                    target="_blank"
-                >
-                    morgan-williams{m.slug === 'main' ? '' : `.${m.slug}`}.pdf
-                </a>
+    <!-- Group by control and Version List -->
+    <div class="space-y-3">
+        <div class="flex items-center justify-between gap-3">
+            <div class="text-sm text-gray-600">Group by</div>
+            <div class="inline-flex rounded-md border border-gray-200 overflow-hidden">
+                <button class={groupBtnClass('none')} onclick={() => (groupBy = 'none')} aria-pressed={groupBy === 'none'}>None</button>
+                <button class={groupBtnClass('company')} onclick={() => (groupBy = 'company')} aria-pressed={groupBy === 'company'}>Company</button>
+                <button class={groupBtnClass('job')} onclick={() => (groupBy = 'job')} aria-pressed={groupBy === 'job'}>Job</button>
             </div>
-        {/each}
+        </div>
+
+        {#if groupBy === 'none'}
+            <div>
+                {#each sortedMeta as m}
+                    <div class="flex items-center gap-3 py-1 hover:bg-gray-50 rounded px-2">
+                        {#if isDev}
+                            <button 
+                                onclick={() => triggerGeneration(true, [m.slug])}
+                                disabled={generating}
+                                class="text-gray-500 hover:text-gray-700 disabled:opacity-50"
+                                title="Regenerate PDF"
+                            >
+                                {#if generating && generatingVersion === m.slug}
+                                    ⟳
+                                {:else}
+                                    ↻
+                                {/if}
+                            </button>
+                        {/if}
+
+                        <a 
+                            href="/{m.slug}" 
+                            class="font-mono text-blue-600 hover:text-blue-800 text-sm font-medium"
+                        >
+                            {m.slug}
+                        </a>
+
+                        <a 
+                            href="/morgan-williams{m.slug === 'main' ? '' : `.${m.slug}`}.pdf"
+                            class="text-gray-600 hover:text-blue-600 text-sm"
+                            title="File: {m.path}"
+                            target="_blank"
+                        >
+                            morgan-williams{m.slug === 'main' ? '' : `.${m.slug}`}.pdf
+                        </a>
+                    </div>
+                {/each}
+            </div>
+        {:else}
+            <div class="space-y-4">
+                {#each groups as group}
+                    <section>
+                        <div class="flex items-center justify-between py-1">
+                            <h2 class="text-sm font-medium text-gray-700">{group.name}</h2>
+                            <span class="text-xs text-gray-500 bg-gray-100 rounded px-2 py-0.5">{group.items.length}</span>
+                        </div>
+                        <div>
+                            {#each group.items as m}
+                                <div class="flex items-center gap-3 py-1 hover:bg-gray-50 rounded px-2">
+                                    {#if isDev}
+                                        <button 
+                                            onclick={() => triggerGeneration(true, [m.slug])}
+                                            disabled={generating}
+                                            class="text-gray-500 hover:text-gray-700 disabled:opacity-50"
+                                            title="Regenerate PDF"
+                                        >
+                                            {#if generating && generatingVersion === m.slug}
+                                                ⟳
+                                            {:else}
+                                                ↻
+                                            {/if}
+                                        </button>
+                                    {/if}
+
+                                    <a 
+                                        href="/{m.slug}" 
+                                        class="font-mono text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                    >
+                                        {m.slug}
+                                    </a>
+
+                                    <a 
+                                        href="/morgan-williams{m.slug === 'main' ? '' : `.${m.slug}`}.pdf"
+                                        class="text-gray-600 hover:text-blue-600 text-sm"
+                                        title="File: {m.path}"
+                                        target="_blank"
+                                    >
+                                        morgan-williams{m.slug === 'main' ? '' : `.${m.slug}`}.pdf
+                                    </a>
+                                </div>
+                            {/each}
+                        </div>
+                    </section>
+                {/each}
+            </div>
+        {/if}
     </div>
 </div>
