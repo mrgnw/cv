@@ -133,6 +133,17 @@ for (const entry of tempEntries) {
 	try {
 		const parsedData = JSON5.parse(entry.content);
 		
+		// Migrate old experience format to new format
+		if (parsedData.experience && Array.isArray(parsedData.experience)) {
+			parsedData.experience = parsedData.experience.map((exp: any) => ({
+				...exp,
+				// Migrate description -> accomplishments if needed
+				accomplishments: exp.accomplishments || exp.description || [],
+				// Remove old description property if it exists
+				description: undefined
+			}));
+		}
+		
 		// Generate PDF link
 		const pdfLink = slug === 'main' ? '/morgan-williams.pdf' : `/morgan-williams.${slug}.pdf`;
 		
@@ -266,12 +277,23 @@ function mergeExperiences(
 			mergedExperiences.push({
 				...mainExp,
 				...versionExp,
-				accomplishments: mergeAccomplishments(mainExp.accomplishments, versionExp.accomplishments),
+				accomplishments: mergeAccomplishments(
+					mainExp.accomplishments, 
+					versionExp.accomplishments
+				),
 			});
 		} else if (versionExp) {
-			mergedExperiences.push(versionExp);
+			// Ensure version experience has accomplishments array
+			mergedExperiences.push({
+				...versionExp,
+				accomplishments: versionExp.accomplishments || []
+			});
 		} else if (mainExp) {
-			mergedExperiences.push(mainExp);
+			// Ensure main experience has accomplishments array
+			mergedExperiences.push({
+				...mainExp,
+				accomplishments: mainExp.accomplishments || []
+			});
 		}
 	}
 
@@ -286,17 +308,21 @@ function mergeExperiences(
  * @returns A new array of merged accomplishments strings.
  */
 function mergeAccomplishments(
-	mainAccomplishments: string[],
-	versionAccomplishments: string[]
+	mainAccomplishments: string[] | undefined,
+	versionAccomplishments: string[] | undefined
 ): string[] {
-	const maxLength = Math.max(mainAccomplishments.length, versionAccomplishments.length);
+	// Handle undefined cases
+	const safeMainAccomplishments = mainAccomplishments || [];
+	const safeVersionAccomplishments = versionAccomplishments || [];
+	
+	const maxLength = Math.max(safeMainAccomplishments.length, safeVersionAccomplishments.length);
 	const mergedAccomplishments: string[] = [];
 
 	for (let i = 0; i < maxLength; i++) {
-		const versionLine = typeof versionAccomplishments[i] === "string"
-			? versionAccomplishments[i].trim()
+		const versionLine = typeof safeVersionAccomplishments[i] === "string"
+			? safeVersionAccomplishments[i].trim()
 			: "";
-		mergedAccomplishments[i] = versionLine || mainAccomplishments[i] || "";
+		mergedAccomplishments[i] = versionLine || safeMainAccomplishments[i] || "";
 	}
 
 	return mergedAccomplishments;
