@@ -10,11 +10,21 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"install-browsers": "playwright install",
-		"pdfs": "vite build && bunx concurrently -k --kill-signal SIGTERM \"bun run preview\" \"bun run pdf-script\" || true",
-		"pdf-script": "bun generate-pdf.js"
+		"pdf": "docker-compose exec app node pdf-cli.js",
+		"pdf:watch": "docker-compose exec app node pdf-cli.js --watch",
+		"pdf:force": "docker-compose exec app node pdf-cli.js --force all",
+		"pdf:list": "docker-compose exec app node pdf-cli.js --list",
+		"pdfs": "docker-compose exec app node pdf-cli.js all",
+		"pdfs:force": "docker-compose exec app node pdf-cli.js all --force",
+		"pdf:changed": "docker-compose exec app node pdf-cli.js --changed",
+		"pdf:local": "node pdf-cli.js",
+		"pdf:local:force": "node pdf-cli.js --force",
+		"pdf:local:changed": "node pdf-cli.js --changed",
+		"pdf:local:list": "node pdf-cli.js --list"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-cloudflare": "^4.7.2",
+		"@sveltejs/adapter-node": "^5.3.1",
 		"@sveltejs/kit": "^2.5.27",
 		"@sveltejs/vite-plugin-svelte": "^4.0.0",
 		"autoprefixer": "^10.4.20",
@@ -24,13 +34,15 @@
 		"svelte-image": "^0.2.9",
 		"tailwindcss": "^3.4.9",
 		"typescript": "^5.5.0",
-		"vite": "^5.4.4"
+		"vite": "^5.4.4",
+		"chokidar": "^3.5.3"
 	},
 	"type": "module",
 	"dependencies": {
 		"@iconify/svelte": "^4.0.2",
 		"@sveltejs/adapter-static": "^3.0.5",
-		"bits-ui": "^0.21.16",
+		"bits-ui": "^2.9.6",
+		"caniuse-lite": "^1.0.30001741",
 		"clsx": "^2.1.1",
 		"date-fns": "^4.1.0",
 		"json5": "^2.2.3",

@@ -1,53 +1,172 @@
-import type { CVData, Experience, Project } from "../types";
+import type { CVData, RawCVData, Experience, Project, VersionMeta } from "../types";
 import JSON5 from 'json5';
 
 /**
- * Dynamically import all JSON files in the versions directory.
+ * Dynamically import all JSON files in the versions directory (including subdirectories).
  */
 const versionFiles = {
-	...import.meta.glob<string>('/src/lib/versions/*.json', { query: '?raw', import: 'default', eager: true }),
-	...import.meta.glob<string>('/src/lib/versions/*.json5', { query: '?raw', import: 'default', eager: true }),
-	...import.meta.glob<string>('/src/lib/versions/*.jsonc', { query: '?raw', import: 'default', eager: true }),
+	...import.meta.glob<string>('/src/lib/versions/**/*.json', { query: '?raw', import: 'default', eager: true }),
+	...import.meta.glob<string>('/src/lib/versions/**/*.json5', { query: '?raw', import: 'default', eager: true }),
+	...import.meta.glob<string>('/src/lib/versions/**/*.jsonc', { query: '?raw', import: 'default', eager: true }),
 };
+
+/**
+ * Normalize a string to be a valid URL slug
+ */
+function normalizeSlug(str: string): string {
+	return str
+		.toLowerCase()
+		.trim()
+		.replace(/[\s_]+/g, '-')
+		.replace(/[^\w-]/g, '')
+		.replace(/-+/g, '-')
+		.replace(/^-+|-+$/g, '');
+}
+
+/**
+ * Parse a version file path to extract job title and company
+ */
+function parseVersionPath(path: string): { job: string | null; company: string | null; sourceType: VersionMeta['sourceType'] } {
+	// Remove extension and prefix
+	const pathMatch = path.match(/\/src\/lib\/versions\/(.+?)\.(json[c5]?)$/);
+	if (!pathMatch) {
+		throw new Error(`Invalid version path: ${path}`);
+	}
+	
+	const [, pathPart] = pathMatch;
+	
+	// Handle main file
+	if (pathPart === 'main') {
+		return { job: null, company: null, sourceType: 'base' };
+	}
+	
+	// Check if it's nested (job/company)
+	const parts = pathPart.split('/');
+	if (parts.length === 2) {
+		return { job: parts[0], company: parts[1], sourceType: 'scoped' };
+	} else if (parts.length === 1) {
+		return { job: parts[0], company: null, sourceType: 'generic' };
+	}
+	
+	throw new Error(`Unexpected path structure: ${path}`);
+}
 
 /**
  * Maps each version slug to its corresponding CV data.
  */
-const versionMap: Record<string, CVData> = {};
+const versionMap: Record<string, RawCVData> = {};
+
+/**
+ * Maps each version slug to its metadata.
+ */
+const metaMap: Record<string, VersionMeta> = {};
+
+// First pass: parse all files and extract metadata
+const tempEntries: Array<{
+	path: string;
+	content: string;
+	job: string | null;
+	company: string | null;
+	sourceType: VersionMeta['sourceType'];
+}> = [];
 
 for (const path in versionFiles) {
-	const slugMatch = path.match(/\/src\/lib\/versions\/(.+?)\.(json[c5]?)$/);
-	if (slugMatch) {
-		const [, slug] = slugMatch;
-		try {
-			const content = versionFiles[path];
-			if (!content) {
-				console.error(`No content found for ${path}`);
-				continue;
-			}
-			// Remove BOM if present
-			const cleanContent = content.replace(/^\uFEFF/, '');
-			const isSpanish = slug.endsWith('.es');
-			const baseSlug = isSpanish ? slug.slice(0, -3) : slug;
-			versionMap[slug] = {
-				...JSON5.parse(cleanContent),
-				pdfLink: isSpanish ? 
-					(baseSlug === 'main' ? '/es/morgan-williams.pdf' : `/es/morgan-williams.${baseSlug}.pdf`) :
-					(baseSlug === 'main' ? '/morgan-williams.pdf' : `/morgan-williams.${baseSlug}.pdf`),
-			};
-		} catch (error) {
-			console.error(`Error parsing ${path}:`, error);
-			throw error;
+	const content = versionFiles[path];
+	if (!content) {
+		console.error(`No content found for ${path}`);
+		continue;
+	}
+	
+	try {
+		const { job, company, sourceType } = parseVersionPath(path);
+		tempEntries.push({
+			path,
+			content: content.replace(/^\uFEFF/, ''), // Remove BOM
+			job,
+			company,
+			sourceType
+		});
+	} catch (error) {
+		console.error(`Error parsing path ${path}:`, error);
+		throw error;
+	}
+}
+
+// Count company occurrences to determine slug strategy
+const companyCount = new Map<string, number>();
+tempEntries.forEach(entry => {
+	if (entry.company) {
+		const normalizedCompany = normalizeSlug(entry.company);
+		companyCount.set(normalizedCompany, (companyCount.get(normalizedCompany) || 0) + 1);
+	}
+});
+
+// Second pass: generate slugs and build maps
+const slugConflicts = new Map<string, string[]>();
+
+for (const entry of tempEntries) {
+	let slug: string;
+	
+	if (entry.sourceType === 'base') {
+		slug = 'main';
+	} else if (entry.company) {
+		const normalizedCompany = normalizeSlug(entry.company);
+		const normalizedJob = normalizeSlug(entry.job!);
+		
+		if (companyCount.get(normalizedCompany) === 1) {
+			slug = normalizedCompany;
+		} else {
+			slug = `${normalizedCompany}-${normalizedJob}`;
 		}
+	} else {
+		slug = normalizeSlug(entry.job!);
+	}
+	
+	// Check for conflicts
+	if (slugConflicts.has(slug)) {
+		slugConflicts.get(slug)!.push(entry.path);
+	} else {
+		slugConflicts.set(slug, [entry.path]);
+	}
+	
+	// Parse and store data
+	try {
+		const parsedData = JSON5.parse(entry.content);
+		
+		// Generate PDF link
+		const pdfLink = slug === 'main' ? '/morgan-williams.pdf' : `/morgan-williams.${slug}.pdf`;
+		
+		versionMap[slug] = {
+			...parsedData,
+			pdfLink
+		};
+		
+		metaMap[slug] = {
+			slug,
+			job: entry.job,
+			company: entry.company,
+			path: entry.path,
+			sourceType: entry.sourceType
+		};
+	} catch (error) {
+		console.error(`Error parsing JSON for ${entry.path}:`, error);
+		throw error;
+	}
+}
+
+// Validate no conflicts
+for (const [slug, paths] of slugConflicts) {
+	if (paths.length > 1) {
+		throw new Error(`Slug collision detected for "${slug}": ${paths.join(', ')}`);
 	}
 }
 
 /**
  * Retrieves a specific version by its slug.
  * @param slug - The slug identifier for the version.
- * @returns The corresponding CVData or null if not found.
+ * @returns The corresponding RawCVData or null if not found.
  */
-export function getVersion(slug: string): CVData | null {
+export function getVersion(slug: string): RawCVData | null {
 	return versionMap[slug] || null;
 }
 
@@ -64,17 +183,14 @@ export function coalesceVersion(slug: string): CVData | null {
 		return null;
 	}
 
-	// Import and parse projects
+	// Import and parse projects (cache this once for better performance)
 	const projectFiles = {
 		...import.meta.glob<string>('/src/lib/projects.jsonc', { query: '?raw', import: 'default', eager: true }),
-		...import.meta.glob<string>('/src/lib/projects-es.jsonc', { query: '?raw', import: 'default', eager: true }),
 	};
 
-	const getProjectsPath = (slug: string) => `/src/lib/projects${slug.endsWith('.es') ? '-es' : ''}.jsonc`;
-
-	const projectContent = projectFiles[getProjectsPath(slug)];
+	const projectContent = projectFiles['/src/lib/projects.jsonc'];
 	if (!projectContent) {
-		console.error(`Could not find projects file for ${slug}`);
+		console.error(`Could not find projects file`);
 		throw new Error('Projects file not found');
 	}
 
@@ -108,10 +224,16 @@ export function coalesceVersion(slug: string): CVData | null {
 	// Create merged object without projects first
 	const { projects: mainProjects = [], ...mainRest } = main;
 	const { projects: versionProjects = [], ...versionRest } = version;
-	const merged: CVData = { ...mainRest, ...versionRest };
-
+	
 	// Resolve projects from version only
-	merged.projects = resolveProjects(versionProjects || []);
+	const resolvedProjects = resolveProjects(versionProjects || []);
+
+	// Create the merged CVData object
+	const merged: CVData = { 
+		...mainRest, 
+		...versionRest,
+		projects: resolvedProjects
+	};
 
 	// Merge experience sections if they exist in both
 	if (main.experience && version.experience) {
@@ -184,4 +306,12 @@ function mergeDescriptions(
  */
 export function getAllVersions(): string[] {
 	return Object.keys(versionMap);
+}
+
+/**
+ * Retrieves all version metadata.
+ * @returns An array of VersionMeta objects.
+ */
+export function getAllVersionMeta(): VersionMeta[] {
+	return Object.values(metaMap);
 }

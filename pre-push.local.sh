@@ -3,7 +3,7 @@
 FLAG_FILE=".pdf_gen_ts"
 
 # Check for changes in the src/lib/versions/ or src/ directories
-CHANGED_FILES=$(git diff @{push} --name-only | grep -E '^src/|generate-pdf\.js$')
+CHANGED_FILES=$(git diff @{push} --name-only | grep -E '^src/lib/versions/|^src/lib/(CVSans|EngCV)\.svelte$|^src/lib/projects(-es)?\.jsonc$')
 
 if [ -z "$CHANGED_FILES" ]; then
     echo "No changes in src/lib/versions/ or src/, skipping PDF generation..."
@@ -22,10 +22,10 @@ if [ -f "$FLAG_FILE" ]; then
     fi
 fi
 
-echo "Generating PDFs..."
-bun run pdfs
+echo "Generating PDFs (incremental)..."
+npm run pdf
 
-PDF_CHANGES=$(git status --porcelain static/*.pdf)
+PDF_CHANGES=$(git status --porcelain static/*.pdf 2>/dev/null)
 if [ -n "$PDF_CHANGES" ]; then
     git add static/*.pdf
     git commit -m "[auto] update PDFs" || true

@@ -1,26 +1,24 @@
 <script lang="ts">
     import type { CVProps } from "../types";
     import { browser } from "$app/environment";
-    import mainData from "$lib/versions/main.json";
     import { format } from "date-fns";
     import { FileText } from "lucide-svelte";
     import JSON5 from 'json5';
     import { Button } from "$lib/components/ui/button";
     import { getAllVersions } from "$lib/versionReader";
-    import { page } from "$app/stores";
 
     // Destructure props
     let {
-      name = mainData.name,
-      title = mainData.title,
-      email = mainData.email,
-      github = mainData.github,
+      name,
+      title,
+      email,
+      github,
       pdfLink = "/morgan-williams-cv",
-      projects = mainData.projects,
-      experience = mainData.experience,
-      skills = mainData.skills,
-      education = mainData.education,
-      version = $page.params.slug || 'main',
+      projects,
+      experience,
+      skills,
+      education,
+      version = 'main',
       lang = 'en'
     }: CVProps = $props();
 
@@ -32,7 +30,7 @@
     const isPrinting = browser && new URLSearchParams(window.location.search).has("print");
     const searchParams = browser ? new URLSearchParams(window.location.search) : null;
     const removeProjects = searchParams?.get('removeProjects') 
-      ? parseInt(searchParams.get('removeProjects')) 
+      ? parseInt(searchParams.get('removeProjects')!) 
       : 0;
 
     if (removeProjects > 0 && projects?.length) {
@@ -78,14 +76,6 @@
       });
       return projects.flat();
     });
-
-    const allVersions = getAllVersions();
-    const isSpanishVersion = $derived(version?.endsWith('.es'));
-    const otherVersionSlug = $derived(
-      isSpanishVersion ? version.replace('.es', '') : `${version}.es`
-    );
-    const hasOtherLanguage = $derived(allVersions.includes(otherVersionSlug));
-    const otherLangUrl = $derived(`/${otherVersionSlug}`);
   </script>
 
   <div class="max-w-[800px] mx-auto p-8 bg-white text-black print:p-4 font-serif">
@@ -102,24 +92,6 @@
         <a href="https://linkedin.com/in/mrgnw" class="hover:underline">linkedin.com/in/mrgnw</a>
       </div>
     </header>
-
-    <!-- Language Switcher -->
-    {#if hasOtherLanguage && !isPrinting}
-      <div class="no-print fixed bottom-4 right-16 flex items-center">
-        <a
-          href={otherLangUrl}
-          class="bg-white p-2 rounded-full shadow-lg hover:bg-gray-50 flex items-center justify-center"
-          style="width: {iconSize}px; height: {iconSize}px;"
-          aria-label={isSpanishVersion ? "Switch to English" : "Cambiar a Español"}
-        >
-          {#if isSpanishVersion}
-            <span class="text-xl">🇺🇸</span>
-          {:else}
-            <span class="text-xl">🇪🇸</span>
-          {/if}
-        </a>
-      </div>
-    {/if}
 
     <!-- Skills -->
     <section class="mb-6">

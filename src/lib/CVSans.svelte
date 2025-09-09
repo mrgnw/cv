@@ -7,8 +7,6 @@
 	import { Separator } from "$lib/components/ui/separator";
 	import { ChevronDown, FileText } from "lucide-svelte";
 	import { browser } from "$app/environment";
-
-	import mainData from "$lib/versions/main.json";
 	let highlightedSkill = $state("");
 
 	function highlightStack(skill: string) {
@@ -26,15 +24,15 @@
 
 	// Destructure props
 	let {
-		name = mainData.name,
-		title = mainData.title,
-		email = mainData.email,
-		github = mainData.github,
+		name,
+		title,
+		email,
+		github,
 		pdfLink = "/morgan-williams-cv",
-		projects = mainData.projects,
-		experience = mainData.experience,
-		skills = mainData.skills,
-		education = mainData.education,
+		projects,
+		experience,
+		skills,
+		education,
 		version,
 	}: CVProps = $props();
 
@@ -45,7 +43,7 @@
 
 	const searchParams = browser ? new URLSearchParams(window.location.search) : null;
 	const removeProjects = searchParams?.get('removeProjects') 
-		? parseInt(searchParams.get('removeProjects')) 
+		? parseInt(searchParams.get('removeProjects')!) 
 		: 0;
 
 	if (removeProjects > 0 && projects?.length) {
@@ -60,6 +58,8 @@
 			<div class="text-muted-foreground">
 				{#each skills as skill, index}
 					<span
+						role="button"
+						tabindex="0"
 						class="cursor-pointer hover:text-foreground transition-colors inline-block"
 						onmouseenter={() => highlightStack(skill)}
 						onmouseleave={() => highlightStack("")}
@@ -152,6 +152,8 @@
 	
 
 	<footer class="print-footnote mt-auto pt-4 print:hidden">
+		<!-- Keywords section temporarily disabled during refactor -->
+		<!--
 		<details>
 			<summary class="flex items-center gap-1 cursor-pointer list-none">
 				<span class="text-sm font-semibold">Related keywords</span>
@@ -169,6 +171,7 @@
 				{/each}
 			</p>
 		</details>
+		-->
 	</footer>
 </div>
 
@@ -190,23 +193,10 @@
 		--font-size: 1.25rem;
 	}
 
-	.typewriter-wrapper {
-		min-height: calc(var(--line-height) * var(--font-size) * 2);
-		display: flex;
-		flex-direction: column;
-		justify-content: flex-start;
-		overflow: hidden;
-	}
-
-	.typewriter-wrapper :global(p) {
-		font-size: var(--font-size);
-		line-height: var(--line-height);
-		margin: 0;
-	}
-
 	@media (min-width: 640px) {
-		.typewriter-wrapper {
-			min-height: calc(var(--line-height) * var(--font-size));
+		:root {
+			--line-height: 1.5;
+			--font-size: 1rem;
 		}
 	}
 
@@ -279,7 +269,7 @@
 			border-top: none;
 		}
 
-		.print-keywords {
+		:global(.print-keywords) {
 			font-size: 1pt;
 			color: transparent;
 			user-select: none;
@@ -296,26 +286,16 @@
 		.no-print {
 			display: none !important;
 		}
-
-		.print-only {
-			display: block !important;
-		}
-	}
-
-	@media screen {
-		.print-only {
-			display: none;
-		}
 	}
 
 	/* Remove default arrow from details summary */
-	details > summary::marker,
-	details > summary::-webkit-details-marker {
+	:global(details > summary::marker),
+	:global(details > summary::-webkit-details-marker) {
 		display: none;
 	}
 
 	/* Rotate chevron when details is open */
-	details[open] > summary > :global(svg) {
+	:global(details[open] > summary > svg) {
 		transform: rotate(180deg);
 	}
 </style>

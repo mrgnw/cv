@@ -1,12 +1,13 @@
 <script lang="ts">
   import CVSans from '$lib/CVSans.svelte';
-  import type { PageServerLoad } from './$types';
+  import type { PageData } from './$types';
 
   interface Props {
-    data: PageServerLoad;
+    data: PageData;
   }
 
   let { data }: Props = $props();
+  // Generate sans PDF link based on the slug from data
   const pdfLink = data.slug === 'main' ? 
     '/sans/morgan-williams-sans.pdf' : 
     `/sans/morgan-williams.${data.slug}-sans.pdf`;
