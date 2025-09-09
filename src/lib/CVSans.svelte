@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Experience from "./Experience.svelte";
 	import Projects from "./Projects.svelte";
-	import type { CVProps } from "../types";
+	import type { CV } from "../types";
 	import Typewriter from "svelte-typewriter";
 	import { Button } from "$lib/components/ui/button";
 	import { Separator } from "$lib/components/ui/separator";
@@ -29,12 +29,12 @@
 		email,
 		github,
 		pdfLink = "/morgan-williams-cv",
-		projects,
+		resolvedProjects: projects = [],  // Default to empty array
 		experience,
 		skills,
 		education,
 		version,
-	}: CVProps = $props();
+	}: CV = $props();
 
 	const iconSize = 30;
 

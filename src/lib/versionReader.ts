@@ -1,4 +1,4 @@
-import type { CVData, RawCVData, Experience, Project, VersionMeta } from "../types";
+import type { CV, Experience, Project, VersionMeta } from "../types";
 import JSON5 from 'json5';
 
 /**
@@ -54,7 +54,7 @@ function parseVersionPath(path: string): { job: string | null; company: string |
 /**
  * Maps each version slug to its corresponding CV data.
  */
-const versionMap: Record<string, RawCVData> = {};
+const versionMap: Record<string, CV> = {};
 
 /**
  * Maps each version slug to its metadata.
@@ -164,18 +164,18 @@ for (const [slug, paths] of slugConflicts) {
 /**
  * Retrieves a specific version by its slug.
  * @param slug - The slug identifier for the version.
- * @returns The corresponding RawCVData or null if not found.
+ * @returns The corresponding CV or null if not found.
  */
-export function getVersion(slug: string): RawCVData | null {
+export function getVersion(slug: string): CV | null {
 	return versionMap[slug] || null;
 }
 
 /**
  * Combines the main version with a specified version.
  * @param slug - The slug identifier for the version to combine.
- * @returns The merged CVData or null if merging isn't possible.
+ * @returns The merged CV or null if merging isn't possible.
  */
-export function coalesceVersion(slug: string): CVData | null {
+export function coalesceVersion(slug: string): CV | null {
 	const main = versionMap["main"];
 	const version = getVersion(slug);
 
@@ -225,14 +225,16 @@ export function coalesceVersion(slug: string): CVData | null {
 	const { projects: mainProjects = [], ...mainRest } = main;
 	const { projects: versionProjects = [], ...versionRest } = version;
 	
-	// Resolve projects from version only
-	const resolvedProjects = resolveProjects(versionProjects || []);
+	// Resolve projects from version (or fall back to main)
+	const projectsToUse = versionProjects.length > 0 ? versionProjects : mainProjects;
+	const resolvedProjects = resolveProjects(projectsToUse);
 
-	// Create the merged CVData object
-	const merged: CVData = { 
+	// Create the merged CV object
+	const merged: CV = { 
 		...mainRest, 
 		...versionRest,
-		projects: resolvedProjects
+		projects: projectsToUse,        // Keep the raw projects
+		resolvedProjects               // Add resolved projects
 	};
 
 	// Merge experience sections if they exist in both
@@ -264,7 +266,7 @@ function mergeExperiences(
 			mergedExperiences.push({
 				...mainExp,
 				...versionExp,
-				description: mergeDescriptions(mainExp.description, versionExp.description),
+				accomplishments: mergeAccomplishments(mainExp.accomplishments, versionExp.accomplishments),
 			});
 		} else if (versionExp) {
 			mergedExperiences.push(versionExp);
@@ -277,27 +279,27 @@ function mergeExperiences(
 }
 
 /**
- * Merges two arrays of description strings line by line.
- * Prefer version descriptions over main descriptions when available.
- * @param mainDescription - The primary array of descriptions.
- * @param versionDescription - The array of descriptions to merge from the version.
- * @returns A new array of merged description strings.
+ * Merges two arrays of accomplishments strings line by line.
+ * Prefer version accomplishments over main accomplishments when available.
+ * @param mainAccomplishments - The primary array of accomplishments.
+ * @param versionAccomplishments - The array of accomplishments to merge from the version.
+ * @returns A new array of merged accomplishments strings.
  */
-function mergeDescriptions(
-	mainDescription: string[],
-	versionDescription: string[]
+function mergeAccomplishments(
+	mainAccomplishments: string[],
+	versionAccomplishments: string[]
 ): string[] {
-	const maxLength = Math.max(mainDescription.length, versionDescription.length);
-	const mergedDescription: string[] = [];
+	const maxLength = Math.max(mainAccomplishments.length, versionAccomplishments.length);
+	const mergedAccomplishments: string[] = [];
 
 	for (let i = 0; i < maxLength; i++) {
-		const versionLine = typeof versionDescription[i] === "string"
-			? versionDescription[i].trim()
+		const versionLine = typeof versionAccomplishments[i] === "string"
+			? versionAccomplishments[i].trim()
 			: "";
-		mergedDescription[i] = versionLine || mainDescription[i] || "";
+		mergedAccomplishments[i] = versionLine || mainAccomplishments[i] || "";
 	}
 
-	return mergedDescription;
+	return mergedAccomplishments;
 }
 
 /**

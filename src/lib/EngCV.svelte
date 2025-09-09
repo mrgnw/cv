@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { CVProps } from "../types";
+    import type { CV } from "../types";
     import { browser } from "$app/environment";
     import { format } from "date-fns";
     import { FileText } from "lucide-svelte";
@@ -14,13 +14,13 @@
       email,
       github,
       pdfLink = "/morgan-williams-cv",
-      projects,
+      resolvedProjects: projects = [],  // Default to empty array
       experience,
       skills,
       education,
       version = 'main',
       lang = 'en'
-    }: CVProps = $props();
+    }: CV = $props();
 
     const iconSize = 30;
     function formatDate(date: string): string {
@@ -116,7 +116,7 @@
             </span>
           </div>
           <ul class="list-disc ml-4 mt-1">
-            {#each job.description as bullet}
+            {#each job.accomplishments as bullet}
               <li class="text-sm leading-tight mb-1">{bullet}</li>
             {/each}
           </ul>

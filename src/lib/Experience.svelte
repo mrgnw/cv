@@ -31,15 +31,15 @@
 					<h3 class="text-xl font-semibold">
 						{exp.title}
 					</h3>
-					{#if exp.stack}
+					{#if exp.skills}
 						<div class="flex flex-wrap gap-1">
-							{#each exp.stack as tech, i}
+							{#each exp.skills as tech, i}
 								<span
 									class="text-xs text-muted-foreground"
 									class:text-blue-500={highlightedSkill === tech}
 									class:active={tech === highlightedSkill}
 								>
-									{tech}{i < exp.stack.length - 1 ? ' • ' : ''}
+									{tech}{i < exp.skills.length - 1 ? ' • ' : ''}
 								</span>
 							{/each}
 						</div>
@@ -55,7 +55,7 @@
 					</p>
 				</div>
 			</div>
-			{#each exp.description as paragraph}
+			{#each exp.accomplishments as paragraph}
 				<p class="mb-2 mt-1 print:mb-1.5 print:mt-0.5">{paragraph}</p>
 			{/each}
 		</div>

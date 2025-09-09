@@ -5,57 +5,31 @@ export interface Experience {
 	company: string;
 	start: string;
 	end?: string;
-	description: string[];
-	stack?: string[];
+	accomplishments: string[];
+	skills?: string[];
 }
 export interface Project {
 	name: string;
 	localized_name?: string;
 	url: string;
 	description: string;
-	stack?: string[];
+	skills?: string[];
 }
 
-export interface RawCVData {
+export interface CV {
 	name: string;
 	title: string;
 	email: string;
 	github: string;
-	experience: Array<Experience>;
+	experience: Experience[];
 	skills: string[];
-	education: Array<{
-		degree: string;
-		provider: string;
-		summary?: string;
-		year: string;
-	}>;
-	projects?: (string | Project)[];  // Can be either project names or full definitions
+	education: EducationItem[];
+	projects?: (string | Project)[];  // Can be strings (raw) or full objects
+	resolvedProjects?: Project[];     // Fully resolved projects (computed)
 	pdfLink?: string;
-}
-
-export interface CVData {
-	name: string;
-	title: string;
-	email: string;
-	github: string;
-	experience: Array<Experience>;
-	skills: string[];
-	education: Array<{
-		degree: string;
-		provider: string;
-		summary?: string;
-		year: string;
-	}>;
-	projects: Project[];  // Required: should be resolved by coalesceVersion
-	pdfLink?: string;  // Added for dynamic PDF link generation
-}
-
-export interface ExperienceItem {
-	title: string;
-	company: string;
-	start: string;
-	end?: string;
-	description: string[];
+	version?: string;
+	lang?: string;
+	variant?: 'modern' | 'traditional';
 }
 
 export interface EducationItem {
@@ -72,18 +46,4 @@ export interface VersionMeta {
 	company: string | null;
 	path: string;
 	sourceType: 'generic' | 'scoped' | 'base';
-}
-
-export interface CVProps {
-	name: string;
-	title: string;
-	email: string;
-	github: string;
-	projects: Project[];  // Required and fully resolved
-	experience: ExperienceItem[];
-	skills: string[];
-	education: EducationItem[];
-	pdfLink?: string;
-	version?: string;
-	lang?: string;
 }
