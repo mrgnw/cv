@@ -135,13 +135,18 @@ for (const entry of tempEntries) {
 		
 		// Migrate old experience format to new format
 		if (parsedData.experience && Array.isArray(parsedData.experience)) {
-			parsedData.experience = parsedData.experience.map((exp: any) => ({
-				...exp,
-				// Migrate description -> accomplishments if needed
-				accomplishments: exp.accomplishments || exp.description || [],
-				// Remove old description property if it exists
-				description: undefined
-			}));
+			parsedData.experience = parsedData.experience.map((exp: any) => {
+				// Handle null entries
+				if (!exp) return null;
+				
+				return {
+					...exp,
+					// Migrate description -> accomplishments if needed
+					accomplishments: exp.accomplishments || exp.description || [],
+					// Remove old description property if it exists
+					description: undefined
+				};
+			});
 		}
 		
 		// Generate PDF link
