@@ -24,7 +24,7 @@
     );
 
     // Debug logging (reactive)
-    let debugInfo = $derived({ meta: meta.length, sortedMeta: sortedMeta.length, groupBy });
+    // let debugInfo = $derived({ meta: meta.length, sortedMeta: sortedMeta.length, groupBy });
 
     let groups = $derived((() => {
         const buckets = new Map<string, VersionMeta[]>();
@@ -38,7 +38,7 @@
             .map(([name, items]) => ({ name, items }))
             .sort((a, b) => a.name === 'Base' ? -1 : b.name === 'Base' ? 1 : a.name.localeCompare(b.name));
         
-        console.log('Groups result:', result);
+        // console.log('Groups result:', result);
         return result;
     })());
 
@@ -50,21 +50,6 @@
     onMount(() => {
         if (!browser) return;
         
-        // Restore history
-        try {
-            const saved = localStorage.getItem('pdf-generation-history');
-            if (saved) {
-                resultHistory = JSON.parse(saved);
-                lastResult = resultHistory[0] ?? null;
-            }
-        } catch {}
-
-        // Restore grouping
-        const savedGroup = localStorage.getItem('cv-group-by');
-        if (savedGroup === 'skill' || savedGroup === 'company') {
-            groupBy = savedGroup;
-        }
-
         // Resume generation if interrupted
         try {
             const savedGenerating = localStorage.getItem('pdf-generating');
@@ -81,16 +66,9 @@
         } catch {}
     });
 
-    // Save grouping preference reactively when it changes
-    let saveGroupBy = $derived.by(() => {
-        if (browser) localStorage.setItem('cv-group-by', groupBy);
-        return groupBy;
-    });
-
     function saveToHistory(result: any, versions?: string[]) {
         const entry = { ...result, timestamp: new Date().toLocaleTimeString(), versions: versions || ['all'] };
         resultHistory = [entry, ...resultHistory.slice(0, 9)];
-        if (browser) localStorage.setItem('pdf-generation-history', JSON.stringify(resultHistory));
     }
 
     async function pollForCompletion(id: string) {
@@ -104,7 +82,6 @@
                     generating = false;
                     generatingVersion = null;
                     requestId = null;
-                    if (browser) localStorage.removeItem('pdf-generating');
                     return;
                 }
             }
@@ -122,10 +99,6 @@
         generating = true;
         generatingVersion = targetVersions?.length === 1 ? targetVersions[0] : null;
         requestId = id;
-        
-        if (browser) {
-            localStorage.setItem('pdf-generating', JSON.stringify({ timestamp: Date.now(), id }));
-        }
         
         try {
             const controller = new AbortController();
@@ -159,7 +132,6 @@
             generating = false;
             generatingVersion = null;
             requestId = null;
-            if (browser) localStorage.removeItem('pdf-generating');
         }
     }
 
@@ -267,7 +239,10 @@
                             <span class="text-gray-500 ml-2">at {result.timestamp}</span>
                         </span>
                         {#if type === 'PDF' && resultHistory.length > 1}
-                            <Button variant="ghost" size="sm" onclick={() => { resultHistory = []; lastResult = null; }}>
+                            <Button variant="ghost" size="sm" onclick={() => { 
+                                resultHistory = []; 
+                                lastResult = null; 
+                            }}>
                                 Clear History
                             </Button>
                         {/if}
