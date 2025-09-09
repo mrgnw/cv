@@ -1,22 +1,12 @@
 <script lang="ts">
-	import CVSans from "$lib/CVSans.svelte";
+	import CV from "$lib/CV.svelte";
 	import type { PageData } from "./$types";
 
-	interface Props {
-		data: PageData;
-	}
-
-	let { data }: Props = $props();
+	export let data: PageData;
 </script>
 
-<CVSans
-	name={data.name}
-	title={data.title}
-	email={data.email}
-	github={data.github}
+<CV
+	{...data}
 	pdfLink="morgan-williams.pdf"
-	skills={data.skills}
-	projects={data.projects}
-	experience={data.experience}
-	education={data.education}
+	variant="modern"
 />
