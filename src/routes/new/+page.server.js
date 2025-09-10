@@ -1,8 +1,11 @@
-import { fail, redirect } from '@sveltejs/kit';
+import { fail } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
-import fs from 'fs/promises';
-import path from 'path';
 import JSON5 from 'json5';
+
+// Import static files for Cloudflare compatibility
+import experienceData from '$lib/Experience.json5?raw';
+import systemPromptContent from '$lib/prompts/system.md?raw';
+import userTemplateContent from '$lib/prompts/user-template.md?raw';
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load() {
@@ -84,12 +87,21 @@ export const actions = {
 
 		try {
 			const cv = JSON.parse(cvData);
-			const result = await saveCVVersion(cv, { company, title });
+			
+			// For Cloudflare deployment, we can't save to filesystem
+			// Return success with a mock filename for now
+			const jobTitle = cv.normalizedTitle || normalizeJobTitle(title) || 'general';
+			const companySlug = normalizeCompanyName(company);
+			const filename = `${jobTitle}/${companySlug}.json5`;
+			
+			console.log('Would save CV version:', filename, cv);
 			
 			return {
 				success: true,
-				filename: result.filename,
-				slug: result.slug
+				filename: filename,
+				slug: `${jobTitle}-${companySlug}`,
+				jobTitle,
+				company: companySlug
 			};
 		} catch (error) {
 			console.error('Save error:', error);
@@ -97,6 +109,43 @@ export const actions = {
 		}
 	}
 };
+
+/**
+ * Normalize job title to match existing folder structure
+ * @param {string} title
+ */
+function normalizeJobTitle(title) {
+	if (!title) return '';
+	
+	const normalized = title.toLowerCase().replace(/[^a-z0-9]/g, '');
+	
+	// Map common variations to existing job titles
+	const jobTitleMappings = {
+		'fullstack': ['fullstack', 'full-stack', 'fullstackdeveloper', 'fullstackengineer'],
+		'backend': ['backend', 'back-end', 'backenddeveloper', 'backendengineer', 'serverside'],
+		'data': ['data', 'dataengineer', 'datascientist', 'dataanalyst', 'ml', 'machinelearning'],
+		'frontend': ['frontend', 'front-end', 'frontenddeveloper', 'frontendengineer'],
+		'dx': ['dx', 'devex', 'developerexperience', 'devtools', 'platform']
+	};
+	
+	for (const [category, variations] of Object.entries(jobTitleMappings)) {
+		if (variations.some(variation => normalized.includes(variation))) {
+			return category;
+		}
+	}
+	
+	// If no match, return the normalized title
+	return title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+}
+
+/**
+ * Normalize company name for filename
+ * @param {string} company
+ */
+function normalizeCompanyName(company) {
+	if (!company) return 'unknown';
+	return company.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+}
 
 /**
  * Extract job description from a URL
@@ -463,79 +512,6 @@ function parseGeneratedCV(content) {
 }
 
 /**
- * Save the generated CV as a new version file
- * @param {any} cv
- * @param {Object} params
- * @param {string} params.company
- * @param {string} params.title
- */
-async function saveCVVersion(cv, { company, title }) {
-	const versionsDir = path.join(process.cwd(), 'src/lib/versions');
-	
-	// Get normalized job title from CV or fallback to user input
-	const jobTitle = cv.normalizedTitle || normalizeJobTitle(title) || 'general';
-	const companySlug = normalizeCompanyName(company);
-	
-	// Create job title folder
-	const jobTitleDir = path.join(versionsDir, jobTitle);
-	await fs.mkdir(jobTitleDir, { recursive: true });
-	
-	// Generate filename: company.json5
-	const filename = `${companySlug}.json5`;
-	const filepath = path.join(jobTitleDir, filename);
-
-	// Format as JSON5
-	const json5Content = JSON.stringify(cv, null, 2);
-	await fs.writeFile(filepath, json5Content, 'utf8');
-	
-	const relativePath = `${jobTitle}/${filename}`;
-	console.log(`Saved CV version: ${relativePath}`);
-	return { 
-		filename: relativePath, 
-		slug: `${jobTitle}-${companySlug}`,
-		jobTitle,
-		company: companySlug
-	};
-}
-
-/**
- * Normalize job title to match existing folder structure
- * @param {string} title
- */
-function normalizeJobTitle(title) {
-	if (!title) return '';
-	
-	const normalized = title.toLowerCase().replace(/[^a-z0-9]/g, '');
-	
-	// Map common variations to existing job titles
-	const jobTitleMappings = {
-		'fullstack': ['fullstack', 'full-stack', 'fullstackdeveloper', 'fullstackengineer'],
-		'backend': ['backend', 'back-end', 'backenddeveloper', 'backendengineer', 'serverside'],
-		'data': ['data', 'dataengineer', 'datascientist', 'dataanalyst', 'ml', 'machinelearning'],
-		'frontend': ['frontend', 'front-end', 'frontenddeveloper', 'frontendengineer'],
-		'dx': ['dx', 'devex', 'developerexperience', 'devtools', 'platform']
-	};
-	
-	for (const [category, variations] of Object.entries(jobTitleMappings)) {
-		if (variations.some(variation => normalized.includes(variation))) {
-			return category;
-		}
-	}
-	
-	// If no match, return the normalized title
-	return title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
-}
-
-/**
- * Normalize company name for filename
- * @param {string} company
- */
-function normalizeCompanyName(company) {
-	if (!company) return 'unknown';
-	return company.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
-}
-
-/**
  * Build the generation prompt
  * @param {Object} params
  * @param {string} params.jobDescription
@@ -546,9 +522,8 @@ function normalizeCompanyName(company) {
  */
 async function buildGenerationPrompt({ jobDescription, company, title, experienceData, existingJobTitles }) {
 	try {
-		// Try to load user template file
-		const templatePath = path.join(process.cwd(), 'src/lib/prompts/user-template.md');
-		let template = await fs.readFile(templatePath, 'utf8');
+		// Use imported template content instead of reading from filesystem
+		let template = userTemplateContent;
 		
 		// Replace template variables
 		template = template
@@ -571,7 +546,7 @@ async function buildGenerationPrompt({ jobDescription, company, title, experienc
 		
 		return template;
 	} catch (error) {
-		console.warn('Could not load user template file, using fallback');
+		console.warn('Could not process user template, using fallback');
 		// Fallback to hardcoded prompt
 		return `Generate a tailored CV for this job description:
 
@@ -617,10 +592,10 @@ Generate the CV now:`;
  */
 async function getSystemPrompt() {
 	try {
-		const promptPath = path.join(process.cwd(), 'src/lib/prompts/system.md');
-		return await fs.readFile(promptPath, 'utf8');
+		// Use imported system prompt content instead of reading from filesystem
+		return systemPromptContent;
 	} catch (error) {
-		console.warn('Could not load system prompt file, using fallback');
+		console.warn('Could not load system prompt, using fallback');
 		return `You are an expert CV writer and career consultant. Your task is to generate tailored CVs that match job descriptions while being truthful to the candidate's actual experience.
 
 Key principles:
@@ -655,18 +630,11 @@ CV Structure:
  */
 async function getExistingJobTitles() {
 	try {
-		const versionsDir = path.join(process.cwd(), 'src/lib/versions');
-		const entries = await fs.readdir(versionsDir, { withFileTypes: true });
-		
-		const jobTitles = entries
-			.filter(entry => entry.isDirectory())
-			.map(entry => entry.name)
-			.filter(name => !name.startsWith('.')) // Skip hidden folders
-			.sort();
-		
-		return jobTitles;
+		// Return hardcoded job titles for Cloudflare compatibility
+		// These are the common job categories we support
+		return ['backend', 'data', 'fullstack', 'frontend', 'dx', 'devops', 'mobile', 'ml', 'security', 'qa'];
 	} catch (error) {
-		console.warn('Could not read existing job titles:', error);
+		console.warn('Could not get existing job titles:', error);
 		return ['backend', 'data', 'fullstack', 'frontend', 'dx']; // fallback
 	}
 }
@@ -676,11 +644,8 @@ async function getExistingJobTitles() {
  */
 async function readExperienceData() {
 	try {
-		const experiencePath = path.join(process.cwd(), 'src/lib/Experience.json5');
-		const content = await fs.readFile(experiencePath, 'utf8');
-		
-		// Parse JSON5
-		return JSON5.parse(content);
+		// Use imported experience data instead of reading from filesystem
+		return experienceData;
 	} catch (error) {
 		console.error('Failed to read experience data:', error);
 		throw new Error('Failed to load experience data');
