@@ -114,3 +114,12 @@ versoion 2 will also save the generated JSON5 into `src/lib/versions/{job_positi
   - Prompts organized under `src/lib/prompts/` with STAR guidance and schema rules.
 
 Requirements coverage: all items accounted for; per-experience keywords will require a small type extension. If you confirm the two points above, I can proceed with the implementation.
+
+
+
+## Added functionality after:
+
+- llm suggests
+  - company/job title
+  - pay range
+  - rate my match to my current skills

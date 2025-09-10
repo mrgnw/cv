@@ -28,13 +28,15 @@ export const actions = {
 		try {
 			// Load source experience data
 			const experienceData = await readExperienceData();
+			const existingJobTitles = await getExistingJobTitles();
 			
 			// Generate CV using OpenRouter
 			const cv = await generateCVFromJobDescription({
 				jobDescription,
 				company,
 				title,
-				experienceData
+				experienceData,
+				existingJobTitles
 			});
 
 			return {
@@ -82,13 +84,15 @@ export const actions = {
  * @param {string} params.company
  * @param {string} params.title  
  * @param {any} params.experienceData
+ * @param {string[]} params.existingJobTitles
  */
-async function generateCVFromJobDescription({ jobDescription, company, title, experienceData }) {
+async function generateCVFromJobDescription({ jobDescription, company, title, experienceData, existingJobTitles }) {
 	const prompt = await buildGenerationPrompt({
 		jobDescription,
 		company,
 		title,
-		experienceData
+		experienceData,
+		existingJobTitles
 	});
 
 	const models = [
@@ -201,46 +205,67 @@ function parseGeneratedCV(content) {
 async function saveCVVersion(cv, { company, title }) {
 	const versionsDir = path.join(process.cwd(), 'src/lib/versions');
 	
-	// Generate filename based on company and title
-	const slug = generateVersionSlug({ company, title });
-	const filename = `${slug}.json5`;
-	const filepath = path.join(versionsDir, filename);
+	// Get normalized job title from CV or fallback to user input
+	const jobTitle = cv.normalizedTitle || normalizeJobTitle(title) || 'general';
+	const companySlug = normalizeCompanyName(company);
+	
+	// Create job title folder
+	const jobTitleDir = path.join(versionsDir, jobTitle);
+	await fs.mkdir(jobTitleDir, { recursive: true });
+	
+	// Generate filename: company.json5
+	const filename = `${companySlug}.json5`;
+	const filepath = path.join(jobTitleDir, filename);
 
-	// Ensure the directory exists
-	await fs.mkdir(versionsDir, { recursive: true });
-
-	// Format as JSON5 (basically JSON with better formatting)
+	// Format as JSON5
 	const json5Content = JSON.stringify(cv, null, 2);
-
 	await fs.writeFile(filepath, json5Content, 'utf8');
 	
-	console.log(`Saved CV version: ${filename}`);
-	return { filename, slug };
+	const relativePath = `${jobTitle}/${filename}`;
+	console.log(`Saved CV version: ${relativePath}`);
+	return { 
+		filename: relativePath, 
+		slug: `${jobTitle}-${companySlug}`,
+		jobTitle,
+		company: companySlug
+	};
 }
 
 /**
- * Generate a slug for the version filename
- * @param {Object} params
- * @param {string} params.company
- * @param {string} params.title
+ * Normalize job title to match existing folder structure
+ * @param {string} title
  */
-function generateVersionSlug({ company, title }) {
-	const parts = [];
+function normalizeJobTitle(title) {
+	if (!title) return '';
 	
-	if (company) {
-		parts.push(company.toLowerCase().replace(/[^a-z0-9]/g, '-'));
+	const normalized = title.toLowerCase().replace(/[^a-z0-9]/g, '');
+	
+	// Map common variations to existing job titles
+	const jobTitleMappings = {
+		'fullstack': ['fullstack', 'full-stack', 'fullstackdeveloper', 'fullstackengineer'],
+		'backend': ['backend', 'back-end', 'backenddeveloper', 'backendengineer', 'serverside'],
+		'data': ['data', 'dataengineer', 'datascientist', 'dataanalyst', 'ml', 'machinelearning'],
+		'frontend': ['frontend', 'front-end', 'frontenddeveloper', 'frontendengineer'],
+		'dx': ['dx', 'devex', 'developerexperience', 'devtools', 'platform']
+	};
+	
+	for (const [category, variations] of Object.entries(jobTitleMappings)) {
+		if (variations.some(variation => normalized.includes(variation))) {
+			return category;
+		}
 	}
 	
-	if (title) {
-		parts.push(title.toLowerCase().replace(/[^a-z0-9]/g, '-'));
-	}
-	
-	if (parts.length === 0) {
-		// Fallback to timestamp if no company/title
-		parts.push(`generated-${Date.now()}`);
-	}
-	
-	return parts.join('-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+	// If no match, return the normalized title
+	return title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+}
+
+/**
+ * Normalize company name for filename
+ * @param {string} company
+ */
+function normalizeCompanyName(company) {
+	if (!company) return 'unknown';
+	return company.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
 }
 
 /**
@@ -250,9 +275,38 @@ function generateVersionSlug({ company, title }) {
  * @param {string} params.company
  * @param {string} params.title
  * @param {any} params.experienceData
+ * @param {string[]} params.existingJobTitles
  */
-async function buildGenerationPrompt({ jobDescription, company, title, experienceData }) {
-	return `Generate a tailored CV for this job description:
+async function buildGenerationPrompt({ jobDescription, company, title, experienceData, existingJobTitles }) {
+	try {
+		// Try to load user template file
+		const templatePath = path.join(process.cwd(), 'src/lib/prompts/user-template.md');
+		let template = await fs.readFile(templatePath, 'utf8');
+		
+		// Replace template variables
+		template = template
+			.replace('{jobDescription}', jobDescription)
+			.replace('{experienceData}', JSON.stringify(experienceData, null, 2))
+			.replace('{existingJobTitles}', existingJobTitles.join(', '));
+		
+		// Handle optional company and title
+		if (company) {
+			template = template.replace('{company ? `## COMPANY: ${company}` : \'\'}', `## COMPANY: ${company}`);
+		} else {
+			template = template.replace('{company ? `## COMPANY: ${company}` : \'\'}', '');
+		}
+		
+		if (title) {
+			template = template.replace('{title ? `## POSITION: ${title}` : \'\'}', `## POSITION: ${title}`);
+		} else {
+			template = template.replace('{title ? `## POSITION: ${title}` : \'\'}', '');
+		}
+		
+		return template;
+	} catch (error) {
+		console.warn('Could not load user template file, using fallback');
+		// Fallback to hardcoded prompt
+		return `Generate a tailored CV for this job description:
 
 JOB DESCRIPTION:
 ${jobDescription}
@@ -260,21 +314,27 @@ ${jobDescription}
 ${company ? `COMPANY: ${company}` : ''}
 ${title ? `POSITION: ${title}` : ''}
 
+EXISTING JOB TITLE CATEGORIES:
+${existingJobTitles.join(', ')}
+
 SOURCE EXPERIENCE DATA:
 ${JSON.stringify(experienceData, null, 2)}
 
 Requirements:
 1. Return ONLY valid JSON, no markdown or explanations
-2. Use the CV structure with: skills, experience, keywords (optional), company (optional), title (optional)
+2. Use the CV structure with: skills, experience, keywords (optional), company (optional), title (optional), normalizedTitle (optional)
 3. Each experience must have: title, company, start, end (if applicable), achievements (array of strings), skills (optional array)
 4. If company/title were not provided above, extract and suggest them from the job description in the response
-5. Tailor achievements to match the job description while staying truthful to the source data
-6. Reorder and prioritize experiences and achievements that best match the job requirements
-7. Include relevant skills from the source data that match the job description
-8. Add up to 30 relevant keywords for ATS optimization
-9. Focus on measurable achievements and use STAR method where possible
+5. Determine the best matching job title category from the existing ones, or suggest a new normalized one if none fit
+6. Include a "normalizedTitle" field with the chosen category (e.g., "fullstack", "backend", "data")
+7. Tailor achievements to match the job description while staying truthful to the source data
+8. Reorder and prioritize experiences and achievements that best match the job requirements
+9. Include relevant skills from the source data that match the job description
+10. Add up to 30 relevant keywords for ATS optimization
+11. Focus on measurable achievements and use STAR method where possible
 
 Generate the CV now:`;
+	}
 }
 
 /**
@@ -312,6 +372,27 @@ CV Structure:
   "company": "Target Company Name" (optional, extracted from job description),
   "title": "Target Position Title" (optional, extracted from job description)
 }`;
+	}
+}
+
+/**
+ * Get existing job title categories from the versions folder
+ */
+async function getExistingJobTitles() {
+	try {
+		const versionsDir = path.join(process.cwd(), 'src/lib/versions');
+		const entries = await fs.readdir(versionsDir, { withFileTypes: true });
+		
+		const jobTitles = entries
+			.filter(entry => entry.isDirectory())
+			.map(entry => entry.name)
+			.filter(name => !name.startsWith('.')) // Skip hidden folders
+			.sort();
+		
+		return jobTitles;
+	} catch (error) {
+		console.warn('Could not read existing job titles:', error);
+		return ['backend', 'data', 'fullstack', 'frontend', 'dx']; // fallback
 	}
 }
 

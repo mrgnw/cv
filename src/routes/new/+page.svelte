@@ -265,7 +265,7 @@
 									const result = await response.json();
 									
 									if (result.type === 'success') {
-										saveSuccess = `✅ Version saved as ${result.data?.filename}`;
+										saveSuccess = `✅ Version saved as versions/${result.data?.filename}`;
 										saveError = '';
 										setTimeout(() => { saveSuccess = ''; }, 5000);
 									} else {
@@ -289,15 +289,19 @@
 				{#if saveSuccess}
 					<div class="p-4 bg-green-50 border-l-4 border-green-500">
 						<p class="text-green-700">{saveSuccess}</p>
-						{#if saveSuccess.includes('.json')}
-							{@const filename = saveSuccess.split(' ').pop()?.replace('.json5', '')}
-							<a 
-								href="/{filename}" 
-								class="text-green-600 underline text-sm mt-1 inline-block"
-								target="_blank"
-							>
-								→ View saved version
-							</a>
+						{#if saveSuccess.includes('versions/')}
+							{@const pathMatch = saveSuccess.match(/versions\/(.+)\.json5/)}
+							{#if pathMatch}
+								{@const pathParts = pathMatch[1].split('/')}
+								{@const slug = pathParts.join('-')}
+								<a 
+									href="/{slug}" 
+									class="text-green-600 underline text-sm mt-1 inline-block"
+									target="_blank"
+								>
+									→ View saved version
+								</a>
+							{/if}
 						{/if}
 					</div>
 				{/if}

@@ -25,9 +25,26 @@ You are an expert CV writer and career consultant specializing in creating tailo
       "skills": ["relevant skills for this role"]  // optional
     }
   ],
-  "keywords": ["keyword1", "keyword2", ...]  // optional, for ATS, max 30
+  "keywords": ["keyword1", "keyword2", ...],  // optional, for ATS, max 30
+  "company": "Target Company Name",  // optional, extracted from job description
+  "title": "Target Position Title",   // optional, extracted from job description
+  "normalizedTitle": "backend"       // normalized job category for file organization
 }
 ```
+
+## Company and Title Extraction
+
+- If company/title are not provided in the user input, extract them from the job description
+- Include them in the top-level "company" and "title" fields of the response
+- These will be used to auto-populate form fields and filename generation
+
+## Job Title Normalization
+
+- Analyze the job description and determine which existing job title category it best fits
+- Common categories: backend, frontend, fullstack, data, dx (developer experience)
+- Examples: "Full Stack Engineer" → "fullstack", "Data Scientist" → "data", "Backend Developer" → "backend"
+- If no existing category fits well, suggest a new normalized title (lowercase, no spaces)
+- Include this in the "normalizedTitle" field for proper file organization
 
 ## Guidelines for Achievements
 
