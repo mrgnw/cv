@@ -75,27 +75,6 @@
 		};
 	}
 	
-	// Save form submission handler
-	function handleSave() {
-		return async ({ result, update }) => {
-			if (result.type === 'success') {
-				saveSuccess = `✅ Version saved as ${result.data?.filename}`;
-				saveError = '';
-				
-				// Clear success message after 5 seconds
-				setTimeout(() => {
-					saveSuccess = '';
-				}, 5000);
-			} else if (result.type === 'failure') {
-				saveError = result.data?.error || 'Failed to save version';
-				saveSuccess = '';
-			}
-			
-			// Explicitly prevent page reload by not calling update()
-			// This is the key fix - we must return the callback to override default behavior
-		};
-	}
-	
 	// Auto-generate when job description changes (debounced) or on paste
 	let generateTimeout;
 	
@@ -270,17 +249,38 @@
 						{showPreview ? 'Show JSON' : 'Show Preview'}
 					</button>
 					{#if generatedCV}
-						<form method="POST" action="?/save" use:enhance={handleSave} class="inline">
-							<input type="hidden" name="cvData" value={JSON.stringify(generatedCV)} />
-							<input type="hidden" name="company" value={company} />
-							<input type="hidden" name="title" value={title} />
-							<button
-								type="submit"
-								class="px-3 py-1 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700"
-							>
-								Save Version
-							</button>
-						</form>
+						<button
+							type="button"
+							onclick={async () => {
+								const formData = new FormData();
+								formData.append('cvData', JSON.stringify(generatedCV));
+								formData.append('company', company);
+								formData.append('title', title);
+								
+								try {
+									const response = await fetch('?/save', {
+										method: 'POST',
+										body: formData
+									});
+									const result = await response.json();
+									
+									if (result.type === 'success') {
+										saveSuccess = `✅ Version saved as ${result.data?.filename}`;
+										saveError = '';
+										setTimeout(() => { saveSuccess = ''; }, 5000);
+									} else {
+										saveError = result.data?.error || 'Failed to save version';
+										saveSuccess = '';
+									}
+								} catch (error) {
+									saveError = 'Network error while saving';
+									saveSuccess = '';
+								}
+							}}
+							class="px-3 py-1 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700"
+						>
+							Save Version
+						</button>
 					{/if}
 				</div>
 			</div>
