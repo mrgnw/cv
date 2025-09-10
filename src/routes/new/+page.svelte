@@ -16,6 +16,7 @@
 	let showPreview = $state(true);
 	let saveSuccess = $state('');
 	let saveError = $state('');
+	let isSaving = $state(false);
 	let extractError = $state('');
 	let extractSuccess = $state('');
 	let showModelSettings = $state(false);
@@ -110,6 +111,46 @@
 		};
 	}
 	
+	// Save CV function
+	async function saveCV() {
+		if (!generatedCV || isSaving) return;
+		
+		isSaving = true;
+		saveError = '';
+		saveSuccess = '';
+		
+		try {
+			const formData = new FormData();
+			formData.append('cvData', JSON.stringify(generatedCV));
+			formData.append('company', company);
+			formData.append('title', title);
+			
+			const response = await fetch('?/save', {
+				method: 'POST',
+				body: formData
+			});
+			
+			const result = await response.json();
+			
+			if (result.type === 'success') {
+				const scoreText = generatedCV?.matchScore ? ` (Match: ${generatedCV.matchScore}/10)` : '';
+				const payText = generatedCV?.payScale ? ` (${generatedCV.payScale})` : '';
+				saveSuccess = `✅ Version saved as versions/${result.data?.filename}${scoreText}${payText}`;
+				
+				// Clear success message after 5 seconds
+				setTimeout(() => {
+					saveSuccess = '';
+				}, 5000);
+			} else {
+				saveError = result.data?.error || 'Failed to save version';
+			}
+		} catch (error) {
+			saveError = 'Network error while saving';
+		} finally {
+			isSaving = false;
+		}
+	}
+
 	// Auto-generate when job description changes (debounced) or on paste
 	let generateTimeout;
 	
@@ -242,6 +283,11 @@
 							📊 {generatedCV.matchScore}/10
 						</div>
 					{/if}
+					{#if generatedCV?.payScale}
+						<div class="flex items-center gap-2 px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-600">
+							💰 {generatedCV.payScale}
+						</div>
+					{/if}
 				</div>
 			</div>
 
@@ -349,6 +395,12 @@
 							<span class="font-bold">{generatedCV.matchScore}/10</span>
 						</div>
 					{/if}
+					{#if generatedCV?.payScale}
+						<div class="flex items-center gap-2 px-3 py-1 rounded-lg text-sm font-medium bg-blue-100 text-blue-700">
+							<span>💰 Pay:</span>
+							<span class="font-bold">{generatedCV.payScale}</span>
+						</div>
+					{/if}
 					<button
 						onclick={() => showPreview = !showPreview}
 						class="px-3 py-1 text-sm border rounded-lg hover:bg-gray-50"
@@ -358,36 +410,11 @@
 					{#if generatedCV}
 						<button
 							type="button"
-							onclick={async () => {
-								const formData = new FormData();
-								formData.append('cvData', JSON.stringify(generatedCV));
-								formData.append('company', company);
-								formData.append('title', title);
-								
-								try {
-									const response = await fetch('?/save', {
-										method: 'POST',
-										body: formData
-									});
-									const result = await response.json();
-									
-									if (result.type === 'success') {
-										const scoreText = generatedCV?.matchScore ? ` (Match: ${generatedCV.matchScore}/10)` : '';
-										saveSuccess = `✅ Version saved as versions/${result.data?.filename}${scoreText}`;
-										saveError = '';
-										setTimeout(() => { saveSuccess = ''; }, 5000);
-									} else {
-										saveError = result.data?.error || 'Failed to save version';
-										saveSuccess = '';
-									}
-								} catch (error) {
-									saveError = 'Network error while saving';
-									saveSuccess = '';
-								}
-							}}
-							class="px-3 py-1 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700"
+							onclick={saveCV}
+							disabled={isSaving}
+							class="px-3 py-1 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
 						>
-							Save Version
+							{isSaving ? 'Saving...' : 'Save Version'}
 						</button>
 					{/if}
 				</div>
@@ -398,9 +425,10 @@
 					<div class="p-4 bg-green-50 border-l-4 border-green-500">
 						<p class="text-green-700">{saveSuccess}</p>
 						{#if saveSuccess.includes('versions/')}
-							{@const pathMatch = saveSuccess.match(/versions\/(.+)\.json5/)}
+							{@const pathMatch = saveSuccess.match(/versions\/(.+?)(?:\s+\(|$)/)}
 							{#if pathMatch}
-								{@const pathParts = pathMatch[1].split('/')}
+								{@const filePath = pathMatch[1].replace('.json5', '')}
+								{@const pathParts = filePath.split('/')}
 								{@const slug = pathParts.join('-')}
 								<a 
 									href="/{slug}" 
