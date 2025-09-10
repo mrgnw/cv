@@ -183,12 +183,26 @@
 		<div class="flex flex-col">
 			<div class="flex justify-between items-center mb-4">
 				<h2 class="text-xl font-semibold">Job Description</h2>
-				<div class="flex gap-2">
-					<span class="text-sm text-gray-500">
-						{jobDescription.length} characters
-					</span>
-					{#if isGenerating}
-						<span class="text-sm text-blue-600 animate-pulse">Generating...</span>
+				<div class="flex gap-4">
+					<div class="flex gap-2">
+						<span class="text-sm text-gray-500">
+							{jobDescription.length} characters
+						</span>
+						{#if isGenerating}
+							<span class="text-sm text-blue-600 animate-pulse">Generating...</span>
+						{/if}
+					</div>
+					{#if generatedCV?.matchScore}
+						<div class="flex items-center gap-2 px-2 py-1 rounded text-xs font-medium"
+							class:bg-red-100={generatedCV.matchScore <= 3}
+							class:text-red-600={generatedCV.matchScore <= 3}
+							class:bg-yellow-100={generatedCV.matchScore > 3 && generatedCV.matchScore <= 6}
+							class:text-yellow-600={generatedCV.matchScore > 3 && generatedCV.matchScore <= 6}
+							class:bg-green-100={generatedCV.matchScore > 6}
+							class:text-green-600={generatedCV.matchScore > 6}
+						>
+							📊 {generatedCV.matchScore}/10
+						</div>
 					{/if}
 				</div>
 			</div>
@@ -241,7 +255,20 @@
 		<div class="flex flex-col">
 			<div class="flex justify-between items-center mb-4">
 				<h2 class="text-xl font-semibold">Generated CV</h2>
-				<div class="flex gap-2">
+				<div class="flex gap-2 items-center">
+					{#if generatedCV?.matchScore}
+						<div class="flex items-center gap-2 px-3 py-1 rounded-lg text-sm font-medium"
+							class:bg-red-100={generatedCV.matchScore <= 3}
+							class:text-red-700={generatedCV.matchScore <= 3}
+							class:bg-yellow-100={generatedCV.matchScore > 3 && generatedCV.matchScore <= 6}
+							class:text-yellow-700={generatedCV.matchScore > 3 && generatedCV.matchScore <= 6}
+							class:bg-green-100={generatedCV.matchScore > 6}
+							class:text-green-700={generatedCV.matchScore > 6}
+						>
+							<span>Match Score:</span>
+							<span class="font-bold">{generatedCV.matchScore}/10</span>
+						</div>
+					{/if}
 					<button
 						onclick={() => showPreview = !showPreview}
 						class="px-3 py-1 text-sm border rounded-lg hover:bg-gray-50"
@@ -265,7 +292,8 @@
 									const result = await response.json();
 									
 									if (result.type === 'success') {
-										saveSuccess = `✅ Version saved as versions/${result.data?.filename}`;
+										const scoreText = generatedCV?.matchScore ? ` (Match: ${generatedCV.matchScore}/10)` : '';
+										saveSuccess = `✅ Version saved as versions/${result.data?.filename}${scoreText}`;
 										saveError = '';
 										setTimeout(() => { saveSuccess = ''; }, 5000);
 									} else {

@@ -28,9 +28,48 @@ You are an expert CV writer and career consultant specializing in creating tailo
   "keywords": ["keyword1", "keyword2", ...],  // optional, for ATS, max 30
   "company": "Target Company Name",  // optional, extracted from job description
   "title": "Target Position Title",   // optional, extracted from job description
-  "normalizedTitle": "backend"       // normalized job category for file organization
+  "normalizedTitle": "backend",       // normalized job category for file organization
+  "matchScore": 7                     // job fit score from 1-10
 }
 ```
+
+## Job Match Scoring (1-10 scale)
+
+Evaluate how well this job matches based on:
+
+**High Priority (+2-3 points):**
+- Svelte, SvelteKit usage
+- FastAPI, Python backends
+- Modern web technologies (TypeScript, Node.js, Bun)
+- Startup/scale-up environment
+- Remote-first culture
+- Creative/innovative projects
+
+**Medium Priority (+1 point):**
+- JavaScript/TypeScript heavy roles
+- API development
+- Full-stack responsibilities
+- Docker, containerization
+- Modern frameworks (React, Vue if no Svelte)
+
+**Low Priority/Neutral (0 points):**
+- Standard enterprise technologies
+- Traditional corporate environment
+- Hybrid work arrangements
+
+**Negative Priority (-1 to -2 points):**
+- Heavy Microsoft ecosystem (Azure, Teams, SharePoint)
+- Legacy technologies without modernization path
+- Overly corporate/bureaucratic language
+- Micromanagement indicators
+- Windows-only development environment
+
+**Base Score Calculation:**
+- Start with 5/10 baseline
+- Adjust based on technology stack alignment
+- Consider company culture fit
+- Factor in growth opportunities
+- Account for work-life balance indicators
 
 ## Company and Title Extraction
 
