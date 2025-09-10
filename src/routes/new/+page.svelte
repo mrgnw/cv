@@ -13,6 +13,7 @@
 	let isGenerating = $state(false);
 	let isExtracting = $state(false);
 	let generatedCV = $state(null);
+	let generationMetadata = $state(null); // Track model used and generation timestamp
 	let showPreview = $state(true);
 	let saveSuccess = $state('');
 	let saveError = $state('');
@@ -20,6 +21,7 @@
 	let extractError = $state('');
 	let extractSuccess = $state('');
 	let showModelSettings = $state(false);
+	let savedVersionSlug = $state(''); // Track the slug of the saved version
 	
 	// Model prioritization
 	let models = $state([
@@ -29,6 +31,9 @@
 		{ id: 'openai/gpt-5', name: 'GPT-5', enabled: true },
 		{ id: 'anthropic/claude-sonnet-4', name: 'Claude Sonnet 4', enabled: true }
 	]);
+	
+	// Derived value for enabled model IDs in order - this is reactive in Svelte 5
+	let enabledModelIds = $derived(models.filter(m => m.enabled).map(m => m.id));
 	
 	let draggedIndex = $state(null);
 	
@@ -65,6 +70,10 @@
 			
 			if (result.type === 'success') {
 				generatedCV = result.data?.cv;
+				generationMetadata = {
+					modelUsed: result.data?.modelUsed,
+					generatedAt: result.data?.generatedAt
+				};
 				
 				// Auto-populate company and title if suggested by LLM and fields are empty
 				if (generatedCV?.company && !company.trim()) {
@@ -120,8 +129,18 @@
 		saveSuccess = '';
 		
 		try {
+			// Create CV data with metadata
+			const cvWithMetadata = {
+				...generatedCV,
+				metadata: {
+					...generationMetadata,
+					savedAt: new Date().toISOString(),
+					version: '1.0.0'
+				}
+			};
+			
 			const formData = new FormData();
-			formData.append('cvData', JSON.stringify(generatedCV));
+			formData.append('cvData', JSON.stringify(cvWithMetadata));
 			formData.append('company', company);
 			formData.append('title', title);
 			
@@ -135,11 +154,16 @@
 			if (result.type === 'success') {
 				const scoreText = generatedCV?.matchScore ? ` (Match: ${generatedCV.matchScore}/10)` : '';
 				const payText = generatedCV?.payScale ? ` (${generatedCV.payScale})` : '';
-				saveSuccess = `✅ Version saved as versions/${result.data?.filename}${scoreText}${payText}`;
+				const modelText = generationMetadata?.modelUsed ? ` via ${generationMetadata.modelUsed}` : '';
+				saveSuccess = `✅ Version saved as versions/${result.data?.filename}${scoreText}${payText}${modelText}`;
+				
+				// Store the slug for the preview link
+				savedVersionSlug = result.data?.slug;
 				
 				// Clear success message after 5 seconds
 				setTimeout(() => {
 					saveSuccess = '';
+					savedVersionSlug = '';
 				}, 5000);
 			} else {
 				saveError = result.data?.error || 'Failed to save version';
@@ -350,6 +374,9 @@
 					disabled={isGenerating}
 				></textarea>
 				
+				<!-- Hidden field to send model order -->
+				<input type="hidden" name="modelOrder" value={JSON.stringify(enabledModelIds)} />
+				
 				<div class="mt-4 flex gap-4">
 					<input
 						type="text"
@@ -424,20 +451,14 @@
 				{#if saveSuccess}
 					<div class="p-4 bg-green-50 border-l-4 border-green-500">
 						<p class="text-green-700">{saveSuccess}</p>
-						{#if saveSuccess.includes('versions/')}
-							{@const pathMatch = saveSuccess.match(/versions\/(.+?)(?:\s+\(|$)/)}
-							{#if pathMatch}
-								{@const filePath = pathMatch[1].replace('.json5', '')}
-								{@const pathParts = filePath.split('/')}
-								{@const slug = pathParts.join('-')}
-								<a 
-									href="/{slug}" 
-									class="text-green-600 underline text-sm mt-1 inline-block"
-									target="_blank"
-								>
-									→ View saved version
-								</a>
-							{/if}
+						{#if savedVersionSlug}
+							<a 
+								href="/{savedVersionSlug}" 
+								class="text-green-600 underline text-sm mt-1 inline-block"
+								target="_blank"
+							>
+								→ View saved version
+							</a>
 						{/if}
 					</div>
 				{/if}
@@ -454,24 +475,56 @@
 					</div>
 				{:else if generatedCV}
 					{#if showPreview}
-						<div class="h-full overflow-auto p-4 bg-white">
-							<CV 
-								name="Morgan Williams"
-								title={generatedCV.title || "Software Engineer"}
-								email="morganfwilliams@me.com"
-								github="https://github.com/mrgnw"
-								pdfLink="/morgan-williams-cv"
-								resolvedProjects={generatedCV.projects || []}
-								experience={generatedCV.experience || []}
-								skills={generatedCV.skills || []}
-								education={generatedCV.education || []}
-								variant="modern"
-							/>
+						<div class="h-full overflow-auto">
+							<!-- Generation metadata -->
+							{#if generationMetadata}
+								<div class="p-3 bg-gray-50 border-b border-gray-200 text-sm text-gray-600">
+									<div class="flex items-center gap-4">
+										{#if generationMetadata.modelUsed}
+											<span>🤖 Generated with <strong>{generationMetadata.modelUsed}</strong></span>
+										{/if}
+										{#if generationMetadata.generatedAt}
+											<span>⏰ {new Date(generationMetadata.generatedAt).toLocaleString()}</span>
+										{/if}
+									</div>
+								</div>
+							{/if}
+							
+							<div class="p-4 bg-white">
+								<CV 
+									name="Morgan Williams"
+									title={generatedCV.title || "Software Engineer"}
+									email="morganfwilliams@me.com"
+									github="https://github.com/mrgnw"
+									pdfLink="/morgan-williams-cv"
+									resolvedProjects={generatedCV.projects || []}
+									experience={generatedCV.experience || []}
+									skills={generatedCV.skills || []}
+									education={generatedCV.education || []}
+									variant="modern"
+								/>
+							</div>
 						</div>
 					{:else}
-						<pre class="h-full overflow-auto p-4 bg-gray-50 text-sm">
+						<div class="h-full overflow-auto">
+							<!-- Generation metadata for JSON view -->
+							{#if generationMetadata}
+								<div class="p-3 bg-gray-50 border-b border-gray-200 text-sm text-gray-600">
+									<div class="flex items-center gap-4">
+										{#if generationMetadata.modelUsed}
+											<span>🤖 Generated with <strong>{generationMetadata.modelUsed}</strong></span>
+										{/if}
+										{#if generationMetadata.generatedAt}
+											<span>⏰ {new Date(generationMetadata.generatedAt).toLocaleString()}</span>
+										{/if}
+									</div>
+								</div>
+							{/if}
+							
+							<pre class="overflow-auto p-4 bg-gray-50 text-sm">
 {JSON.stringify(generatedCV, null, 2)}
-						</pre>
+							</pre>
+						</div>
 					{/if}
 				{:else}
 					<div class="h-full flex items-center justify-center text-gray-500">

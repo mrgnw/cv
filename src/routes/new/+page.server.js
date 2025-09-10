@@ -40,6 +40,7 @@ export const actions = {
 		const jobDescription = formData.get('jobDescription')?.toString();
 		const company = formData.get('company')?.toString() || '';
 		const title = formData.get('title')?.toString() || '';
+		const modelOrderJson = formData.get('modelOrder')?.toString();
 
 		if (!jobDescription || jobDescription.length < 50) {
 			return fail(400, { error: 'Job description must be at least 50 characters' });
@@ -49,25 +50,45 @@ export const actions = {
 			return fail(500, { error: 'OpenRouter API key not configured' });
 		}
 
+		// Parse model order from frontend
+		let modelOrder = [
+			'openai/gpt-4.1-mini',
+			'google/gemini-2.5-flash', 
+			'google/gemini-2.5-pro',
+			'openai/gpt-5',
+			'anthropic/claude-sonnet-4'
+		];
+
+		if (modelOrderJson) {
+			try {
+				modelOrder = JSON.parse(modelOrderJson);
+			} catch (error) {
+				console.warn('Failed to parse model order, using default:', error);
+			}
+		}
+
 		try {
 			// Load source experience data
 			const experienceData = await readExperienceData();
 			const existingJobTitles = await getExistingJobTitles();
 			
 			// Generate CV using OpenRouter
-			const cv = await generateCVFromJobDescription({
+			const result = await generateCVFromJobDescription({
 				jobDescription,
 				company,
 				title,
 				experienceData,
-				existingJobTitles
+				existingJobTitles,
+				modelOrder
 			});
 
 			return {
 				success: true,
-				cv,
+				cv: result.cv,
 				company,
-				title
+				title,
+				modelUsed: result.modelUsed,
+				generatedAt: result.generatedAt
 			};
 		} catch (error) {
 			console.error('CV generation error:', error);
@@ -401,8 +422,9 @@ function extractBetweenMarkers(text, startMarkers, endMarkers) {
  * @param {string} params.title  
  * @param {any} params.experienceData
  * @param {string[]} params.existingJobTitles
+ * @param {string[]} params.modelOrder
  */
-async function generateCVFromJobDescription({ jobDescription, company, title, experienceData, existingJobTitles }) {
+async function generateCVFromJobDescription({ jobDescription, company, title, experienceData, existingJobTitles, modelOrder }) {
 	const prompt = await buildGenerationPrompt({
 		jobDescription,
 		company,
@@ -411,7 +433,8 @@ async function generateCVFromJobDescription({ jobDescription, company, title, ex
 		existingJobTitles
 	});
 
-	const models = [
+	// Use provided model order, fallback to default
+	const models = modelOrder || [
 		'openai/gpt-4.1-mini',
 		'google/gemini-2.5-flash', 
 		'google/gemini-2.5-pro',
@@ -420,6 +443,7 @@ async function generateCVFromJobDescription({ jobDescription, company, title, ex
 	];
 
 	let lastError;
+	const generatedAt = new Date().toISOString();
 	
 	for (const model of models) {
 		try {
@@ -464,7 +488,19 @@ async function generateCVFromJobDescription({ jobDescription, company, title, ex
 
 			// Parse the JSON response
 			const cv = parseGeneratedCV(content);
-			return cv;
+			
+			// Add generation metadata
+			cv.metadata = {
+				modelUsed: model,
+				generatedAt: generatedAt,
+				modelOrder: models
+			};
+			
+			return {
+				cv: cv,
+				modelUsed: model,
+				generatedAt: generatedAt
+			};
 
 		} catch (error) {
 			console.warn(`Model ${model} error:`, error);

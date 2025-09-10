@@ -123,3 +123,4 @@ Requirements coverage: all items accounted for; per-experience keywords will req
   - company/job title
   - pay range
   - rate my match to my current skills
+- cv metadata: model used
