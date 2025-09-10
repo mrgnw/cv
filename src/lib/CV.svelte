@@ -216,7 +216,7 @@
 						</span>
 					</div>
 					<ul class="list-disc ml-4 mt-1">
-						{#each job.accomplishments as bullet}
+						{#each job.achievements as bullet}
 							<li class="text-sm leading-tight mb-1">{bullet}</li>
 						{/each}
 					</ul>

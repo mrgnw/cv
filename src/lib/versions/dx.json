@@ -29,7 +29,7 @@
 			"title": "Developer Advocate",
 			"company": "National Care Dental",
 			"start": "2022-05-01",
-			"description": [
+			"achievements": [
 				"Trained and upskilled over 50 employees in data engineering best practices, resulting in a 40% increase in team productivity.",
 				"Developed comprehensive project documentation, reducing onboarding time for new hires by 30%.",
 				"Collaborated with cross-functional teams to create developer-focused tutorials and guides, enhancing internal knowledge sharing.",
@@ -41,7 +41,7 @@
 			"company": "Persefoni",
 			"start": "2021-08-01",
 			"end": "2022-05-31",
-			"description": [
+			"achievements": [
 				"Created API endpoints in GoLang, facilitating seamless integration between multiple services.",
 				"Implemented ETL processes pipelines in Databricks, improving data processing efficiency by 60%.",
 				"Documented and streamlined onboarding processes, enabling faster integration of new team members.",
@@ -53,7 +53,7 @@
 			"company": "Zelis Healthcare",
 			"start": "2018-12-01",
 			"end": "2021-08-01",
-			"description": [
+			"achievements": [
 				"Created ETL workflows in Airflow, improving data processing speeds by up to 1000x.",
 				"Migrated multiple codebases to Python3, enhancing code maintainability and performance.",
 				"Developed Python APIs and internal web interfaces, empowering business users to interact effectively with company data.",

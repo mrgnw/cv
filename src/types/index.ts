@@ -5,7 +5,7 @@ export interface Experience {
 	company: string;
 	start: string;
 	end?: string;
-	accomplishments: string[];
+	achievements: string[];
 	skills?: string[];
 }
 export interface Project {

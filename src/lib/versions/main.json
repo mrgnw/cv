@@ -25,7 +25,7 @@
 			"company": "National Care Dental",
 			"start": "2022-05-01",
 			"skills": ["Python", "AWS", "ETL", "SQL", "APIs", "Mentoring"],
-			"accomplishments": [
+			"achievements": [
 				"Designed and implemented data infrastructure and pipelines, enabling faster business operations and enhanced data insights while cutting costs significantly.",
 				"Transitioned legacy workflows to modern data pipelines, accelerating tasks by 100x to 1000x through automation, reducing multi-hour processes to seconds or milliseconds.",
 				"Mentored data analysts in Python and SQL, expanding their skills and capabilities, resulting in a substantial increase in productivity."
@@ -37,7 +37,7 @@
 			"start": "2021-08-01",
 			"end": "2022-05-31",
 			"skills": ["Python", "Databricks", "ETL", "SQL", "GoLang"],
-			"accomplishments": [
+			"achievements": [
 				"Implemented ETL processes pipelines in Databricks for a rapidly growing climate-change startup",
 				"Created API endpoints in GoLang, learning new tech & collaborating across teams to interface multiple services.",
 				"Documented & created new processes to onboard, train, and increase teammate productivity."
@@ -49,7 +49,7 @@
 			"start": "2018-12-01",
 			"end": "2021-08-01",
 			"skills": ["Python", "Airflow", "Flask"],
-			"accomplishments": [
+			"achievements": [
 				"Created new ETL workflows in Airflow and optimized existing processing times up to 1000x.",
 				"Migrated multiple codebases to Python3.",
 				"Created Python APIs and internal web interfaces, empowering business users across teams to meaningfully interact with company data."

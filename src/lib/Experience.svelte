@@ -55,7 +55,7 @@
 					</p>
 				</div>
 			</div>
-			{#each exp.accomplishments as paragraph}
+			{#each exp.achievements as paragraph}
 				<p class="mb-2 mt-1 print:mb-1.5 print:mt-0.5">{paragraph}</p>
 			{/each}
 		</div>
@@ -63,38 +63,4 @@
 </section>
 
 <style>
-	/*
-	.period {
-		position: relative;
-		display: inline-block;
-		cursor: pointer;
-		white-space: nowrap;
-	}
-
-	.default-text,
-	.hover-text {
-		display: inline-block;
-		transition: opacity 0.3s ease;
-	}
-
-	.hover-text {
-		opacity: 0;
-		position: absolute;
-		left: 0;
-	}
-
-	.period:hover .default-text {
-		opacity: 0;
-	}
-
-	.period:hover .hover-text {
-		opacity: 1;
-	}
-
-	.stack {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.25rem;
-	}
-	*/
 </style>

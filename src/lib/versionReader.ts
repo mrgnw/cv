@@ -141,10 +141,11 @@ for (const entry of tempEntries) {
 				
 				return {
 					...exp,
-					// Migrate description -> accomplishments if needed
-					accomplishments: exp.accomplishments || exp.description || [],
-					// Remove old description property if it exists
-					description: undefined
+					// Migrate description/accomplishments -> achievements if needed
+					achievements: exp.achievements || exp.accomplishments || exp.description || [],
+					// Remove old property names if they exist
+					description: undefined,
+					accomplishments: undefined
 				};
 			});
 		}
@@ -282,22 +283,22 @@ function mergeExperiences(
 			mergedExperiences.push({
 				...mainExp,
 				...versionExp,
-				accomplishments: mergeAccomplishments(
-					mainExp.accomplishments, 
-					versionExp.accomplishments
+				achievements: mergeAchievements(
+					mainExp.achievements, 
+					versionExp.achievements
 				),
 			});
 		} else if (versionExp) {
-			// Ensure version experience has accomplishments array
+			// Ensure version experience has achievements array
 			mergedExperiences.push({
 				...versionExp,
-				accomplishments: versionExp.accomplishments || []
+				achievements: versionExp.achievements || []
 			});
 		} else if (mainExp) {
-			// Ensure main experience has accomplishments array
+			// Ensure main experience has achievements array
 			mergedExperiences.push({
 				...mainExp,
-				accomplishments: mainExp.accomplishments || []
+				achievements: mainExp.achievements || []
 			});
 		}
 	}
@@ -306,31 +307,31 @@ function mergeExperiences(
 }
 
 /**
- * Merges two arrays of accomplishments strings line by line.
- * Prefer version accomplishments over main accomplishments when available.
- * @param mainAccomplishments - The primary array of accomplishments.
- * @param versionAccomplishments - The array of accomplishments to merge from the version.
- * @returns A new array of merged accomplishments strings.
+ * Merges two arrays of achievements strings line by line.
+ * Prefer version achievements over main achievements when available.
+ * @param mainAchievements - The primary array of achievements.
+ * @param versionAchievements - The array of achievements to merge from the version.
+ * @returns A new array of merged achievements strings.
  */
-function mergeAccomplishments(
-	mainAccomplishments: string[] | undefined,
-	versionAccomplishments: string[] | undefined
+function mergeAchievements(
+	mainAchievements: string[] | undefined,
+	versionAchievements: string[] | undefined
 ): string[] {
 	// Handle undefined cases
-	const safeMainAccomplishments = mainAccomplishments || [];
-	const safeVersionAccomplishments = versionAccomplishments || [];
+	const safeMainAchievements = mainAchievements || [];
+	const safeVersionAchievements = versionAchievements || [];
 	
-	const maxLength = Math.max(safeMainAccomplishments.length, safeVersionAccomplishments.length);
-	const mergedAccomplishments: string[] = [];
+	const maxLength = Math.max(safeMainAchievements.length, safeVersionAchievements.length);
+	const mergedAchievements: string[] = [];
 
 	for (let i = 0; i < maxLength; i++) {
-		const versionLine = typeof safeVersionAccomplishments[i] === "string"
-			? safeVersionAccomplishments[i].trim()
+		const versionLine = typeof safeVersionAchievements[i] === "string"
+			? safeVersionAchievements[i].trim()
 			: "";
-		mergedAccomplishments[i] = versionLine || safeMainAccomplishments[i] || "";
+		mergedAchievements[i] = versionLine || safeMainAchievements[i] || "";
 	}
 
-	return mergedAccomplishments;
+	return mergedAchievements;
 }
 
 /**
