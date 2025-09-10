@@ -10,12 +10,14 @@
 	let isGenerating = $state(false);
 	let generatedCV = $state(null);
 	let showPreview = $state(true);
+	let saveSuccess = $state('');
+	let saveError = $state('');
 	let showModelSettings = $state(false);
 	
 	// Model prioritization
 	let models = $state([
-		{ id: 'openai/gpt-4.1-mini', name: 'GPT-4.1 Mini', enabled: true },
 		{ id: 'google/gemini-2.5-flash', name: 'Gemini 2.5 Flash', enabled: true },
+		{ id: 'openai/gpt-4.1-mini', name: 'GPT-4.1 Mini', enabled: true },
 		{ id: 'google/gemini-2.5-pro', name: 'Gemini 2.5 Pro', enabled: true },
 		{ id: 'openai/gpt-5', name: 'GPT-5', enabled: true },
 		{ id: 'anthropic/claude-sonnet-4', name: 'Claude Sonnet 4', enabled: true }
@@ -60,6 +62,26 @@
 			
 			// Don't call update() to preserve form values
 			// await update();
+		};
+	}
+	
+	// Save form submission handler
+	function handleSave() {
+		return async ({ result, update }) => {
+			if (result.type === 'success') {
+				saveSuccess = `✅ Version saved as ${result.data?.filename}`;
+				saveError = '';
+				
+				// Clear success message after 5 seconds
+				setTimeout(() => {
+					saveSuccess = '';
+				}, 5000);
+			} else if (result.type === 'failure') {
+				saveError = result.data?.error || 'Failed to save version';
+				saveSuccess = '';
+			}
+			
+			// Don't call update() to avoid page reload
 		};
 	}
 	
@@ -235,7 +257,7 @@
 						{showPreview ? 'Show JSON' : 'Show Preview'}
 					</button>
 					{#if generatedCV}
-						<form method="POST" action="?/save" class="inline">
+						<form method="POST" action="?/save" use:enhance={handleSave} class="inline">
 							<input type="hidden" name="cvData" value={JSON.stringify(generatedCV)} />
 							<input type="hidden" name="company" value={form?.company || ''} />
 							<input type="hidden" name="title" value={form?.title || ''} />
@@ -251,6 +273,28 @@
 			</div>
 
 			<div class="flex-1 border border-gray-300 rounded-lg overflow-hidden">
+				{#if saveSuccess}
+					<div class="p-4 bg-green-50 border-l-4 border-green-500">
+						<p class="text-green-700">{saveSuccess}</p>
+						{#if saveSuccess.includes('.json')}
+							{@const filename = saveSuccess.split(' ').pop()?.replace('.json5', '')}
+							<a 
+								href="/{filename}" 
+								class="text-green-600 underline text-sm mt-1 inline-block"
+								target="_blank"
+							>
+								→ View saved version
+							</a>
+						{/if}
+					</div>
+				{/if}
+				
+				{#if saveError}
+					<div class="p-4 bg-red-50 border-l-4 border-red-500">
+						<p class="text-red-700">Error: {saveError}</p>
+					</div>
+				{/if}
+				
 				{#if form?.error}
 					<div class="p-4 bg-red-50 border-l-4 border-red-500">
 						<p class="text-red-700">Error: {form.error}</p>
@@ -258,7 +302,18 @@
 				{:else if generatedCV}
 					{#if showPreview}
 						<div class="h-full overflow-auto p-4 bg-white">
-							<CV cv={generatedCV} />
+							<CV 
+								name="Morgan Williams"
+								title={generatedCV.title || "Software Engineer"}
+								email="morganfwilliams@me.com"
+								github="https://github.com/mrgnw"
+								pdfLink="/morgan-williams-cv"
+								resolvedProjects={generatedCV.projects || []}
+								experience={generatedCV.experience || []}
+								skills={generatedCV.skills || []}
+								education={generatedCV.education || []}
+								variant="modern"
+							/>
 						</div>
 					{:else}
 						<pre class="h-full overflow-auto p-4 bg-gray-50 text-sm">

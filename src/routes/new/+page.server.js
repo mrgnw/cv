@@ -61,12 +61,12 @@ export const actions = {
 
 		try {
 			const cv = JSON.parse(cvData);
-			const filename = await saveCVVersion(cv, { company, title });
+			const result = await saveCVVersion(cv, { company, title });
 			
 			return {
 				success: true,
-				saved: true,
-				filename
+				filename: result.filename,
+				slug: result.slug
 			};
 		} catch (error) {
 			console.error('Save error:', error);
@@ -215,7 +215,7 @@ async function saveCVVersion(cv, { company, title }) {
 	await fs.writeFile(filepath, json5Content, 'utf8');
 	
 	console.log(`Saved CV version: ${filename}`);
-	return filename;
+	return { filename, slug };
 }
 
 /**
