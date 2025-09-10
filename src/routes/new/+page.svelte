@@ -7,6 +7,8 @@
 	let { data, form } = $props();
 	
 	let jobDescription = $state('');
+	let company = $state('');
+	let title = $state('');
 	let isGenerating = $state(false);
 	let generatedCV = $state(null);
 	let showPreview = $state(true);
@@ -58,6 +60,14 @@
 			
 			if (result.type === 'success') {
 				generatedCV = result.data?.cv;
+				
+				// Auto-populate company and title if suggested by LLM and fields are empty
+				if (generatedCV?.company && !company.trim()) {
+					company = generatedCV.company;
+				}
+				if (generatedCV?.title && !title.trim()) {
+					title = generatedCV.title;
+				}
 			}
 			
 			// Don't call update() to preserve form values
@@ -81,7 +91,8 @@
 				saveSuccess = '';
 			}
 			
-			// Don't call update() to avoid page reload
+			// Explicitly prevent page reload by not calling update()
+			// This is the key fix - we must return the callback to override default behavior
 		};
 	}
 	
@@ -224,12 +235,14 @@
 					<input
 						type="text"
 						name="company"
+						bind:value={company}
 						placeholder="Company name (optional)"
 						class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 					/>
 					<input
 						type="text"
 						name="title"
+						bind:value={title}
 						placeholder="Job title (optional)"
 						class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 					/>
@@ -259,8 +272,8 @@
 					{#if generatedCV}
 						<form method="POST" action="?/save" use:enhance={handleSave} class="inline">
 							<input type="hidden" name="cvData" value={JSON.stringify(generatedCV)} />
-							<input type="hidden" name="company" value={form?.company || ''} />
-							<input type="hidden" name="title" value={form?.title || ''} />
+							<input type="hidden" name="company" value={company} />
+							<input type="hidden" name="title" value={title} />
 							<button
 								type="submit"
 								class="px-3 py-1 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700"
