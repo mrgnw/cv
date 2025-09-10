@@ -1,101 +1,82 @@
 {
   "versions": {
     "main": {
-      "pdfMTime": "2025-09-08T17:59:53.000Z",
+      "pdfMTime": "2025-09-10T10:50:45.049Z",
       "inputs": {
-        "src/lib/versions/main.json": "2025-09-06T18:44:50.310Z",
-        "src/lib/CVSans.svelte": "2025-09-05T12:21:40.540Z",
-        "src/lib/EngCV.svelte": "2025-09-05T12:21:44.478Z",
-        "src/lib/projects.jsonc": "2025-03-10T13:01:33.203Z",
-        "src/lib/projects-es.jsonc": "2025-03-10T13:02:25.552Z"
+        "src/lib/versions/main.json": "2025-09-10T10:50:38.923Z",
+        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
       },
       "lastProjectsTrim": 0
     },
     "fullstack": {
-      "pdfMTime": "2025-09-08T17:59:53.000Z",
+      "pdfMTime": "2025-09-10T10:50:45.049Z",
       "inputs": {
-        "src/lib/versions/fullstack.json5": "2025-07-22T09:49:48.980Z",
-        "src/lib/CVSans.svelte": "2025-09-05T12:21:40.540Z",
-        "src/lib/EngCV.svelte": "2025-09-05T12:21:44.478Z",
-        "src/lib/projects.jsonc": "2025-03-10T13:01:33.203Z",
-        "src/lib/projects-es.jsonc": "2025-03-10T13:02:25.552Z"
+        "src/lib/versions/fullstack.json5": "2025-09-10T10:50:38.923Z",
+        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
       },
       "lastProjectsTrim": 0
     },
     "allianz-backend": {
-      "pdfMTime": "2025-09-08T17:59:53.000Z",
+      "pdfMTime": "2025-09-10T10:50:45.049Z",
       "inputs": {
-        "src/lib/versions/backend/allianz.json5": "2025-09-05T11:46:00.699Z",
-        "src/lib/CVSans.svelte": "2025-09-05T12:21:40.540Z",
-        "src/lib/EngCV.svelte": "2025-09-05T12:21:44.478Z",
-        "src/lib/projects.jsonc": "2025-03-10T13:01:33.203Z",
-        "src/lib/projects-es.jsonc": "2025-03-10T13:02:25.552Z"
+        "src/lib/versions/backend/allianz.json5": "2025-09-10T10:50:38.923Z",
+        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
       },
       "lastProjectsTrim": 0
     },
     "dx": {
-      "pdfMTime": "2025-09-08T17:59:53.000Z",
+      "pdfMTime": "2025-09-10T10:50:45.049Z",
       "inputs": {
-        "src/lib/versions/dx.json": "2025-01-02T14:38:06.000Z",
-        "src/lib/CVSans.svelte": "2025-09-05T12:21:40.540Z",
-        "src/lib/EngCV.svelte": "2025-09-05T12:21:44.478Z",
-        "src/lib/projects.jsonc": "2025-03-10T13:01:33.203Z",
-        "src/lib/projects-es.jsonc": "2025-03-10T13:02:25.552Z"
+        "src/lib/versions/dx.json": "2025-09-10T10:50:38.923Z",
+        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
       },
       "lastProjectsTrim": 0
     },
     "data": {
-      "pdfMTime": "2025-09-08T17:59:53.000Z",
+      "pdfMTime": "2025-09-10T10:33:52.477Z",
       "inputs": {
         "src/lib/versions/data.json": "2025-01-02T14:38:06.000Z",
-        "src/lib/CVSans.svelte": "2025-09-05T12:21:40.540Z",
-        "src/lib/EngCV.svelte": "2025-09-05T12:21:44.478Z",
-        "src/lib/projects.jsonc": "2025-03-10T13:01:33.203Z",
-        "src/lib/projects-es.jsonc": "2025-03-10T13:02:25.552Z"
+        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
       },
       "lastProjectsTrim": 0
     },
     "allianz-data": {
-      "pdfMTime": "2025-09-08T17:59:53.000Z",
+      "pdfMTime": "2025-09-10T10:50:45.049Z",
       "inputs": {
-        "src/lib/versions/data/allianz.json5": "2025-09-06T18:47:37.576Z",
-        "src/lib/CVSans.svelte": "2025-09-05T12:21:40.540Z",
-        "src/lib/EngCV.svelte": "2025-09-05T12:21:44.478Z",
-        "src/lib/projects.jsonc": "2025-03-10T13:01:33.203Z",
-        "src/lib/projects-es.jsonc": "2025-03-10T13:02:25.552Z"
+        "src/lib/versions/data/allianz.json5": "2025-09-10T10:50:38.923Z",
+        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
       },
       "lastProjectsTrim": 0
     },
     "coinbase": {
-      "pdfMTime": "2025-09-08T17:59:53.000Z",
+      "pdfMTime": "2025-09-10T10:50:45.049Z",
       "inputs": {
-        "src/lib/versions/data/coinbase.json": "2025-09-05T14:52:01.333Z",
-        "src/lib/CVSans.svelte": "2025-09-05T12:21:40.540Z",
-        "src/lib/EngCV.svelte": "2025-09-05T12:21:44.478Z",
-        "src/lib/projects.jsonc": "2025-03-10T13:01:33.203Z",
-        "src/lib/projects-es.jsonc": "2025-03-10T13:02:25.552Z"
+        "src/lib/versions/data/coinbase.json": "2025-09-10T10:50:38.923Z",
+        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
       },
       "lastProjectsTrim": 0
     },
     "pitch": {
-      "pdfMTime": "2025-09-08T17:59:53.000Z",
+      "pdfMTime": "2025-09-10T10:50:45.049Z",
       "inputs": {
-        "src/lib/versions/pitch.json": "2025-01-31T00:16:43.000Z",
-        "src/lib/CVSans.svelte": "2025-09-05T12:21:40.540Z",
-        "src/lib/EngCV.svelte": "2025-09-05T12:21:44.478Z",
-        "src/lib/projects.jsonc": "2025-03-10T13:01:33.203Z",
-        "src/lib/projects-es.jsonc": "2025-03-10T13:02:25.552Z"
+        "src/lib/versions/pitch.json": "2025-09-10T10:50:38.927Z",
+        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
       },
       "lastProjectsTrim": 0
     },
     "rbi": {
-      "pdfMTime": "2025-09-08T17:59:53.000Z",
+      "pdfMTime": "2025-09-10T10:50:45.049Z",
       "inputs": {
-        "src/lib/versions/data/rbi.json5": "2025-09-05T15:18:36.450Z",
-        "src/lib/CVSans.svelte": "2025-09-05T12:21:40.540Z",
-        "src/lib/EngCV.svelte": "2025-09-05T12:21:44.478Z",
-        "src/lib/projects.jsonc": "2025-03-10T13:01:33.203Z",
-        "src/lib/projects-es.jsonc": "2025-03-10T13:02:25.552Z"
+        "src/lib/versions/data/rbi.json5": "2025-09-10T10:50:38.923Z",
+        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
+      },
+      "lastProjectsTrim": 0
+    },
+    "wanderlog-full-stack": {
+      "pdfMTime": "2025-09-10T11:30:54.939Z",
+      "inputs": {
+        "src/lib/versions/wanderlog-full-stack.json5": "2025-09-10T11:30:50.281Z",
+        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
       },
       "lastProjectsTrim": 0
     }
