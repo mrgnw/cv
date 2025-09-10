@@ -132,23 +132,32 @@
 			});
 			
 			const result = await response.json();
-			
-			if (result.type === 'success') {
+
+			// Normalize action response from raw fetch (no enhance wrapper)
+			let data = result;
+			if (result && typeof result === 'object') {
+				if ('type' in result && result.type === 'success' && result.data) {
+					data = result.data; // in case server returned wrapped shape
+				}
+			}
+
+			if (response.ok && data && data.filename && data.saved) {
 				const scoreText = generatedCV?.matchScore ? ` (Match: ${generatedCV.matchScore}/10)` : '';
 				const payText = generatedCV?.payScale ? ` (${generatedCV.payScale})` : '';
 				const modelText = generationMetadata?.modelUsed ? ` via ${generationMetadata.modelUsed}` : '';
-				saveSuccess = `✅ Version saved as versions/${result.data?.filename}${scoreText}${payText}${modelText}`;
-				
+				saveSuccess = `✅ Version saved as versions/${data.filename}${scoreText}${payText}${modelText}`;
+
 				// Store the slug for the preview link
-				savedVersionSlug = result.data?.slug;
-				
+				savedVersionSlug = data.slug || '';
+
 				// Clear success message after 5 seconds
 				setTimeout(() => {
 					saveSuccess = '';
 					savedVersionSlug = '';
 				}, 5000);
 			} else {
-				saveError = result.data?.error || 'Failed to save version';
+				// Prefer explicit server-provided saveError or error
+				saveError = (data && (data.saveError || data.error)) ? (data.saveError || data.error) : 'Failed to save version';
 			}
 		} catch (error) {
 			saveError = 'Network error while saving';

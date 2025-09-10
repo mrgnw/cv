@@ -15,7 +15,7 @@ Generate a tailored CV for this job description:
 {experienceData}
 
 ## Requirements:
-1. Return ONLY valid JSON, no markdown or explanations
+1. Return ONLY valid JSON, no markdown or explanations. Do not include markdown fences. Do not include comments. Do not use trailing commas. Return a single JSON object only.
 2. Use the CV structure with: skills (primary, max ~8–12), secondarySkills (optional), experience, keywords (optional), company (optional), title (optional), normalizedTitle (optional), matchScore (required), matchFactors (optional breakdown), payScale (optional)
 3. Each experience must have: title, company, start, end (if applicable), achievements (array of strings), skills (optional array)
 4. If company/title were not provided above, extract and suggest them from the job description in the response
@@ -28,5 +28,6 @@ Generate a tailored CV for this job description:
 11. Include only the most relevant skills from the source data (deduplicate synonyms). Limit top-level skills and place overflow in `secondarySkills`.
 12. Add up to 30 relevant keywords for ATS optimization
 13. Focus on measurable achievements and use STAR method where possible
+14. If uncertain, return a minimal valid JSON object with empty arrays for skills, experience, and keywords, and include a reasonable `normalizedTitle` and `matchScore`.
 
 Generate the CV now:

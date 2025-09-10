@@ -108,26 +108,57 @@ export const actions = {
 		}
 
 		try {
-			const cv = JSON.parse(cvData);
+			// Be lenient with incoming JSON
+			const cv = JSON5.parse(cvData);
 			
-			// For Cloudflare deployment, we can't save to filesystem
-			// Return success with a mock filename for now
 			const jobTitle = cv.normalizedTitle || normalizeJobTitle(title) || 'general';
 			const companySlug = normalizeCompanyName(company);
 			const filename = `${jobTitle}/${companySlug}.json5`;
-			
-			console.log('Would save CV version:', filename, cv);
-			
+
+			// Try to save locally if filesystem is available (dev/local)
+			let saved = false;
+			let saveError = '';
+			try {
+				// Dynamic import to avoid bundling on Cloudflare
+				const fs = await import('node:fs/promises');
+				const path = await import('node:path');
+				const baseDir = process.cwd();
+				const versionsDir = path.join(baseDir, 'versions', jobTitle);
+				await fs.mkdir(versionsDir, { recursive: true });
+				const filePath = path.join(versionsDir, `${companySlug}.json5`);
+				const content = JSON5.stringify(cv, null, 2);
+				await fs.writeFile(filePath, content, 'utf-8');
+				saved = true;
+				console.log('Saved CV version:', filePath);
+			} catch (err) {
+				saveError = err instanceof Error ? err.message : String(err);
+				console.log('Filesystem save skipped or failed (likely Cloudflare):', saveError);
+			}
+
+			// Return plain data; SvelteKit enhance() will wrap with { type: 'success', data }
 			return {
-				success: true,
-				filename: filename,
+				filename,
 				slug: `${jobTitle}-${companySlug}`,
 				jobTitle,
-				company: companySlug
+				company: companySlug,
+				saved,
+				saveError: saved ? '' : saveError
 			};
 		} catch (error) {
-			console.error('Save error:', error);
-			return fail(500, { error: 'Failed to save CV version' });
+			// Avoid failing the whole request; return a structured response so the client can display the parse error
+			const jobTitle = normalizeJobTitle(title) || 'general';
+			const companySlug = normalizeCompanyName(company);
+			const filename = `${jobTitle}/${companySlug}.json5`;
+			const message = error instanceof Error ? error.message : String(error);
+			console.error('Save parse error:', message);
+			return {
+				filename,
+				slug: `${jobTitle}-${companySlug}`,
+				jobTitle,
+				company: companySlug,
+				saved: false,
+				saveError: `Failed to parse CV JSON for saving: ${message}`
+			};
 		}
 	}
 };
@@ -519,34 +550,48 @@ async function generateCVFromJobDescription({ jobDescription, company, title, ex
  * @param {string} content
  */
 function parseGeneratedCV(content) {
-	// Remove potential markdown code blocks
-	let jsonStr = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-	
-	try {
-		const cv = JSON.parse(jsonStr);
-		
-		// Validate required structure
-		if (!cv.experience || !Array.isArray(cv.experience)) {
-			throw new Error('Invalid CV structure: missing experience array');
-		}
+	// Remove potential markdown code fences and trim
+	let cleaned = content.replace(/```json\n?/gi, '').replace(/```\n?/g, '').trim();
 
-		// Ensure achievements field (not accomplishments)
-		cv.experience = cv.experience.map(/** @param {any} exp */ exp => {
-			if (exp.accomplishments && !exp.achievements) {
-				exp.achievements = exp.accomplishments;
-				delete exp.accomplishments;
-			}
-			if (!exp.achievements || !Array.isArray(exp.achievements)) {
-				exp.achievements = [];
-			}
-			return exp;
-		});
-
-		return cv;
-	} catch (error) {
-		const errorMessage = error instanceof Error ? error.message : String(error);
-		throw new Error(`Failed to parse generated CV: ${errorMessage}`);
+	// If the model wrapped extra text around JSON, try to isolate the outermost JSON object
+	const firstBrace = cleaned.indexOf('{');
+	const lastBrace = cleaned.lastIndexOf('}');
+	if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+		cleaned = cleaned.slice(firstBrace, lastBrace + 1);
 	}
+
+	// Try strict JSON first, then fall back to JSON5 for leniency (trailing commas, comments, etc.)
+	let cv;
+	try {
+		cv = JSON.parse(cleaned);
+	} catch (e1) {
+		try {
+			cv = JSON5.parse(cleaned);
+		} catch (e2) {
+			const msg1 = e1 instanceof Error ? e1.message : String(e1);
+			const msg2 = e2 instanceof Error ? e2.message : String(e2);
+			throw new Error(`Failed to parse generated CV: ${msg1}; JSON5 fallback: ${msg2}`);
+		}
+	}
+
+	// Validate required structure
+	if (!cv.experience || !Array.isArray(cv.experience)) {
+		throw new Error('Failed to parse generated CV: Invalid CV structure: missing experience array');
+	}
+
+	// Ensure achievements field (not accomplishments)
+	cv.experience = cv.experience.map(/** @param {any} exp */ (exp) => {
+		if (exp.accomplishments && !exp.achievements) {
+			exp.achievements = exp.accomplishments;
+			delete exp.accomplishments;
+		}
+		if (!exp.achievements || !Array.isArray(exp.achievements)) {
+			exp.achievements = [];
+		}
+		return exp;
+	});
+
+	return cv;
 }
 
 /**
