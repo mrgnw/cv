@@ -9,8 +9,8 @@
 	export let saveSuccess;
 	export let saveError;
 	export let savedVersionSlug;
-	export let form;
 	export let isSaving;
+	export let actionError;
 	
 	// Events
 	export let onSaveCV;
@@ -81,9 +81,9 @@
 			</div>
 		{/if}
 		
-		{#if form?.error}
+		{#if actionError}
 			<div class="p-4 bg-red-50 border-l-4 border-red-500">
-				<p class="text-red-700">Error: {form.error}</p>
+				<p class="text-red-700">Error: {actionError}</p>
 			</div>
 		{:else if generatedCV}
 			{#if showPreview}

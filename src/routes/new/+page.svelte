@@ -27,6 +27,7 @@
 	let extractSuccess = $state('');
 	let showModelSettings = $state(false);
 	let savedVersionSlug = $state(''); // Track the slug of the saved version
+	let actionError = $state(''); // Track latest action error to avoid stale form errors
 	
 	// Model prioritization
 	let models = $state([
@@ -44,6 +45,15 @@
 	function handleModelsChange(newModels) {
 		models = newModels;
 	}
+
+	// Derive friendly label for the current/last-used model
+	let modelNameMap = $derived(Object.fromEntries(models.map((m) => [m.id, m.name])));
+	let currentModelLabel = $derived.by(() => {
+		const used = generationMetadata?.modelUsed;
+		if (used) return modelNameMap[used] || used;
+		const first = enabledModelIds[0];
+		return modelNameMap[first] || first || '';
+	});
 	
 	// Form submission handler
 	function handleSubmit() {
@@ -56,6 +66,7 @@
 					modelUsed: result.data?.modelUsed,
 					generatedAt: result.data?.generatedAt
 				};
+				actionError = '';
 				
 				// Auto-populate company and title if suggested by LLM and fields are empty
 				if (generatedCV?.company && !company.trim()) {
@@ -64,6 +75,8 @@
 				if (generatedCV?.title && !title.trim()) {
 					title = generatedCV.title;
 				}
+			} else if (result.type === 'failure') {
+				actionError = result.data?.error || 'Generation failed';
 			}
 			
 			// Don't call update() to preserve form values
@@ -109,6 +122,7 @@
 		isSaving = true;
 		saveError = '';
 		saveSuccess = '';
+		actionError = '';
 		
 		try {
 			// Create CV data with metadata
@@ -180,7 +194,12 @@
 	<header class="mb-8">
 		<h1 class="text-3xl font-bold mb-2">CV Generator</h1>
 		<div class="flex justify-between items-center">
-			<p class="text-gray-600">Paste a job description to generate a tailored CV</p>
+			<div class="flex items-center gap-3">
+				<p class="text-gray-600">Paste a job description to generate a tailored CV</p>
+				{#if currentModelLabel}
+					<span class="px-2 py-0.5 text-xs rounded bg-gray-100 text-gray-700 border">Model: {currentModelLabel}</span>
+				{/if}
+			</div>
 			<button
 				onclick={() => showModelSettings = !showModelSettings}
 				class="px-3 py-1 text-sm border rounded-lg hover:bg-gray-50"
@@ -221,7 +240,7 @@
 			{saveSuccess}
 			{saveError}
 			{savedVersionSlug}
-			{form}
+			{actionError}
 			{isSaving}
 			onSaveCV={saveCV}
 			onTogglePreview={handleTogglePreview}
