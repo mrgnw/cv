@@ -10,6 +10,44 @@
 	let isGenerating = $state(false);
 	let generatedCV = $state(null);
 	let showPreview = $state(true);
+	let showModelSettings = $state(false);
+	
+	// Model prioritization
+	let models = $state([
+		{ id: 'openai/gpt-4.1-mini', name: 'GPT-4.1 Mini', enabled: true },
+		{ id: 'google/gemini-2.5-flash', name: 'Gemini 2.5 Flash', enabled: true },
+		{ id: 'google/gemini-2.5-pro', name: 'Gemini 2.5 Pro', enabled: true },
+		{ id: 'openai/gpt-5', name: 'GPT-5', enabled: true },
+		{ id: 'anthropic/claude-sonnet-4', name: 'Claude Sonnet 4', enabled: true }
+	]);
+	
+	let draggedIndex = $state(null);
+	
+	function handleDragStart(event, index) {
+		draggedIndex = index;
+		event.dataTransfer.effectAllowed = 'move';
+	}
+	
+	function handleDragOver(event) {
+		event.preventDefault();
+		event.dataTransfer.dropEffect = 'move';
+	}
+	
+	function handleDrop(event, dropIndex) {
+		event.preventDefault();
+		if (draggedIndex === null || draggedIndex === dropIndex) return;
+		
+		const draggedModel = models[draggedIndex];
+		const newModels = [...models];
+		newModels.splice(draggedIndex, 1);
+		newModels.splice(dropIndex, 0, draggedModel);
+		models = newModels;
+		draggedIndex = null;
+	}
+	
+	function toggleModel(index) {
+		models[index].enabled = !models[index].enabled;
+	}
 	
 	// Form submission handler
 	function handleSubmit() {
@@ -20,27 +58,43 @@
 				generatedCV = result.data?.cv;
 			}
 			
-			await update();
+			// Don't call update() to preserve form values
+			// await update();
 		};
 	}
 	
-	// Auto-generate when job description changes (debounced)
-	let generateTimeout = $state(null);
-	$effect(() => {
+	// Auto-generate when job description changes (debounced) or on paste
+	let generateTimeout;
+	
+	function triggerGeneration() {
+		if (jobDescription.length > 50 && !isGenerating) {
+			const form = document.getElementById('generate-form');
+			if (form) {
+				isGenerating = true;
+				form.requestSubmit();
+			}
+		}
+	}
+	
+	// Handle input changes with debouncing
+	function handleInput() {
+		if (generateTimeout) clearTimeout(generateTimeout);
 		if (jobDescription.length > 50) {
-			if (generateTimeout) clearTimeout(generateTimeout);
 			generateTimeout = setTimeout(() => {
-				if (!isGenerating) {
-					// Trigger form submission programmatically
-					const form = document.getElementById('generate-form');
-					if (form) {
-						isGenerating = true;
-						form.requestSubmit();
-					}
-				}
+				triggerGeneration();
 			}, 1000);
 		}
-	});
+	}
+	
+	// Generate immediately on paste
+	function handlePaste() {
+		// Small delay to let the paste content be processed
+		setTimeout(() => {
+			if (jobDescription.length > 50) {
+				triggerGeneration();
+			}
+		}, 100);
+	}
 </script>
 
 <svelte:head>
@@ -50,8 +104,67 @@
 <div class="container">
 	<header class="mb-8">
 		<h1 class="text-3xl font-bold mb-2">CV Generator</h1>
-		<p class="text-gray-600">Paste a job description to generate a tailored CV</p>
+		<div class="flex justify-between items-center">
+			<p class="text-gray-600">Paste a job description to generate a tailored CV</p>
+			<button
+				onclick={() => showModelSettings = !showModelSettings}
+				class="px-3 py-1 text-sm border rounded-lg hover:bg-gray-50"
+			>
+				⚙️ Model Settings
+			</button>
+		</div>
 	</header>
+
+	{#if showModelSettings}
+		<div class="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
+			<h3 class="text-lg font-semibold mb-3">AI Model Priority Order</h3>
+			<p class="text-sm text-gray-600 mb-4">Drag to reorder. First enabled model will be tried first, then fallback to next enabled models.</p>
+			
+			<div class="space-y-2">
+				{#each models as model, index}
+					<div
+						draggable="true"
+						ondragstart={(e) => handleDragStart(e, index)}
+						ondragover={handleDragOver}
+						ondrop={(e) => handleDrop(e, index)}
+						class="flex items-center gap-3 p-3 bg-white border rounded-lg cursor-move hover:shadow-sm transition-shadow"
+						class:opacity-50={!model.enabled}
+					>
+						<div class="flex items-center gap-2 text-gray-400">
+							<span class="text-xs font-mono">{index + 1}</span>
+							<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+								<path d="M11 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm-2-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+							</svg>
+						</div>
+						
+						<div class="flex-1">
+							<span class="font-medium" class:text-gray-400={!model.enabled}>
+								{model.name}
+							</span>
+							<div class="text-xs text-gray-500 font-mono">{model.id}</div>
+						</div>
+						
+						<label class="flex items-center cursor-pointer">
+							<input
+								type="checkbox"
+								bind:checked={model.enabled}
+								onclick={() => toggleModel(index)}
+								class="sr-only"
+							/>
+							<div class="relative">
+								<div class="w-10 h-6 bg-gray-200 rounded-full shadow-inner transition-colors duration-200"
+									class:bg-blue-500={model.enabled}>
+								</div>
+								<div class="absolute w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-200 top-1 left-1"
+									class:translate-x-4={model.enabled}>
+								</div>
+							</div>
+						</label>
+					</div>
+				{/each}
+			</div>
+		</div>
+	{/if}
 
 	<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-200px)]">
 		<!-- Left Panel: Job Description Input -->
@@ -78,6 +191,8 @@
 				<textarea
 					name="jobDescription"
 					bind:value={jobDescription}
+					oninput={handleInput}
+					onpaste={handlePaste}
 					placeholder="Paste the job description here..."
 					class="flex-1 w-full p-4 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 					disabled={isGenerating}
