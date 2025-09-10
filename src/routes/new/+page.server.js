@@ -6,6 +6,7 @@ import JSON5 from 'json5';
 import experienceData from '$lib/Experience.json5?raw';
 import systemPromptContent from '$lib/prompts/system.md?raw';
 import userTemplateContent from '$lib/prompts/user-template.md?raw';
+import prefsJson from '$lib/prefs.json?raw';
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load() {
@@ -430,7 +431,8 @@ async function generateCVFromJobDescription({ jobDescription, company, title, ex
 		company,
 		title,
 		experienceData,
-		existingJobTitles
+		existingJobTitles,
+		prefs: await getPrefs()
 	});
 
 	// Use provided model order, fallback to default
@@ -555,17 +557,21 @@ function parseGeneratedCV(content) {
  * @param {string} params.title
  * @param {any} params.experienceData
  * @param {string[]} params.existingJobTitles
+ * @param {any} params.prefs
  */
-async function buildGenerationPrompt({ jobDescription, company, title, experienceData, existingJobTitles }) {
+async function buildGenerationPrompt({ jobDescription, company, title, experienceData, existingJobTitles, prefs }) {
 	try {
 		// Use imported template content instead of reading from filesystem
 		let template = userTemplateContent;
 		
 		// Replace template variables
-		template = template
+			template = template
 			.replace('{jobDescription}', jobDescription)
 			.replace('{experienceData}', JSON.stringify(experienceData, null, 2))
-			.replace('{existingJobTitles}', existingJobTitles.join(', '));
+				.replace('{existingJobTitles}', existingJobTitles.join(', '));
+
+			// Inject preferences (weights, signals, skill caps)
+			template += `\n\n## PREFERENCES (for calibration, not part of output):\n${JSON.stringify(prefs, null, 2)}\n`;
 		
 		// Handle optional company and title
 		if (company) {
@@ -620,7 +626,7 @@ MATCH SCORING CRITERIA (1-10 scale):
 - Negative (-1 to -2): Heavy Microsoft ecosystem (Azure, Teams), legacy tech, overly corporate language
 
 Generate the CV now:`;
-	}
+		}
 }
 
 /**
@@ -658,6 +664,20 @@ CV Structure:
   "company": "Target Company Name" (optional, extracted from job description),
   "title": "Target Position Title" (optional, extracted from job description)
 }`;
+	}
+}
+
+/** Read user preferences (static import of JSON raw) */
+async function getPrefs() {
+	try {
+		return JSON.parse(prefsJson);
+	} catch (e) {
+		return {
+			weights: { techStack: 4, role: 2, culture: 2, domain: 1, constraints: 1 },
+			positives: { tech: ["Svelte 5", "SvelteKit 2", "FastAPI", "Python", "TypeScript", "Node.js", "Bun"] },
+			negatives: { ecosystem: ["Microsoft Azure", "Microsoft Teams", "SharePoint"] },
+			skills: { maxPrimary: 10, maxPerExperience: 5 }
+		};
 	}
 }
 
