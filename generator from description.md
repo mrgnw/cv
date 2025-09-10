@@ -35,6 +35,7 @@ versoion 2 will also save the generated JSON5 into `src/lib/versions/{job_positi
   - [pdf-cli.js](vscode-file://vscode-app/Applications/Visual Studio Code.app/Contents/Resources/app/out/vs/code/electron-browser/workbench/workbench.html) supports selective regeneration, `--list`, `--watch`, `--changed`, etc. File outputs go to `static/*.pdf`.
   - Dev API to trigger generation: [+server.ts](vscode-file://vscode-app/Applications/Visual Studio Code.app/Contents/Resources/app/out/vs/code/electron-browser/workbench/workbench.html).
 - Runtime/deploy:
+  - we don't need to run the dev server, it's always running at cv.skate-in.ts.net and autorestarts when we change anything
   - [svelte.config.js](vscode-file://vscode-app/Applications/Visual Studio Code.app/Contents/Resources/app/out/vs/code/electron-browser/workbench/workbench.html) switches to adapter-node in dev/docker; cloudflare adapter otherwise. File writes in dev/docker are fine because the container mounts the workspace (`.:/app`). Writing at runtime on Cloudflare won’t be possible (we’ll keep the generator dev-only initially).
 
 ## Fit to your plan
