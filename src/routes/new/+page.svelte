@@ -2,6 +2,8 @@
 	import { page } from '$app/state';
 	import { enhance } from '$app/forms';
 	import CV from '$lib/CV.svelte';
+	import GenerationMetadata from '$lib/components/GenerationMetadata.svelte';
+	import { getEnabledModelIds } from '$lib/utils/format.js';
 	
 	/** @type {import('./$types').PageProps} */
 	let { data, form } = $props();
@@ -33,7 +35,7 @@
 	]);
 	
 	// Derived value for enabled model IDs in order - this is reactive in Svelte 5
-	let enabledModelIds = $derived(models.filter(m => m.enabled).map(m => m.id));
+	let enabledModelIds = $derived(getEnabledModelIds(models));
 	
 	let draggedIndex = $state(null);
 	
@@ -476,19 +478,7 @@
 				{:else if generatedCV}
 					{#if showPreview}
 						<div class="h-full overflow-auto">
-							<!-- Generation metadata -->
-							{#if generationMetadata}
-								<div class="p-3 bg-gray-50 border-b border-gray-200 text-sm text-gray-600">
-									<div class="flex items-center gap-4">
-										{#if generationMetadata.modelUsed}
-											<span>🤖 Generated with <strong>{generationMetadata.modelUsed}</strong></span>
-										{/if}
-										{#if generationMetadata.generatedAt}
-											<span>⏰ {new Date(generationMetadata.generatedAt).toLocaleString()}</span>
-										{/if}
-									</div>
-								</div>
-							{/if}
+							<GenerationMetadata {generationMetadata} />
 							
 							<div class="p-4 bg-white">
 								<CV 
@@ -507,19 +497,7 @@
 						</div>
 					{:else}
 						<div class="h-full overflow-auto">
-							<!-- Generation metadata for JSON view -->
-							{#if generationMetadata}
-								<div class="p-3 bg-gray-50 border-b border-gray-200 text-sm text-gray-600">
-									<div class="flex items-center gap-4">
-										{#if generationMetadata.modelUsed}
-											<span>🤖 Generated with <strong>{generationMetadata.modelUsed}</strong></span>
-										{/if}
-										{#if generationMetadata.generatedAt}
-											<span>⏰ {new Date(generationMetadata.generatedAt).toLocaleString()}</span>
-										{/if}
-									</div>
-								</div>
-							{/if}
+							<GenerationMetadata {generationMetadata} />
 							
 							<pre class="overflow-auto p-4 bg-gray-50 text-sm">
 {JSON.stringify(generatedCV, null, 2)}
