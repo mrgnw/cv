@@ -11,6 +11,27 @@ export async function load() {
 
 /** @satisfies {import('./$types').Actions} */
 export const actions = {
+	extractFromUrl: async ({ request }) => {
+		const formData = await request.formData();
+		const url = formData.get('url')?.toString();
+
+		if (!url) {
+			return fail(400, { error: 'URL is required' });
+		}
+
+		try {
+			const jobDescription = await extractJobDescriptionFromUrl(url);
+			return {
+				success: true,
+				jobDescription,
+				extractedUrl: url
+			};
+		} catch (error) {
+			console.error('URL extraction error:', error);
+			return fail(500, { error: 'Failed to extract job description from URL' });
+		}
+	},
+
 	generate: async ({ request }) => {
 		const formData = await request.formData();
 		const jobDescription = formData.get('jobDescription')?.toString();
@@ -21,7 +42,7 @@ export const actions = {
 			return fail(400, { error: 'Job description must be at least 50 characters' });
 		}
 
-		if (!OPENROUTER_API_KEY) {
+		if (!env.OPENROUTER_API_KEY) {
 			return fail(500, { error: 'OpenRouter API key not configured' });
 		}
 
@@ -78,6 +99,252 @@ export const actions = {
 };
 
 /**
+ * Extract job description from a URL
+ * @param {string} url
+ */
+async function extractJobDescriptionFromUrl(url) {
+	const controller = new AbortController();
+	const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+
+	try {
+		// Basic URL validation
+		const urlObj = new URL(url);
+		if (!['http:', 'https:'].includes(urlObj.protocol)) {
+			throw new Error('Invalid URL protocol');
+		}
+
+		const response = await fetch(url, {
+			signal: controller.signal,
+			headers: {
+				'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+				'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+				'Accept-Language': 'en-US,en;q=0.9',
+				'Accept-Encoding': 'gzip, deflate, br',
+				'DNT': '1',
+				'Connection': 'keep-alive',
+				'Upgrade-Insecure-Requests': '1',
+				'Sec-Fetch-Dest': 'document',
+				'Sec-Fetch-Mode': 'navigate',
+				'Sec-Fetch-Site': 'none',
+				'Sec-Fetch-User': '?1',
+				'Cache-Control': 'max-age=0'
+			}
+		});
+
+		clearTimeout(timeoutId);
+
+		if (!response.ok) {
+			throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+		}
+
+		const html = await response.text();
+		
+		// Extract job description using multiple strategies
+		const jobDescription = extractJobDescriptionFromHTML(html, url);
+		
+		if (!jobDescription || jobDescription.length < 100) {
+			throw new Error('Could not extract meaningful job description from page');
+		}
+
+		return jobDescription;
+	} catch (error) {
+		clearTimeout(timeoutId);
+		
+		if (error instanceof Error && error.name === 'AbortError') {
+			throw new Error('Request timed out after 15 seconds');
+		}
+		
+		const errorMessage = error instanceof Error ? error.message : String(error);
+		throw new Error(`Failed to extract from URL: ${errorMessage}`);
+	}
+}
+
+/**
+ * Extract job description from HTML content
+ * @param {string} html
+ * @param {string} url
+ */
+function extractJobDescriptionFromHTML(html, url) {
+	// Remove HTML tags and get text content
+	const textContent = html
+		.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '') // Remove scripts
+		.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '') // Remove styles
+		.replace(/<[^>]+>/g, ' ') // Remove HTML tags
+		.replace(/\s+/g, ' ') // Normalize whitespace
+		.trim();
+
+	// Try different extraction strategies based on the URL
+	if (url.includes('linkedin.com')) {
+		return extractLinkedInJobDescription(textContent);
+	} else if (url.includes('indeed.com')) {
+		return extractIndeedJobDescription(textContent);
+	} else if (url.includes('glassdoor.com')) {
+		return extractGlassdoorJobDescription(textContent);
+	} else {
+		return extractGenericJobDescription(textContent);
+	}
+}
+
+/**
+ * Extract job description from LinkedIn text
+ * @param {string} text
+ */
+function extractLinkedInJobDescription(text) {
+	// Look for common LinkedIn job description patterns
+	const patterns = [
+		/About the job(.*?)(?:Show more|Apply|Save|Show less|Skills|Seniority level|$)/is,
+		/Job description(.*?)(?:Show more|Apply|Save|Show less|Skills|Seniority level|$)/is,
+		/Description(.*?)(?:Show more|Apply|Save|Show less|Skills|Seniority level|$)/is,
+		/(?:We are|We're)\s+(?:looking|seeking|hiring)(.*?)(?:Apply|Save|Skills|Requirements|$)/is
+	];
+
+	for (const pattern of patterns) {
+		const match = text.match(pattern);
+		if (match && match[1]) {
+			let description = match[1].trim();
+			// Clean up common LinkedIn artifacts
+			description = description
+				.replace(/\s+/g, ' ')
+				.replace(/\b(?:Show more|Show less|Apply now|Easy Apply)\b/gi, '')
+				.trim();
+			
+			if (description.length > 100) {
+				return description.substring(0, 3000);
+			}
+		}
+	}
+
+	// Fallback: extract text between common markers
+	const startMarkers = ['About the job', 'Job description', 'Description', 'Role', 'Position', 'We are looking', 'We\'re looking'];
+	const endMarkers = ['Apply', 'Save', 'Show more', 'Skills', 'Requirements', 'Qualifications', 'Seniority level', 'Employment type'];
+	
+	return extractBetweenMarkers(text, startMarkers, endMarkers);
+}
+
+/**
+ * Extract job description from Indeed text
+ * @param {string} text
+ */
+function extractIndeedJobDescription(text) {
+	const patterns = [
+		/Job details(.*?)(?:Apply|Save|Report|$)/is,
+		/Full job description(.*?)(?:Apply|Save|Report|$)/is,
+		/Description(.*?)(?:Apply|Save|Report|$)/is
+	];
+
+	for (const pattern of patterns) {
+		const match = text.match(pattern);
+		if (match && match[1]) {
+			const description = match[1].trim();
+			if (description.length > 100) {
+				return description.substring(0, 3000);
+			}
+		}
+	}
+
+	return extractBetweenMarkers(text, ['Job details', 'Description'], ['Apply', 'Save', 'Report']);
+}
+
+/**
+ * Extract job description from Glassdoor text
+ * @param {string} text
+ */
+function extractGlassdoorJobDescription(text) {
+	const patterns = [
+		/Job Description(.*?)(?:Apply|Save|Report|$)/is,
+		/Description(.*?)(?:Apply|Save|Report|$)/is
+	];
+
+	for (const pattern of patterns) {
+		const match = text.match(pattern);
+		if (match && match[1]) {
+			const description = match[1].trim();
+			if (description.length > 100) {
+				return description.substring(0, 3000);
+			}
+		}
+	}
+
+	return extractBetweenMarkers(text, ['Job Description', 'Description'], ['Apply', 'Save', 'Report']);
+}
+
+/**
+ * Extract job description from generic text
+ * @param {string} text
+ */
+function extractGenericJobDescription(text) {
+	// Look for common job posting patterns
+	const patterns = [
+		/(?:Job|Position|Role)\s+(?:Description|Summary|Details|Overview)(.*?)(?:Apply|Requirements|Qualifications|Skills|$)/is,
+		/(?:About|Description|Summary|Overview|Details)(.*?)(?:Apply|Requirements|Qualifications|Skills|$)/is,
+		/(?:We are looking|We're looking|Looking for|Seeking)(.*?)(?:Apply|Requirements|Qualifications|Skills|$)/is
+	];
+
+	for (const pattern of patterns) {
+		const match = text.match(pattern);
+		if (match && match[1]) {
+			const description = match[1].trim();
+			if (description.length > 100) {
+				return description.substring(0, 3000);
+			}
+		}
+	}
+
+	// Fallback: try to find the main content area
+	const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+	const contentLines = lines.filter(line => 
+		line.length > 50 && 
+		!line.toLowerCase().includes('cookie') &&
+		!line.toLowerCase().includes('privacy') &&
+		!line.toLowerCase().includes('navigation')
+	);
+
+	if (contentLines.length > 3) {
+		return contentLines.slice(0, 20).join(' ').substring(0, 3000);
+	}
+
+	throw new Error('Could not identify job description content');
+}
+
+/**
+ * Extract text between start and end markers
+ * @param {string} text
+ * @param {string[]} startMarkers
+ * @param {string[]} endMarkers
+ */
+function extractBetweenMarkers(text, startMarkers, endMarkers) {
+	const lowerText = text.toLowerCase();
+	
+	let startIndex = -1;
+	for (const marker of startMarkers) {
+		const index = lowerText.indexOf(marker.toLowerCase());
+		if (index !== -1) {
+			startIndex = index + marker.length;
+			break;
+		}
+	}
+
+	if (startIndex === -1) {
+		throw new Error('Could not find job description start marker');
+	}
+
+	let endIndex = text.length;
+	for (const marker of endMarkers) {
+		const index = lowerText.indexOf(marker.toLowerCase(), startIndex);
+		if (index !== -1 && index < endIndex) {
+			endIndex = index;
+		}
+	}
+
+	const extracted = text.substring(startIndex, endIndex).trim();
+	if (extracted.length < 100) {
+		throw new Error('Extracted content too short');
+	}
+
+	return extracted.substring(0, 3000);
+}
+
+/**
  * Generate CV from job description using OpenRouter API
  * @param {Object} params
  * @param {string} params.jobDescription
@@ -110,7 +377,7 @@ async function generateCVFromJobDescription({ jobDescription, company, title, ex
 			const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
 				method: 'POST',
 				headers: {
-					'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+					'Authorization': `Bearer ${env.OPENROUTER_API_KEY}`,
 					'Content-Type': 'application/json',
 					'X-Title': 'CV Generator'
 				},

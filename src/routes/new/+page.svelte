@@ -7,13 +7,17 @@
 	let { data, form } = $props();
 	
 	let jobDescription = $state('');
+	let jobUrl = $state('');
 	let company = $state('');
 	let title = $state('');
 	let isGenerating = $state(false);
+	let isExtracting = $state(false);
 	let generatedCV = $state(null);
 	let showPreview = $state(true);
 	let saveSuccess = $state('');
 	let saveError = $state('');
+	let extractError = $state('');
+	let extractSuccess = $state('');
 	let showModelSettings = $state(false);
 	
 	// Model prioritization
@@ -72,6 +76,37 @@
 			
 			// Don't call update() to preserve form values
 			// await update();
+		};
+	}
+
+	// URL extraction handler
+	function handleUrlExtraction() {
+		return async ({ result, update }) => {
+			isExtracting = false;
+			
+			if (result.type === 'success') {
+				jobDescription = result.data?.jobDescription || '';
+				extractError = '';
+				extractSuccess = `✅ Extracted ${jobDescription.length} characters from URL`;
+				
+				// Clear URL after successful extraction
+				jobUrl = '';
+				
+				// Clear success message after 3 seconds
+				setTimeout(() => {
+					extractSuccess = '';
+				}, 3000);
+				
+				// Auto-generate if we have enough content
+				if (jobDescription.length > 50) {
+					setTimeout(() => {
+						triggerGeneration();
+					}, 500);
+				}
+			} else if (result.type === 'failure') {
+				extractError = result.data?.error || 'Failed to extract job description';
+				extractSuccess = '';
+			}
 		};
 	}
 	
@@ -191,6 +226,9 @@
 						{#if isGenerating}
 							<span class="text-sm text-blue-600 animate-pulse">Generating...</span>
 						{/if}
+						{#if isExtracting}
+							<span class="text-sm text-purple-600 animate-pulse">Extracting...</span>
+						{/if}
 					</div>
 					{#if generatedCV?.matchScore}
 						<div class="flex items-center gap-2 px-2 py-1 rounded text-xs font-medium"
@@ -206,6 +244,48 @@
 					{/if}
 				</div>
 			</div>
+
+			<!-- URL Extraction Form -->
+			<form 
+				method="POST" 
+				action="?/extractFromUrl"
+				use:enhance={handleUrlExtraction}
+				class="mb-4"
+			>
+				<div class="flex gap-2">
+					<input
+						type="url"
+						name="url"
+						bind:value={jobUrl}
+						placeholder="Or paste job posting URL (LinkedIn, Indeed, etc.) - 15s timeout"
+						class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+						disabled={isExtracting}
+					/>
+					<button
+						type="submit"
+						onclick={() => isExtracting = true}
+						disabled={isExtracting || !jobUrl.trim()}
+						class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm whitespace-nowrap"
+					>
+						{isExtracting ? 'Extracting...' : 'Extract'}
+					</button>
+				</div>
+				{#if extractSuccess}
+					<div class="text-green-600 text-sm mt-2 p-2 bg-green-50 rounded border-l-4 border-green-500">
+						{extractSuccess}
+					</div>
+				{/if}
+				{#if extractError}
+					<div class="text-red-600 text-sm mt-2 p-2 bg-red-50 rounded border-l-4 border-red-500">
+						<strong>Extraction failed:</strong> {extractError}
+						{#if extractError.includes('timed out')}
+							<div class="text-xs mt-1 text-red-500">
+								Try copying the job description text manually instead.
+							</div>
+						{/if}
+					</div>
+				{/if}
+			</form>
 			
 			<form 
 				id="generate-form"
@@ -219,7 +299,7 @@
 					bind:value={jobDescription}
 					oninput={handleInput}
 					onpaste={handlePaste}
-					placeholder="Paste the job description here..."
+					placeholder="Paste the job description here, or use the URL extractor above..."
 					class="flex-1 w-full p-4 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 					disabled={isGenerating}
 				></textarea>

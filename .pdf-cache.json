@@ -95,6 +95,22 @@
         "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
       },
       "lastProjectsTrim": 0
+    },
+    "solo": {
+      "pdfMTime": "2025-09-10T12:13:27.750Z",
+      "inputs": {
+        "src/lib/versions/backend/solo.json5": "2025-09-10T12:13:24.642Z",
+        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
+      },
+      "lastProjectsTrim": 0
+    },
+    "agave": {
+      "pdfMTime": "2025-09-10T12:17:13.485Z",
+      "inputs": {
+        "src/lib/versions/backend/agave.json5": "2025-09-10T12:17:10.326Z",
+        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
+      },
+      "lastProjectsTrim": 0
     }
   }
 }
