@@ -3,6 +3,9 @@
 	import { enhance } from '$app/forms';
 	import CV from '$lib/CV.svelte';
 	import GenerationMetadata from '$lib/components/GenerationMetadata.svelte';
+	import ModelSettings from '$lib/components/ModelSettings.svelte';
+	import JobDescriptionForm from '$lib/components/JobDescriptionForm.svelte';
+	import CVPreview from '$lib/components/CVPreview.svelte';
 	import { getEnabledModelIds } from '$lib/utils/format.js';
 	
 	/** @type {import('./$types').PageProps} */
@@ -37,32 +40,9 @@
 	// Derived value for enabled model IDs in order - this is reactive in Svelte 5
 	let enabledModelIds = $derived(getEnabledModelIds(models));
 	
-	let draggedIndex = $state(null);
-	
-	function handleDragStart(event, index) {
-		draggedIndex = index;
-		event.dataTransfer.effectAllowed = 'move';
-	}
-	
-	function handleDragOver(event) {
-		event.preventDefault();
-		event.dataTransfer.dropEffect = 'move';
-	}
-	
-	function handleDrop(event, dropIndex) {
-		event.preventDefault();
-		if (draggedIndex === null || draggedIndex === dropIndex) return;
-		
-		const draggedModel = models[draggedIndex];
-		const newModels = [...models];
-		newModels.splice(draggedIndex, 1);
-		newModels.splice(dropIndex, 0, draggedModel);
+	// Model change handler
+	function handleModelsChange(newModels) {
 		models = newModels;
-		draggedIndex = null;
-	}
-	
-	function toggleModel(index) {
-		models[index].enabled = !models[index].enabled;
 	}
 	
 	// Form submission handler
@@ -177,37 +157,9 @@
 		}
 	}
 
-	// Auto-generate when job description changes (debounced) or on paste
-	let generateTimeout;
-	
-	function triggerGeneration() {
-		if (jobDescription.length > 50 && !isGenerating) {
-			const form = document.getElementById('generate-form');
-			if (form) {
-				isGenerating = true;
-				form.requestSubmit();
-			}
-		}
-	}
-	
-	// Handle input changes with debouncing
-	function handleInput() {
-		if (generateTimeout) clearTimeout(generateTimeout);
-		if (jobDescription.length > 50) {
-			generateTimeout = setTimeout(() => {
-				triggerGeneration();
-			}, 1000);
-		}
-	}
-	
-	// Generate immediately on paste
-	function handlePaste() {
-		// Small delay to let the paste content be processed
-		setTimeout(() => {
-			if (jobDescription.length > 50) {
-				triggerGeneration();
-			}
-		}, 100);
+	// Preview toggle handler
+	function handleTogglePreview() {
+		showPreview = !showPreview;
 	}
 </script>
 
@@ -230,290 +182,41 @@
 	</header>
 
 	{#if showModelSettings}
-		<div class="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
-			<h3 class="text-lg font-semibold mb-3">AI Model Priority Order</h3>
-			<p class="text-sm text-gray-600 mb-4">Drag to reorder. First enabled model will be tried first, then fallback to next enabled models.</p>
-			
-			<div class="space-y-2">
-				{#each models as model, index}
-					<div
-						draggable="true"
-						ondragstart={(e) => handleDragStart(e, index)}
-						ondragover={handleDragOver}
-						ondrop={(e) => handleDrop(e, index)}
-						class="flex items-center gap-3 p-3 bg-white border rounded-lg cursor-move hover:shadow-sm transition-shadow"
-						class:opacity-50={!model.enabled}
-					>
-						<div class="flex items-center gap-2 text-gray-400">
-							<span class="text-xs font-mono">{index + 1}</span>
-							<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-								<path d="M11 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm-2-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
-							</svg>
-						</div>
-						
-						<div class="flex-1">
-							<span class="font-medium" class:text-gray-400={!model.enabled}>
-								{model.name}
-							</span>
-							<div class="text-xs text-gray-500 font-mono">{model.id}</div>
-						</div>
-						
-						<label class="flex items-center cursor-pointer">
-							<input
-								type="checkbox"
-								bind:checked={model.enabled}
-								onclick={() => toggleModel(index)}
-								class="sr-only"
-							/>
-							<div class="relative">
-								<div class="w-10 h-6 bg-gray-200 rounded-full shadow-inner transition-colors duration-200"
-									class:bg-blue-500={model.enabled}>
-								</div>
-								<div class="absolute w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-200 top-1 left-1"
-									class:translate-x-4={model.enabled}>
-								</div>
-							</div>
-						</label>
-					</div>
-				{/each}
-			</div>
-		</div>
+		<ModelSettings 
+			{models} 
+			onModelsChange={handleModelsChange} 
+		/>
 	{/if}
 
 	<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-200px)]">
 		<!-- Left Panel: Job Description Input -->
-		<div class="flex flex-col">
-			<div class="flex justify-between items-center mb-4">
-				<h2 class="text-xl font-semibold">Job Description</h2>
-				<div class="flex gap-4">
-					<div class="flex gap-2">
-						<span class="text-sm text-gray-500">
-							{jobDescription.length} characters
-						</span>
-						{#if isGenerating}
-							<span class="text-sm text-blue-600 animate-pulse">Generating...</span>
-						{/if}
-						{#if isExtracting}
-							<span class="text-sm text-purple-600 animate-pulse">Extracting...</span>
-						{/if}
-					</div>
-					{#if generatedCV?.matchScore}
-						<div class="flex items-center gap-2 px-2 py-1 rounded text-xs font-medium"
-							class:bg-red-100={generatedCV.matchScore <= 3}
-							class:text-red-600={generatedCV.matchScore <= 3}
-							class:bg-yellow-100={generatedCV.matchScore > 3 && generatedCV.matchScore <= 6}
-							class:text-yellow-600={generatedCV.matchScore > 3 && generatedCV.matchScore <= 6}
-							class:bg-green-100={generatedCV.matchScore > 6}
-							class:text-green-600={generatedCV.matchScore > 6}
-						>
-							📊 {generatedCV.matchScore}/10
-						</div>
-					{/if}
-					{#if generatedCV?.payScale}
-						<div class="flex items-center gap-2 px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-600">
-							💰 {generatedCV.payScale}
-						</div>
-					{/if}
-				</div>
-			</div>
-
-			<!-- URL Extraction Form -->
-			<form 
-				method="POST" 
-				action="?/extractFromUrl"
-				use:enhance={handleUrlExtraction}
-				class="mb-4"
-			>
-				<div class="flex gap-2">
-					<input
-						type="url"
-						name="url"
-						bind:value={jobUrl}
-						placeholder="Or paste job posting URL (LinkedIn, Indeed, etc.) - 15s timeout"
-						class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
-						disabled={isExtracting}
-					/>
-					<button
-						type="submit"
-						onclick={() => isExtracting = true}
-						disabled={isExtracting || !jobUrl.trim()}
-						class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm whitespace-nowrap"
-					>
-						{isExtracting ? 'Extracting...' : 'Extract'}
-					</button>
-				</div>
-				{#if extractSuccess}
-					<div class="text-green-600 text-sm mt-2 p-2 bg-green-50 rounded border-l-4 border-green-500">
-						{extractSuccess}
-					</div>
-				{/if}
-				{#if extractError}
-					<div class="text-red-600 text-sm mt-2 p-2 bg-red-50 rounded border-l-4 border-red-500">
-						<strong>Extraction failed:</strong> {extractError}
-						{#if extractError.includes('timed out')}
-							<div class="text-xs mt-1 text-red-500">
-								Try copying the job description text manually instead.
-							</div>
-						{/if}
-					</div>
-				{/if}
-			</form>
-			
-			<form 
-				id="generate-form"
-				method="POST" 
-				action="?/generate"
-				use:enhance={handleSubmit}
-				class="flex-1 flex flex-col"
-			>
-				<textarea
-					name="jobDescription"
-					bind:value={jobDescription}
-					oninput={handleInput}
-					onpaste={handlePaste}
-					placeholder="Paste the job description here, or use the URL extractor above..."
-					class="flex-1 w-full p-4 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-					disabled={isGenerating}
-				></textarea>
-				
-				<!-- Hidden field to send model order -->
-				<input type="hidden" name="modelOrder" value={JSON.stringify(enabledModelIds)} />
-				
-				<div class="mt-4 flex gap-4">
-					<input
-						type="text"
-						name="company"
-						bind:value={company}
-						placeholder="Company name (optional)"
-						class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-					/>
-					<input
-						type="text"
-						name="title"
-						bind:value={title}
-						placeholder="Job title (optional)"
-						class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-					/>
-				</div>
-				
-				<button
-					type="submit"
-					disabled={isGenerating || jobDescription.length < 50}
-					class="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-				>
-					{isGenerating ? 'Generating...' : 'Generate CV'}
-				</button>
-			</form>
-		</div>
+		<JobDescriptionForm
+			bind:jobDescription
+			bind:jobUrl
+			bind:company
+			bind:title
+			{isGenerating}
+			{isExtracting}
+			{extractError}
+			{extractSuccess}
+			{enabledModelIds}
+			onGenerateSubmit={handleSubmit}
+			onUrlExtraction={handleUrlExtraction}
+		/>
 
 		<!-- Right Panel: Generated CV -->
-		<div class="flex flex-col">
-			<div class="flex justify-between items-center mb-4">
-				<h2 class="text-xl font-semibold">Generated CV</h2>
-				<div class="flex gap-2 items-center">
-					{#if generatedCV?.matchScore}
-						<div class="flex items-center gap-2 px-3 py-1 rounded-lg text-sm font-medium"
-							class:bg-red-100={generatedCV.matchScore <= 3}
-							class:text-red-700={generatedCV.matchScore <= 3}
-							class:bg-yellow-100={generatedCV.matchScore > 3 && generatedCV.matchScore <= 6}
-							class:text-yellow-700={generatedCV.matchScore > 3 && generatedCV.matchScore <= 6}
-							class:bg-green-100={generatedCV.matchScore > 6}
-							class:text-green-700={generatedCV.matchScore > 6}
-						>
-							<span>Match Score:</span>
-							<span class="font-bold">{generatedCV.matchScore}/10</span>
-						</div>
-					{/if}
-					{#if generatedCV?.payScale}
-						<div class="flex items-center gap-2 px-3 py-1 rounded-lg text-sm font-medium bg-blue-100 text-blue-700">
-							<span>💰 Pay:</span>
-							<span class="font-bold">{generatedCV.payScale}</span>
-						</div>
-					{/if}
-					<button
-						onclick={() => showPreview = !showPreview}
-						class="px-3 py-1 text-sm border rounded-lg hover:bg-gray-50"
-					>
-						{showPreview ? 'Show JSON' : 'Show Preview'}
-					</button>
-					{#if generatedCV}
-						<button
-							type="button"
-							onclick={saveCV}
-							disabled={isSaving}
-							class="px-3 py-1 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-						>
-							{isSaving ? 'Saving...' : 'Save Version'}
-						</button>
-					{/if}
-				</div>
-			</div>
-
-			<div class="flex-1 border border-gray-300 rounded-lg overflow-hidden">
-				{#if saveSuccess}
-					<div class="p-4 bg-green-50 border-l-4 border-green-500">
-						<p class="text-green-700">{saveSuccess}</p>
-						{#if savedVersionSlug}
-							<a 
-								href="/{savedVersionSlug}" 
-								class="text-green-600 underline text-sm mt-1 inline-block"
-								target="_blank"
-							>
-								→ View saved version
-							</a>
-						{/if}
-					</div>
-				{/if}
-				
-				{#if saveError}
-					<div class="p-4 bg-red-50 border-l-4 border-red-500">
-						<p class="text-red-700">Error: {saveError}</p>
-					</div>
-				{/if}
-				
-				{#if form?.error}
-					<div class="p-4 bg-red-50 border-l-4 border-red-500">
-						<p class="text-red-700">Error: {form.error}</p>
-					</div>
-				{:else if generatedCV}
-					{#if showPreview}
-						<div class="h-full overflow-auto">
-							<GenerationMetadata {generationMetadata} />
-							
-							<div class="p-4 bg-white">
-								<CV 
-									name="Morgan Williams"
-									title={generatedCV.title || "Software Engineer"}
-									email="morganfwilliams@me.com"
-									github="https://github.com/mrgnw"
-									pdfLink="/morgan-williams-cv"
-									resolvedProjects={generatedCV.projects || []}
-									experience={generatedCV.experience || []}
-									skills={generatedCV.skills || []}
-									education={generatedCV.education || []}
-									variant="modern"
-								/>
-							</div>
-						</div>
-					{:else}
-						<div class="h-full overflow-auto">
-							<GenerationMetadata {generationMetadata} />
-							
-							<pre class="overflow-auto p-4 bg-gray-50 text-sm">
-{JSON.stringify(generatedCV, null, 2)}
-							</pre>
-						</div>
-					{/if}
-				{:else}
-					<div class="h-full flex items-center justify-center text-gray-500">
-						<div class="text-center">
-							<p class="mb-2">Your generated CV will appear here</p>
-							<p class="text-sm">Paste a job description to get started</p>
-						</div>
-					</div>
-				{/if}
-			</div>
-		</div>
+		<CVPreview
+			{generatedCV}
+			{generationMetadata}
+			{showPreview}
+			{saveSuccess}
+			{saveError}
+			{savedVersionSlug}
+			{form}
+			{isSaving}
+			onSaveCV={saveCV}
+			onTogglePreview={handleTogglePreview}
+		/>
 	</div>
 </div>
 
