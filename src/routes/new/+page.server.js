@@ -123,7 +123,7 @@ export const actions = {
 				const fs = await import('node:fs/promises');
 				const path = await import('node:path');
 				const baseDir = process.cwd();
-				const versionsDir = path.join(baseDir, 'versions', jobTitle);
+				const versionsDir = path.join(baseDir, 'src', 'lib', 'versions', jobTitle);
 				await fs.mkdir(versionsDir, { recursive: true });
 				const filePath = path.join(versionsDir, `${companySlug}.json5`);
 				const content = JSON5.stringify(cv, null, 2);
@@ -135,10 +135,14 @@ export const actions = {
 				console.log('Filesystem save skipped or failed (likely Cloudflare):', saveError);
 			}
 
+			// Generate the correct slug that matches PDF CLI expectations
+			// Use the same logic as pdf-version-reader.js: just company name if unique, otherwise company-job
+			const slug = companySlug; // For now, assume company names are unique. Could be enhanced later.
+
 			// Return plain data; SvelteKit enhance() will wrap with { type: 'success', data }
 			return {
 				filename,
-				slug: `${jobTitle}-${companySlug}`,
+				slug,
 				jobTitle,
 				company: companySlug,
 				saved,
@@ -150,10 +154,12 @@ export const actions = {
 			const companySlug = normalizeCompanyName(company);
 			const filename = `${jobTitle}/${companySlug}.json5`;
 			const message = error instanceof Error ? error.message : String(error);
+			// Generate the correct slug that matches PDF CLI expectations  
+			const slug = companySlug; // For now, assume company names are unique
 			console.error('Save parse error:', message);
 			return {
 				filename,
-				slug: `${jobTitle}-${companySlug}`,
+				slug,
 				jobTitle,
 				company: companySlug,
 				saved: false,

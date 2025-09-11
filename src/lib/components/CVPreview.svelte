@@ -11,6 +11,8 @@
 	export let savedVersionSlug;
 	export let isSaving;
 	export let actionError;
+	export let pdfStatus;
+	export let pdfError;
 	
 	// Events
 	export let onSaveCV;
@@ -72,12 +74,21 @@
 						→ View saved version
 					</a>
 				{/if}
+				{#if pdfStatus}
+					<div class="text-sm text-green-800 mt-1">{pdfStatus}</div>
+				{/if}
 			</div>
 		{/if}
 		
 		{#if saveError}
 			<div class="p-4 bg-red-50 border-l-4 border-red-500">
 				<p class="text-red-700">Error: {saveError}</p>
+			</div>
+		{/if}
+
+		{#if pdfError}
+			<div class="p-4 bg-yellow-50 border-l-4 border-yellow-500">
+				<p class="text-yellow-800">PDF: {pdfError}</p>
 			</div>
 		{/if}
 		

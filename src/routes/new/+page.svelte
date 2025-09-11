@@ -1,6 +1,7 @@
 <script>
 	import { page } from '$app/state';
 	import { enhance } from '$app/forms';
+	import { dev } from '$app/environment';
 	import CV from '$lib/CV.svelte';
 	import GenerationMetadata from '$lib/components/GenerationMetadata.svelte';
 	import ModelSettings from '$lib/components/ModelSettings.svelte';
@@ -28,6 +29,8 @@
 	let showModelSettings = $state(false);
 	let savedVersionSlug = $state(''); // Track the slug of the saved version
 	let actionError = $state(''); // Track latest action error to avoid stale form errors
+	let pdfStatus = $state('');
+	let pdfError = $state('');
 	
 	// Model prioritization
 	let models = $state([
@@ -123,6 +126,8 @@
 		saveError = '';
 		saveSuccess = '';
 		actionError = '';
+		pdfStatus = '';
+		pdfError = '';
 		
 		try {
 			// Create CV data with metadata
@@ -145,15 +150,14 @@
 				body: formData
 			});
 			
-			const result = await response.json();
+			const data = await response.json();
 
-			// Normalize action response from raw fetch (no enhance wrapper)
-			let data = result;
-			if (result && typeof result === 'object') {
-				if ('type' in result && result.type === 'success' && result.data) {
-					data = result.data; // in case server returned wrapped shape
-				}
-			}
+			// Debug what we actually get from the server
+			console.log('Save response debug:', {
+				responseOk: response.ok,
+				responseStatus: response.status,
+				data: data
+			});
 
 			if (response.ok && data && data.filename && data.saved) {
 				const scoreText = generatedCV?.matchScore ? ` (Match: ${generatedCV.matchScore}/10)` : '';
@@ -164,10 +168,31 @@
 				// Store the slug for the preview link
 				savedVersionSlug = data.slug || '';
 
+				// Optionally trigger PDF generation in dev for the saved version
+				if (dev && savedVersionSlug) {
+					try {
+						const pdfRes = await fetch('/dev/api/pdf', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({ versions: [savedVersionSlug] })
+						});
+						const pdfJson = await pdfRes.json().catch(() => ({}));
+						if (pdfRes.ok && pdfJson.ok) {
+							pdfStatus = `📄 PDF generated in ${pdfJson.duration || '—'}`;
+						} else {
+							pdfError = pdfJson?.stderr || pdfJson?.error || `PDF generation failed (status ${pdfRes.status})`;
+						}
+					} catch (e) {
+						pdfError = 'PDF generation request failed';
+					}
+				}
+
 				// Clear success message after 5 seconds
 				setTimeout(() => {
 					saveSuccess = '';
 					savedVersionSlug = '';
+					pdfStatus = '';
+					pdfError = '';
 				}, 5000);
 			} else {
 				// Prefer explicit server-provided saveError or error
@@ -242,6 +267,8 @@
 			{savedVersionSlug}
 			{actionError}
 			{isSaving}
+			{pdfStatus}
+			{pdfError}
 			onSaveCV={saveCV}
 			onTogglePreview={handleTogglePreview}
 		/>
