@@ -1,0 +1,116 @@
+{
+  "skills": [
+    "Python",
+    "TypeScript",
+    "API development",
+    "AWS",
+    "Postgres",
+    "Data pipelines",
+    "ETL",
+    "Automation",
+    "Model evaluation",
+    "Mentoring",
+    "Documentation",
+    "GoLang",
+    "PySpark",
+    "Airflow"
+  ],
+  "experience": [
+    {
+      "title": "Data Engineering Consultant",
+      "company": "National Care Dental",
+      "start": "2022-05-01",
+      "achievements": [
+        "Designed and implemented scalable data infrastructure and pipelines that accelerated business operations and enabled faster data-driven decisions while ensuring data security.",
+        "Automated legacy workflows, improving task speeds by up to 1000x, significantly reducing manual processing time.",
+        "Created secure API endpoints to enable seamless data access for clients and third-party integrations, supporting external system interoperability.",
+        "Mentored over 50 team members on Python and SQL, resulting in a 40% increase in productivity and adoption of best practices.",
+        "Produced detailed project documentation and developer tutorials, reducing onboarding time for new hires by 30%.",
+        "Led workshops on AWS, Python, and modern data engineering, fostering a culture of continuous learning and technical excellence."
+      ],
+      "skills": [
+        "Python",
+        "API development",
+        "AWS",
+        "Data pipelines",
+        "Mentoring",
+        "Documentation"
+      ]
+    },
+    {
+      "title": "Senior Data Engineer",
+      "company": "Persefoni",
+      "start": "2021-08-01",
+      "end": "2022-05-31",
+      "achievements": [
+        "Implemented ETL pipelines in Databricks and PySpark to process large climate data sets, increasing data processing efficiency by 60%.",
+        "Developed API endpoints in GoLang to enable cross-service communication and integration, enhancing system interoperability.",
+        "Documented onboarding and training processes, accelerating new team member integration and productivity.",
+        "Mentored junior engineers to improve their technical skills, contributing to overall team success."
+      ],
+      "skills": [
+        "ETL",
+        "Databricks",
+        "PySpark",
+        "GoLang",
+        "API development",
+        "Mentoring",
+        "Documentation"
+      ]
+    },
+    {
+      "title": "Software Engineer",
+      "company": "Zelis Healthcare",
+      "start": "2018-12-01",
+      "end": "2021-08-01",
+      "achievements": [
+        "Developed and optimized ETL workflows using Airflow, improving processing times up to 1000x and streamlining data operations.",
+        "Migrated multiple legacy codebases to Python 3, enhancing maintainability and performance.",
+        "Built Python APIs and internal web interfaces to enable secure and user-friendly access to company data across departments."
+      ],
+      "skills": [
+        "Python",
+        "Airflow",
+        "ETL",
+        "API development"
+      ]
+    }
+  ],
+  "company": "Proxis",
+  "title": "Founding ML Engineer",
+  "normalizedTitle": "backend",
+  "matchScore": 8,
+  "payScale": "$70K-$110K",
+  "keywords": [
+    "ML engineer",
+    "model fine-tuning",
+    "RAG pipelines",
+    "Python",
+    "TypeScript",
+    "AWS",
+    "Next.js",
+    "Postgres",
+    "AI agents",
+    "automation",
+    "API development",
+    "data pipelines",
+    "ETL",
+    "job systems",
+    "mentoring",
+    "documentation",
+    "remote work",
+    "startup",
+    "full-stack automation",
+    "model evaluation",
+    "production deployment",
+    "multi-agent orchestration",
+    "email automation",
+    "Python 3",
+    "GoLang",
+    "PySpark",
+    "Airflow",
+    "Databricks",
+    "cross-functional collaboration",
+    "performance optimization"
+  ]
+}

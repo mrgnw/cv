@@ -1,4 +1,4 @@
-import type { CVData, RawCVData, Experience, Project, VersionMeta } from "../types";
+import type { CV, Experience, Project, VersionMeta } from "../types";
 import JSON5 from 'json5';
 
 /**
@@ -54,7 +54,7 @@ function parseVersionPath(path: string): { job: string | null; company: string |
 /**
  * Maps each version slug to its corresponding CV data.
  */
-const versionMap: Record<string, RawCVData> = {};
+const versionMap: Record<string, CV> = {};
 
 /**
  * Maps each version slug to its metadata.
@@ -133,6 +133,23 @@ for (const entry of tempEntries) {
 	try {
 		const parsedData = JSON5.parse(entry.content);
 		
+		// Migrate old experience format to new format
+		if (parsedData.experience && Array.isArray(parsedData.experience)) {
+			parsedData.experience = parsedData.experience.map((exp: any) => {
+				// Handle null entries
+				if (!exp) return null;
+				
+				return {
+					...exp,
+					// Migrate description/accomplishments -> achievements if needed
+					achievements: exp.achievements || exp.accomplishments || exp.description || [],
+					// Remove old property names if they exist
+					description: undefined,
+					accomplishments: undefined
+				};
+			});
+		}
+		
 		// Generate PDF link
 		const pdfLink = slug === 'main' ? '/morgan-williams.pdf' : `/morgan-williams.${slug}.pdf`;
 		
@@ -164,18 +181,18 @@ for (const [slug, paths] of slugConflicts) {
 /**
  * Retrieves a specific version by its slug.
  * @param slug - The slug identifier for the version.
- * @returns The corresponding RawCVData or null if not found.
+ * @returns The corresponding CV or null if not found.
  */
-export function getVersion(slug: string): RawCVData | null {
+export function getVersion(slug: string): CV | null {
 	return versionMap[slug] || null;
 }
 
 /**
  * Combines the main version with a specified version.
  * @param slug - The slug identifier for the version to combine.
- * @returns The merged CVData or null if merging isn't possible.
+ * @returns The merged CV or null if merging isn't possible.
  */
-export function coalesceVersion(slug: string): CVData | null {
+export function coalesceVersion(slug: string): CV | null {
 	const main = versionMap["main"];
 	const version = getVersion(slug);
 
@@ -225,14 +242,16 @@ export function coalesceVersion(slug: string): CVData | null {
 	const { projects: mainProjects = [], ...mainRest } = main;
 	const { projects: versionProjects = [], ...versionRest } = version;
 	
-	// Resolve projects from version only
-	const resolvedProjects = resolveProjects(versionProjects || []);
+	// Resolve projects from version (or fall back to main)
+	const projectsToUse = versionProjects.length > 0 ? versionProjects : mainProjects;
+	const resolvedProjects = resolveProjects(projectsToUse);
 
-	// Create the merged CVData object
-	const merged: CVData = { 
+	// Create the merged CV object
+	const merged: CV = { 
 		...mainRest, 
 		...versionRest,
-		projects: resolvedProjects
+		projects: projectsToUse,        // Keep the raw projects
+		resolvedProjects               // Add resolved projects
 	};
 
 	// Merge experience sections if they exist in both
@@ -264,12 +283,23 @@ function mergeExperiences(
 			mergedExperiences.push({
 				...mainExp,
 				...versionExp,
-				description: mergeDescriptions(mainExp.description, versionExp.description),
+				achievements: mergeAchievements(
+					mainExp.achievements, 
+					versionExp.achievements
+				),
 			});
 		} else if (versionExp) {
-			mergedExperiences.push(versionExp);
+			// Ensure version experience has achievements array
+			mergedExperiences.push({
+				...versionExp,
+				achievements: versionExp.achievements || []
+			});
 		} else if (mainExp) {
-			mergedExperiences.push(mainExp);
+			// Ensure main experience has achievements array
+			mergedExperiences.push({
+				...mainExp,
+				achievements: mainExp.achievements || []
+			});
 		}
 	}
 
@@ -277,27 +307,31 @@ function mergeExperiences(
 }
 
 /**
- * Merges two arrays of description strings line by line.
- * Prefer version descriptions over main descriptions when available.
- * @param mainDescription - The primary array of descriptions.
- * @param versionDescription - The array of descriptions to merge from the version.
- * @returns A new array of merged description strings.
+ * Merges two arrays of achievements strings line by line.
+ * Prefer version achievements over main achievements when available.
+ * @param mainAchievements - The primary array of achievements.
+ * @param versionAchievements - The array of achievements to merge from the version.
+ * @returns A new array of merged achievements strings.
  */
-function mergeDescriptions(
-	mainDescription: string[],
-	versionDescription: string[]
+function mergeAchievements(
+	mainAchievements: string[] | undefined,
+	versionAchievements: string[] | undefined
 ): string[] {
-	const maxLength = Math.max(mainDescription.length, versionDescription.length);
-	const mergedDescription: string[] = [];
+	// Handle undefined cases
+	const safeMainAchievements = mainAchievements || [];
+	const safeVersionAchievements = versionAchievements || [];
+	
+	const maxLength = Math.max(safeMainAchievements.length, safeVersionAchievements.length);
+	const mergedAchievements: string[] = [];
 
 	for (let i = 0; i < maxLength; i++) {
-		const versionLine = typeof versionDescription[i] === "string"
-			? versionDescription[i].trim()
+		const versionLine = typeof safeVersionAchievements[i] === "string"
+			? safeVersionAchievements[i].trim()
 			: "";
-		mergedDescription[i] = versionLine || mainDescription[i] || "";
+		mergedAchievements[i] = versionLine || safeMainAchievements[i] || "";
 	}
 
-	return mergedDescription;
+	return mergedAchievements;
 }
 
 /**

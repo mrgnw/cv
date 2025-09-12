@@ -5,7 +5,7 @@
 {#if projects?.length}
 	<section class="mb-4">
 		<div class="space-y-1">
-			{#each projects as { name, url, description, stack }}
+			{#each projects as { name, url, description, skills }}
 				<div class="flex justify-between items-baseline">
 					<div class="flex gap-3 items-baseline">
 						<a 
@@ -18,9 +18,9 @@
 						</a>
 						<span class="text-muted-foreground text-sm">{description}</span>
 					</div>
-					{#if stack}
+					{#if skills}
 						<div class="text-xs text-muted-foreground whitespace-nowrap ml-4">
-							{stack.join(' · ')}
+							{skills.join(' · ')}
 						</div>
 					{/if}
 				</div>

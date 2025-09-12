@@ -1,5 +1,5 @@
 <script lang="ts">
-    import EngCV from "$lib/EngCV.svelte";
+    import CV from "$lib/CV.svelte";
     import mainData from "$lib/versions/main.json";
     import { coalesceVersion } from "$lib/versionReader";
     import { error } from "@sveltejs/kit";
@@ -10,4 +10,4 @@
     }
 </script>
   
-<EngCV {...resolvedData} />
+<CV {...resolvedData} variant="traditional" />

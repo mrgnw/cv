@@ -4,7 +4,7 @@
         "name": "Resume",
         "url": "https://github.com/mrgnw/resume",
         "description": "online CV with automatic PDF generation",
-        "stack": [
+        "skills": [
             "Svelte",
             "Tailwind",
             "Node",
@@ -15,7 +15,7 @@
         "name": "Depth test",
         "url": "https://foto3.pages.dev",
         "description": "Experiment with depth effects in Javascript",
-        "stack": [
+        "skills": [
             "Svelte",
             "ThreeJS"
         ]
@@ -24,7 +24,7 @@
         "name": "Multilingual translator",
         "url": "https://ananas.xcc.es",
         "description": "Translate to several languages at once using m2m language LLM",
-        "stack": [
+        "skills": [
             "Svelte",
             "Cloudflare",
             "Serverless"
@@ -34,7 +34,7 @@
         "name": "Traductor multilingüe",
         "url": "https://ananas.xcc.es",
         "description": "Traduce a varios idiomas a la vez usando el modelo de lenguaje LLM",
-        "stack": [
+        "skills": [
             "Svelte",
             "Cloudflare",
             "Serverless"
@@ -44,7 +44,7 @@
         "name": "TextMe",
         "url": "https://textme.cc",
         "description": "Send WhatsApp & Telegram messages to a phone number",
-        "stack": [
+        "skills": [
             "JS",
             "Svelte"
         ]
@@ -54,7 +54,7 @@
         "url": "https://a.xcc.es/zen-of-svelte",
         "description": "Svelte is a great frontend framework even for python developers",
         "year": "2020",
-        "stack": [
+        "skills": [
             "Svelte",
             "Speaking"
         ]

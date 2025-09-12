@@ -1,0 +1,114 @@
+{
+  "skills": [
+    "Python",
+    "API development",
+    "Data pipelines",
+    "ETL",
+    "AWS",
+    "Automation",
+    "Mentoring",
+    "Code documentation",
+    "Cross-team collaboration",
+    "GoLang",
+    "Airflow",
+    "SQL",
+    "Python3 migration"
+  ],
+  "experience": [
+    {
+      "title": "Data Engineering Consultant",
+      "company": "National Care Dental",
+      "start": "2022-05-01",
+      "achievements": [
+        "Designed and implemented data infrastructure and pipelines, accelerating business operations and improving data insights while reducing costs.",
+        "Automated legacy workflows, improving task speed by 100x to 1000x and reducing multi-hour processes to seconds or milliseconds.",
+        "Created secure API endpoints enabling clients and third-party integrations, facilitating data access and collaboration.",
+        "Mentored over 50 employees in Python and SQL, increasing team productivity by 40%.",
+        "Developed comprehensive project documentation, reducing onboarding time for new hires by 30%.",
+        "Led workshops on AWS, Python, and modern data pipelines to foster continuous learning and technical excellence."
+      ],
+      "skills": [
+        "Python",
+        "API development",
+        "AWS",
+        "Automation",
+        "Mentoring",
+        "Documentation"
+      ]
+    },
+    {
+      "title": "Senior Data Engineer",
+      "company": "Persefoni",
+      "start": "2021-08-01",
+      "end": "2022-05-31",
+      "achievements": [
+        "Implemented ETL data pipelines in Databricks and PySpark, enhancing data processing efficiency by 60%.",
+        "Created API endpoints in GoLang, enabling seamless integration between multiple services and cross-team collaboration.",
+        "Documented onboarding and training processes, accelerating new teammate productivity.",
+        "Mentored junior engineers, improving team technical capabilities and project delivery."
+      ],
+      "skills": [
+        "ETL",
+        "API development",
+        "GoLang",
+        "Mentoring",
+        "Documentation"
+      ]
+    },
+    {
+      "title": "Software Engineer",
+      "company": "Zelis Healthcare",
+      "start": "2018-12-01",
+      "end": "2021-08-01",
+      "achievements": [
+        "Developed and optimized ETL workflows in Airflow, improving processing times up to 1000x.",
+        "Migrated legacy codebases to Python 3, improving performance and maintainability.",
+        "Created Python APIs and internal web interfaces, empowering business users with secure data access.",
+        "Streamlined business processes to improve cross-team efficiency and data accessibility."
+      ],
+      "skills": [
+        "Python",
+        "ETL",
+        "Airflow",
+        "API development",
+        "Process optimization"
+      ]
+    }
+  ],
+  "company": "Solo",
+  "title": "Software Engineer",
+  "normalizedTitle": "backend",
+  "matchScore": 7,
+  "keywords": [
+    "software engineer",
+    "Ruby on Rails",
+    "AWS",
+    "Heroku",
+    "JavaScript",
+    "API development",
+    "Python",
+    "ETL",
+    "data pipelines",
+    "automation",
+    "cloud infrastructure",
+    "code reviews",
+    "mentoring",
+    "cross-functional collaboration",
+    "production issue resolution",
+    "startup",
+    "fast-paced environment",
+    "clean code",
+    "documentation",
+    "onboarding",
+    "scalable software",
+    "secure code",
+    "task estimation",
+    "workflow management",
+    "data security",
+    "problem solving",
+    "continuous improvement",
+    "team productivity",
+    "testing",
+    "remote work"
+  ]
+}

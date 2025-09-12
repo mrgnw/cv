@@ -22,7 +22,7 @@
       "title": "Data Engineering Consultant",
       "company": "National Care Dental",
       "start": "2022-05-01",
-      "description": [
+      "achievements": [
         "Designed and implemented data infrastructure and pipelines, enabling faster business operations while ensuring data security",
         "Transitioned legacy workflows to modern data pipelines, accelerating tasks by 100x to 1000x through automation",
         "Mentored data analysts in Python and SQL, expanding their skills and capabilities",
@@ -34,7 +34,7 @@
       "company": "Persefoni",
       "start": "2021-08-01",
       "end": "2022-05-31",
-      "description": [
+      "achievements": [
         "Implemented ETL data pipelines using PySpark capable of processing large datasets",
         "Created API endpoints in GoLang, collaborating across teams to interface multiple services",
         "Documented and created new processes to onboard, train, and increase teammate productivity"
@@ -45,7 +45,7 @@
       "company": "Zelis Healthcare",
       "start": "2018-12-01",
       "end": "2021-08-01",
-      "description": [
+      "achievements": [
         "Created new ETL workflows in Airflow and optimized existing processing times up to 1000x",
         "Migrated multiple codebases to Python3",
         "Created Python APIs and internal web interfaces for secure company data access"

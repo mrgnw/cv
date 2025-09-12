@@ -1,0 +1,56 @@
+// Source of truth for work experience.
+// Populated from existing versions files; accomplishment text is preserved exactly.
+{
+	experience: [
+		{
+			title: "Data Engineering Consultant",
+			company: "National Care Dental",
+			start: "2022-05-01",
+			achievements: [
+				"Designed and implemented data infrastructure and pipelines, enabling faster business operations and enhanced data insights while cutting costs significantly.",
+				"Transitioned legacy workflows to modern data pipelines, accelerating tasks by 100x to 1000x through automation, reducing multi-hour processes to seconds or milliseconds.",
+				"Mentored data analysts in Python and SQL, expanding their skills and capabilities, resulting in a substantial increase in productivity.",
+				"Created API endpoints to enable clients and third-party sources to interface with company data.",
+				"Designed and implemented data infrastructure and pipelines, enabling faster business operations while ensuring data security",
+				"Created API endpoints to enable secure data access for clients and third-party sources",
+				"Trained and upskilled over 50 employees in data engineering best practices, resulting in a 40% increase in team productivity.",
+				"Developed comprehensive project documentation, reducing onboarding time for new hires by 30%.",
+				"Collaborated with cross-functional teams to create developer-focused tutorials and guides, enhancing internal knowledge sharing.",
+				"Led workshops and seminars on AWS, Python, and modern data pipelines, fostering a culture of continuous learning."
+			]
+		},
+		{
+			title: "Senior Data Engineer",
+			company: "Persefoni",
+			start: "2021-08-01",
+			end: "2022-05-31",
+			achievements: [
+				"Implemented ETL processes pipelines in Databricks for a rapidly growing climate-change startup",
+				"Created API endpoints in GoLang, learning new tech & collaborating across teams to interface multiple services.",
+				"Documented & created new processes to onboard, train, and increase teammate productivity.",
+				"Created API endpoints in GoLang, facilitating seamless integration between multiple services.",
+				"Implemented ETL processes pipelines in Databricks, improving data processing efficiency by 60%.",
+				"Documented and streamlined onboarding processes, enabling faster integration of new team members.",
+				"Mentored junior engineers, enhancing their technical skills and contributing to overall team success.",
+				"Implemented ETL data pipelines using PySpark capable of processing large datasets",
+				"Created API endpoints in GoLang, collaborating across teams to interface multiple services"
+			]
+		},
+		{
+			title: "Software Engineer",
+			company: "Zelis Healthcare",
+			start: "2018-12-01",
+			end: "2021-08-01",
+			achievements: [
+				"Created new ETL workflows in Airflow and optimized existing processing times up to 1000x.",
+				"Migrated multiple codebases to Python3.",
+				"Created Python APIs and internal web interfaces, empowering business users across teams to meaningfully interact with company data.",
+				"Created Python APIs and internal web interfaces for secure company data access",
+				"Developed Python-based APIs and UIs for internal tools",
+				"Streamlined business processes with Airflow ETL workflows, improving performance up to 1000x",
+				"Upgraded legacy codebases to Python 3 for better performance and maintainability"
+			]
+		}
+	]
+}
+
