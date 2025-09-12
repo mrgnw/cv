@@ -104,6 +104,7 @@ export const actions = {
     const cvData = formData.get("cvData")?.toString();
     const company = formData.get("company")?.toString() || "";
     const title = formData.get("title")?.toString() || "";
+    const createNewVersion = formData.get("createNewVersion")?.toString() === "true";
 
     if (!cvData) {
       return fail(400, { error: "No CV data to save" });
@@ -116,7 +117,36 @@ export const actions = {
       const jobTitle =
         cv.normalizedTitle || normalizeJobTitle(title) || "general";
       const companySlug = normalizeCompanyName(company);
-      const filename = `${jobTitle}/${companySlug}.json5`;
+      
+      // Generate versioned filename if requested
+      let actualFilename = `${companySlug}.json5`;
+      let slug = companySlug;
+      
+      if (createNewVersion) {
+        // Check for existing versions and increment
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+        const versionNumber = await getNextVersionNumber(jobTitle, companySlug);
+        actualFilename = `${companySlug}.v${versionNumber}.json5`;
+        slug = `${companySlug}-v${versionNumber}`;
+        
+        // Add version metadata to CV
+        cv.versionInfo = {
+          version: versionNumber,
+          createdAt: timestamp,
+          baseCompany: companySlug,
+          isLatest: false
+        };
+      } else {
+        // Mark as latest version
+        cv.versionInfo = {
+          version: 1,
+          createdAt: new Date().toISOString(),
+          baseCompany: companySlug,
+          isLatest: true
+        };
+      }
+
+      const filename = `${jobTitle}/${actualFilename}`;
 
       // Try to save locally if filesystem is available (dev/local)
       let saved = false;
@@ -134,7 +164,7 @@ export const actions = {
           jobTitle
         );
         await fs.mkdir(versionsDir, { recursive: true });
-        const filePath = path.join(versionsDir, `${companySlug}.json5`);
+        const filePath = path.join(versionsDir, actualFilename);
         const content = JSON5.stringify(cv, null, 2);
         await fs.writeFile(filePath, content, "utf-8");
         saved = true;
@@ -147,10 +177,6 @@ export const actions = {
         );
       }
 
-      // Generate the correct slug that matches PDF CLI expectations
-      // Use the same logic as pdf-version-reader.js: just company name if unique, otherwise company-job
-      const slug = companySlug; // For now, assume company names are unique. Could be enhanced later.
-
       // Return plain data; SvelteKit enhance() will wrap with { type: 'success', data }
       return {
         filename,
@@ -159,6 +185,8 @@ export const actions = {
         company: companySlug,
         saved,
         saveError: saved ? "" : saveError,
+        isNewVersion: createNewVersion,
+        versionNumber: cv.versionInfo?.version || 1
       };
     } catch (error) {
       // Avoid failing the whole request; return a structured response so the client can display the parse error
@@ -180,6 +208,44 @@ export const actions = {
     }
   },
 };
+
+/**
+ * Get the next version number for a company/job combination
+ * @param {string} jobTitle
+ * @param {string} companySlug
+ */
+async function getNextVersionNumber(jobTitle, companySlug) {
+	try {
+		// Dynamic import to avoid bundling on Cloudflare
+		const fs = await import('node:fs/promises');
+		const path = await import('node:path');
+		const baseDir = process.cwd();
+		const versionsDir = path.join(baseDir, 'src', 'lib', 'versions', jobTitle);
+		
+		// Check if directory exists
+		try {
+			const files = await fs.readdir(versionsDir);
+			const pattern = new RegExp(`^${companySlug}\\.(?:v(\\d+)\\.)?json5$`);
+			let maxVersion = 0;
+			
+			for (const file of files) {
+				const match = file.match(pattern);
+				if (match) {
+					const version = match[1] ? parseInt(match[1], 10) : 1;
+					maxVersion = Math.max(maxVersion, version);
+				}
+			}
+			
+			return maxVersion + 1;
+		} catch (err) {
+			// Directory doesn't exist or can't read it
+			return 1;
+		}
+	} catch (err) {
+		// Filesystem not available (Cloudflare)
+		return 1;
+	}
+}
 
 /**
  * Normalize job title to match existing folder structure

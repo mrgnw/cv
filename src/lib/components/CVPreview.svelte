@@ -1,23 +1,40 @@
-<script>
+<script lang="ts">
 	import CV from '$lib/CV.svelte';
 	import GenerationMetadata from './GenerationMetadata.svelte';
 	
 	// Props
-	export let generatedCV;
-	export let generationMetadata;
-	export let showPreview;
-	export let saveSuccess;
-	export let saveError;
-	export let savedVersionSlug;
-	export let isSaving;
-	export let actionError;
-	export let pdfStatus;
-	export let pdfError;
+	export let generatedCV: any;
+	export let generationMetadata: any;
+	export let showPreview: boolean;
+	export let saveSuccess: string;
+	export let saveError: string;
+	export let savedVersionSlug: string;
+	export let isSaving: boolean;
+	export let actionError: string;
+	export let pdfStatus: string;
+	export let pdfError: string;
+	export let models: string[] = [];
+	export let isGenerating: boolean = false;
+	export let onRegenerateWithModel: (model: string) => void = () => {};
 	
 	// Events
-	export let onSaveCV;
-	export let onTogglePreview;
+	export let onSaveCV: (createNewVersion?: boolean) => Promise<void>;
+	export let onTogglePreview: () => void;
+	
+	let showRegenerateOptions = false;
+	let showVersionOptions = false;
+	
+	// Close dropdowns when clicking outside
+	function handleClickOutside(event: Event) {
+		const target = event.target as HTMLElement;
+		if (!target?.closest('.dropdown-container')) {
+			showRegenerateOptions = false;
+			showVersionOptions = false;
+		}
+	}
 </script>
+
+<svelte:window on:click={handleClickOutside} />
 
 <div class="flex flex-col">
 	<div class="flex justify-between items-center mb-4">
@@ -49,14 +66,87 @@
 				{showPreview ? 'Show JSON' : 'Show Preview'}
 			</button>
 			{#if generatedCV}
-				<button
-					type="button"
-					onclick={onSaveCV}
-					disabled={isSaving}
-					class="px-3 py-1 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-				>
-					{isSaving ? 'Saving...' : 'Save Version'}
-				</button>
+				<div class="flex gap-2">
+					<!-- Quick regenerate with different models -->
+					{#if models.length > 0}
+						<div class="relative">
+							<button
+								type="button"
+								onclick={() => showRegenerateOptions = !showRegenerateOptions}
+								disabled={isGenerating}
+								class="px-3 py-1 text-sm border rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed"
+							>
+								{isGenerating ? 'Regenerating...' : '🔄 Try Different Model'}
+							</button>
+							
+							{#if showRegenerateOptions}
+								<div class="absolute top-full right-0 mt-1 bg-white border rounded-lg shadow-lg z-10 min-w-48">
+									<div class="p-2 border-b text-xs text-gray-600 font-medium">Regenerate with:</div>
+									{#each models as model}
+										{#if model.enabled}
+											<button
+												type="button"
+												onclick={() => {
+													onRegenerateWithModel(model.id);
+													showRegenerateOptions = false;
+												}}
+												disabled={isGenerating}
+												class="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed
+													{generationMetadata?.modelUsed === model.id ? 'bg-blue-50 text-blue-700 font-medium' : ''}"
+											>
+												{model.name}
+												{#if generationMetadata?.modelUsed === model.id}
+													<span class="text-xs text-blue-600">(current)</span>
+												{/if}
+											</button>
+										{/if}
+									{/each}
+								</div>
+							{/if}
+						</div>
+					{/if}
+					
+					<!-- Save options -->
+					<div class="relative">
+						<button
+							type="button"
+							onclick={() => showVersionOptions = !showVersionOptions}
+							disabled={isSaving}
+							class="px-3 py-1 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+						>
+							{isSaving ? 'Saving...' : 'Save CV'}
+						</button>
+						
+						{#if showVersionOptions}
+							<div class="absolute top-full right-0 mt-1 bg-white border rounded-lg shadow-lg z-10 min-w-48">
+								<button
+									type="button"
+									onclick={() => {
+										onSaveCV(false);
+										showVersionOptions = false;
+									}}
+									disabled={isSaving}
+									class="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed"
+								>
+									💾 Save as Latest Version
+									<div class="text-xs text-gray-500">Overwrites previous version</div>
+								</button>
+								<button
+									type="button"
+									onclick={() => {
+										onSaveCV(true);
+										showVersionOptions = false;
+									}}
+									disabled={isSaving}
+									class="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed border-t"
+								>
+									📑 Save as New Version
+									<div class="text-xs text-gray-500">Keeps both versions</div>
+								</button>
+							</div>
+						{/if}
+					</div>
+				</div>
 			{/if}
 		</div>
 	</div>

@@ -118,8 +118,8 @@
 		};
 	}
 	
-	// Save CV function
-	async function saveCV() {
+	// Save CV function with versioning support
+	async function saveCV(createNewVersion = false) {
 		if (!generatedCV || isSaving) return;
 		
 		isSaving = true;
@@ -130,13 +130,13 @@
 		pdfError = '';
 		
 		try {
-			// Create CV data with metadata
+			// Create CV data with metadata (strip model info for final version)
 			const cvWithMetadata = {
 				...generatedCV,
 				metadata: {
-					...generationMetadata,
 					savedAt: new Date().toISOString(),
 					version: '1.0.0'
+					// Note: modelUsed is intentionally omitted from saved version
 				}
 			};
 			
@@ -144,6 +144,7 @@
 			formData.append('cvData', JSON.stringify(cvWithMetadata));
 			formData.append('company', company);
 			formData.append('title', title);
+			formData.append('createNewVersion', createNewVersion.toString());
 			
 			const response = await fetch('?/save', {
 				method: 'POST',
@@ -162,8 +163,8 @@
 			if (response.ok && data && data.filename && data.saved) {
 				const scoreText = generatedCV?.matchScore ? ` (Match: ${generatedCV.matchScore}/10)` : '';
 				const payText = generatedCV?.payScale ? ` (${generatedCV.payScale})` : '';
-				const modelText = generationMetadata?.modelUsed ? ` via ${generationMetadata.modelUsed}` : '';
-				saveSuccess = `✅ Version saved as versions/${data.filename}${scoreText}${payText}${modelText}`;
+				const versionText = data.isNewVersion ? ` v${data.versionNumber}` : '';
+				saveSuccess = `✅ Version${versionText} saved as versions/${data.filename}${scoreText}${payText}`;
 
 				// Store the slug for the preview link
 				savedVersionSlug = data.slug || '';
@@ -202,6 +203,57 @@
 			saveError = 'Network error while saving';
 		} finally {
 			isSaving = false;
+		}
+	}
+
+	// Regenerate with specific model
+	async function regenerateWithModel(modelId) {
+		if (isGenerating || !jobDescription) return;
+		
+		// Temporarily set only the selected model as enabled
+		const originalModels = [...models];
+		models = models.map(m => ({ ...m, enabled: m.id === modelId }));
+		
+		try {
+			isGenerating = true;
+			
+			const formData = new FormData();
+			formData.append('jobDescription', jobDescription);
+			formData.append('company', company);
+			formData.append('title', title);
+			formData.append('modelOrder', JSON.stringify([modelId])); // Force specific model
+			
+			const response = await fetch('?/generate', {
+				method: 'POST',
+				body: formData
+			});
+			
+			const result = await response.json();
+			
+			if (response.ok && result.cv) {
+				generatedCV = result.cv;
+				generationMetadata = {
+					modelUsed: result.modelUsed,
+					generatedAt: result.generatedAt
+				};
+				actionError = '';
+				
+				// Auto-populate company and title if suggested by LLM and fields are empty
+				if (generatedCV?.company && !company.trim()) {
+					company = generatedCV.company;
+				}
+				if (generatedCV?.title && !title.trim()) {
+					title = generatedCV.title;
+				}
+			} else {
+				actionError = result.error || 'Failed to regenerate CV';
+			}
+		} catch (error) {
+			actionError = 'Network error while regenerating';
+		} finally {
+			isGenerating = false;
+			// Restore original model settings
+			models = originalModels;
 		}
 	}
 
@@ -269,8 +321,11 @@
 			{isSaving}
 			{pdfStatus}
 			{pdfError}
+			{models}
+			{isGenerating}
 			onSaveCV={saveCV}
 			onTogglePreview={handleTogglePreview}
+			onRegenerateWithModel={regenerateWithModel}
 		/>
 	</div>
 </div>
