@@ -12,27 +12,29 @@
 	export let onGenerateSubmit: (() => any) | undefined; // factory returning enhance pre-submit
 	
 	let form: HTMLFormElement;
-	
-	// Auto-generate when job description changes (debounced)
-	let generateTimeout: ReturnType<typeof setTimeout> | undefined;
-	
-	function triggerGeneration() {
-		if (jobDescription.length > 50 && !isGenerating) {
-			const formEl = document.getElementById('generate-form');
-			if (formEl) {
-				(formEl as HTMLFormElement).requestSubmit();
-			}
-		}
-	}
-	
-	// Handle input changes with debouncing
+
+	// We no longer auto-generate while the user is typing.
+	// However, if they paste a large job description, we can trigger generation automatically once.
+	let lastPasteAt: number | null = null;
+	let pasteTriggered = false;
+
 	function handleInput() {
-		if (generateTimeout) clearTimeout(generateTimeout);
-		if (jobDescription.length > 50) {
-			generateTimeout = setTimeout(() => {
-				triggerGeneration();
-			}, 1000);
-		}
+		// Typing: do nothing (manual Generate required)
+	}
+
+	function handlePaste() {
+		lastPasteAt = Date.now();
+		pasteTriggered = false;
+		// Give the paste a short delay for the textarea value to update fully
+		setTimeout(() => {
+			if (!pasteTriggered && jobDescription.length >= 50 && !isGenerating) {
+				const formEl = document.getElementById('generate-form');
+				if (formEl) {
+					pasteTriggered = true;
+					(formEl as HTMLFormElement).requestSubmit();
+				}
+			}
+		}, 250);
 	}
 	
 	// Use parent's enhance submit if provided
@@ -43,17 +45,22 @@
 	<div class="flex justify-between items-center mb-4">
 		<h2 class="text-xl font-semibold">Job Description</h2>
 		<div class="flex gap-4">
-			<div class="flex gap-2">
-				<span class="text-sm text-gray-500">
-					{jobDescription.length} characters
+			<div class="flex items-center gap-3">
+				<span class="text-xs text-gray-500 tabular-nums">
+					{jobDescription.length} chars
 				</span>
 				{#if isGenerating}
 					<span class="text-sm text-blue-600 animate-pulse">Generating...</span>
-				{:else if jobDescription.length >= 50}
+				{:else}
 					<button
 						type="submit"
 						form="generate-form"
-						class="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+						class="text-sm px-3 py-1 rounded font-medium transition-colors
+							{jobDescription.length < 50
+								? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+								: 'bg-blue-600 text-white hover:bg-blue-700'}"
+						disabled={jobDescription.length < 50}
+						title={jobDescription.length < 50 ? 'Paste at least 50 characters to enable generation' : 'Generate tailored CV'}
 					>
 						Generate
 					</button>
@@ -90,7 +97,8 @@
 		<textarea
 			name="jobDescription"
 			bind:value={jobDescription}
-			oninput={handleInput}
+			on:input={handleInput}
+			on:paste={handlePaste}
 			placeholder="Paste the job description here..."
 			class="flex-1 w-full p-4 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 			disabled={isGenerating}
