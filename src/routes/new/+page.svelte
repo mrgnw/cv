@@ -91,17 +91,6 @@
 
 	// Get enabled model IDs in order - this is reactive in Svelte 5
 	let enabledModelIds = $derived(getEnabledModelIds(models));
-	// Trigger generation manually
-	function triggerGenerate() {
-		if (jobDescription.length > 50 && !isGenerating) {
-			const form = document.getElementById('generate-form');
-			if (form) {
-				isGenerating = true;
-				form.requestSubmit();
-			}
-		}
-	}
-	
 	// Set primary model (moves selected model to position 0)
 	function setPrimaryModel(modelId) {
 		const modelIndex = models.findIndex(m => m.id === modelId);
@@ -317,7 +306,6 @@
 			{isGenerating}
 			onSaveCV={saveCV}
 			onTogglePreview={handleTogglePreview}
-			onGenerate={triggerGenerate}
 		/>
 	</div>
 </div>

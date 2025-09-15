@@ -45,6 +45,14 @@
 				</span>
 				{#if isGenerating}
 					<span class="text-sm text-blue-600 animate-pulse">Generating...</span>
+				{:else if jobDescription.length >= 50}
+					<button
+						type="submit"
+						form="generate-form"
+						class="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+					>
+						Generate
+					</button>
 				{/if}
 			</div>
 		</div>
@@ -86,13 +94,5 @@
 		
 		<!-- Hidden field to send model order -->
 		<input type="hidden" name="modelOrder" value={JSON.stringify(enabledModelIds)} />
-		
-		<button
-			type="submit"
-			disabled={isGenerating || jobDescription.length < 50}
-			class="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-		>
-			{isGenerating ? 'Generating...' : 'Generate CV'}
-		</button>
 	</form>
 </div>

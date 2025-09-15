@@ -18,7 +18,6 @@
 	// Events
 	export let onSaveCV: (createNewVersion?: boolean) => Promise<void>;
 	export let onTogglePreview: () => void;
-	export let onGenerate: () => void = () => {};
 	
 	let showVersionOptions = false;
 	
@@ -64,15 +63,6 @@
 			</button>
 			{#if generatedCV}
 				<div class="flex gap-2">
-					<button
-						type="button"
-						onclick={onGenerate}
-						disabled={isGenerating}
-						class="px-3 py-1 text-sm border rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed"
-					>
-						{isGenerating ? 'Generating...' : 'Generate'}
-					</button>
-					
 					<!-- Save options -->
 					<div class="relative">
 						<button
