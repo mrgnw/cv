@@ -8,13 +8,105 @@ import systemPromptContent from "$lib/prompts/system.md?raw";
 import userTemplateContent from "$lib/prompts/user-template.md?raw";
 import prefsJson from "$lib/prefs.json?raw";
 
+/**
+ * Cache for model pricing data to avoid frequent API calls
+ */
+let modelPricingCache = /** @type {Record<string, {prompt: number, completion: number, name: string}> | null} */ (null);
+let cacheTimestamp = /** @type {number | null} */ (null);
+const CACHE_DURATION = 1000 * 60 * 60; // 1 hour
+
+/**
+ * Fetch model pricing data from OpenRouter
+ * @returns {Promise<Record<string, {prompt: number, completion: number, name: string}>>}
+ */
+async function fetchModelPricing() {
+	// Check cache first
+	if (modelPricingCache && cacheTimestamp && (Date.now() - cacheTimestamp < CACHE_DURATION)) {
+		return modelPricingCache;
+	}
+
+	try {
+		const response = await fetch('https://openrouter.ai/api/v1/models', {
+			headers: {
+				'Authorization': `Bearer ${env.OPENROUTER_API_KEY}`,
+				'Content-Type': 'application/json'
+			}
+		});
+
+		if (!response.ok) {
+			throw new Error(`Failed to fetch models: ${response.status}`);
+		}
+
+		const data = await response.json();
+		
+		// Create a pricing map keyed by model ID
+		/** @type {Record<string, {prompt: number, completion: number, name: string}>} */
+		const pricingMap = {};
+		for (const model of data.data || []) {
+			if (model.id && model.pricing) {
+				pricingMap[model.id] = {
+					prompt: parseFloat(model.pricing.prompt || 0),
+					completion: parseFloat(model.pricing.completion || 0),
+					name: model.name || model.id
+				};
+			}
+		}
+
+		// Cache the result
+		modelPricingCache = pricingMap;
+		cacheTimestamp = Date.now();
+		
+		return pricingMap;
+	} catch (error) {
+		console.warn('Failed to fetch model pricing:', error);
+		// Return fallback pricing data
+		return getFallbackPricing();
+	}
+}
+
+/**
+ * Fallback pricing data if API is unavailable
+ * @returns {Record<string, {prompt: number, completion: number, name: string}>}
+ */
+function getFallbackPricing() {
+	return {
+		'openai/gpt-4.1-mini': { prompt: 0.00015, completion: 0.0006, name: 'GPT-4.1 Mini' },
+		'google/gemini-2.5-flash': { prompt: 0.000075, completion: 0.0003, name: 'Gemini 2.5 Flash' },
+		'google/gemini-2.5-pro': { prompt: 0.00125, completion: 0.005, name: 'Gemini 2.5 Pro' },
+		'openai/gpt-5': { prompt: 0.003, completion: 0.012, name: 'GPT-5' },
+		'anthropic/claude-sonnet-4': { prompt: 0.003, completion: 0.015, name: 'Claude Sonnet 4' }
+	};
+}
+
 /** @type {import('./$types').PageServerLoad} */
 export async function load() {
-  return {};
+  // Fetch model pricing data
+  const modelPricing = await fetchModelPricing();
+  
+  return {
+    modelPricing
+  };
 }
 
 /** @satisfies {import('./$types').Actions} */
 export const actions = {
+  refreshPricing: async () => {
+    try {
+      // Clear cache to force refresh
+      modelPricingCache = null;
+      cacheTimestamp = null;
+      
+      const modelPricing = await fetchModelPricing();
+      return {
+        success: true,
+        modelPricing
+      };
+    } catch (error) {
+      console.error('Failed to refresh pricing:', error);
+      return fail(500, { error: 'Failed to refresh model pricing' });
+    }
+  },
+
   extractFromUrl: async ({ request }) => {
     const formData = await request.formData();
     const url = formData.get("url")?.toString();

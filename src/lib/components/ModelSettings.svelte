@@ -1,20 +1,30 @@
 <!-- @component
 	Model settings panel for configuring AI model priority order
 -->
-<script>
-	/** @type {Array<{id: string, name: string, enabled: boolean}>} */
-	export let models;
+<script lang="ts">
+	interface ModelPricing {
+		prompt: number;
+		completion: number;
+		name?: string;
+	}
 	
-	/** @type {(models: Array<{id: string, name: string, enabled: boolean}>) => void} */
-	export let onModelsChange;
+	interface Model {
+		id: string;
+		name: string;
+		enabled: boolean;
+		pricing?: ModelPricing;
+	}
 	
-	let draggedIndex = null;
+	export let models: Model[];
+	export let onModelsChange: (models: Model[]) => void;
+	
+	let draggedIndex: number | null = null;
 	
 	/**
 	 * @param {DragEvent} event
 	 * @param {number} index
 	 */
-	function handleDragStart(event, index) {
+	function handleDragStart(event: DragEvent, index: number) {
 		draggedIndex = index;
 		if (event.dataTransfer) {
 			event.dataTransfer.effectAllowed = 'move';
@@ -24,7 +34,7 @@
 	/**
 	 * @param {DragEvent} event
 	 */
-	function handleDragOver(event) {
+	function handleDragOver(event: DragEvent) {
 		event.preventDefault();
 		if (event.dataTransfer) {
 			event.dataTransfer.dropEffect = 'move';
@@ -35,7 +45,7 @@
 	 * @param {DragEvent} event
 	 * @param {number} dropIndex
 	 */
-	function handleDrop(event, dropIndex) {
+	function handleDrop(event: DragEvent, dropIndex: number) {
 		event.preventDefault();
 		if (draggedIndex === null || draggedIndex === dropIndex) return;
 		
@@ -50,7 +60,7 @@
 	/**
 	 * @param {number} index
 	 */
-	function toggleModel(index) {
+	function toggleModel(index: number) {
 		const newModels = [...models];
 		newModels[index].enabled = !newModels[index].enabled;
 		onModelsChange(newModels);
@@ -58,16 +68,16 @@
 </script>
 
 <div class="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
-	<h3 class="text-lg font-semibold mb-3">AI Model Priority Order</h3>
-	<p class="text-sm text-gray-600 mb-4">Drag to reorder. First enabled model will be tried first, then fallback to next enabled models.</p>
+	<h3 class="text-lg font-semibold mb-3">Model Configuration</h3>
+	<p class="text-sm text-gray-600 mb-4">Enable/disable models and set fallback order. Primary model is selected above.</p>
 	
 	<div class="space-y-2">
 		{#each models as model, index}
 			<div
 				draggable="true"
-				ondragstart={(e) => handleDragStart(e, index)}
+				ondragstart={(e: DragEvent) => handleDragStart(e, index)}
 				ondragover={handleDragOver}
-				ondrop={(e) => handleDrop(e, index)}
+				ondrop={(e: DragEvent) => handleDrop(e, index)}
 				class="flex items-center gap-3 p-3 bg-white border rounded-lg cursor-move hover:shadow-sm transition-shadow"
 				class:opacity-50={!model.enabled}
 				role="button"
@@ -85,6 +95,11 @@
 						{model.name}
 					</span>
 					<div class="text-xs text-gray-500 font-mono">{model.id}</div>
+					{#if model.pricing}
+						<div class="text-xs text-gray-500 mt-1">
+							{((model.pricing.prompt * 1000 * 100).toFixed(2))} / {((model.pricing.completion * 1000 * 100).toFixed(2))} ¢/1K
+						</div>
+					{/if}
 				</div>
 				
 				<label class="flex items-center cursor-pointer">

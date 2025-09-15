@@ -9,7 +9,7 @@
 	import CVPreview from '$lib/components/CVPreview.svelte';
 	import { getEnabledModelIds } from '$lib/utils/format.js';
 	
-	/** @type {import('./$types').PageProps} */
+	// Receive server-side data using Svelte 5 $props
 	let { data, form } = $props();
 	
 	let jobDescription = $state('');
@@ -27,37 +27,110 @@
 	let extractError = $state('');
 	let extractSuccess = $state('');
 	let showModelSettings = $state(false);
+	let showModelDropdown = $state(false);
 	let savedVersionSlug = $state(''); // Track the slug of the saved version
 	let actionError = $state(''); // Track latest action error to avoid stale form errors
 	let pdfStatus = $state('');
 	let pdfError = $state('');
 	
-	// Model prioritization
+	// Model prioritization with pricing data - initialized once with fallback pricing
 	let models = $state([
-		{ id: 'google/gemini-2.5-flash', name: 'Gemini 2.5 Flash', enabled: true },
-		{ id: 'openai/gpt-4.1-mini', name: 'GPT-4.1 Mini', enabled: true },
-		{ id: 'google/gemini-2.5-pro', name: 'Gemini 2.5 Pro', enabled: true },
-		{ id: 'openai/gpt-5', name: 'GPT-5', enabled: true },
-		{ id: 'anthropic/claude-sonnet-4', name: 'Claude Sonnet 4', enabled: true }
+		{ 
+			id: 'google/gemini-2.5-flash', 
+			name: 'Gemini 2.5 Flash', 
+			enabled: true,
+			pricing: data?.modelPricing?.['google/gemini-2.5-flash'] || { prompt: 0.000075, completion: 0.0003 }
+		},
+		{ 
+			id: 'openai/gpt-4.1-mini', 
+			name: 'GPT-4.1 Mini', 
+			enabled: true,
+			pricing: data?.modelPricing?.['openai/gpt-4.1-mini'] || { prompt: 0.00015, completion: 0.0006 }
+		},
+		{ 
+			id: 'google/gemini-2.5-pro', 
+			name: 'Gemini 2.5 Pro', 
+			enabled: true,
+			pricing: data?.modelPricing?.['google/gemini-2.5-pro'] || { prompt: 0.00125, completion: 0.005 }
+		},
+		{ 
+			id: 'openai/gpt-5', 
+			name: 'GPT-5', 
+			enabled: true,
+			pricing: data?.modelPricing?.['openai/gpt-5'] || { prompt: 0.003, completion: 0.012 }
+		},
+		{ 
+			id: 'anthropic/claude-sonnet-4', 
+			name: 'Claude Sonnet 4', 
+			enabled: true,
+			pricing: data?.modelPricing?.['anthropic/claude-sonnet-4'] || { prompt: 0.003, completion: 0.015 }
+		}
 	]);
 	
-	// Derived value for enabled model IDs in order - this is reactive in Svelte 5
+	// Format pricing as cents per 1K tokens
+	function formatPricing(pricing) {
+		if (!pricing) return null;
+		const inputCents = (pricing.prompt * 1000 * 100).toFixed(2);
+		const outputCents = (pricing.completion * 1000 * 100).toFixed(2);
+		return `${inputCents} / ${outputCents}`;
+	}
+
+	// Estimate cost for a CV generation
+	function estimateGenerationCost(model) {
+		if (!model?.pricing) return null;
+		
+		// Rough estimate: ~2000 input tokens (job description + prompt) + ~1500 output tokens (CV JSON)
+		const inputTokens = 2000;
+		const outputTokens = 1500;
+		
+		const inputCost = (inputTokens / 1000) * model.pricing.prompt;
+		const outputCost = (outputTokens / 1000) * model.pricing.completion;
+		const totalCost = inputCost + outputCost;
+		
+		return {
+			inputCost,
+			outputCost,
+			totalCost,
+			formatted: `$${totalCost.toFixed(4)}`
+		};
+	}
+
+	// Get enabled model IDs in order - this is reactive in Svelte 5
 	let enabledModelIds = $derived(getEnabledModelIds(models));
 	
 	// Model change handler
 	function handleModelsChange(newModels) {
 		models = newModels;
 	}
+	
+	// Set primary model (moves selected model to position 0)
+	function setPrimaryModel(modelId) {
+		const modelIndex = models.findIndex(m => m.id === modelId);
+		if (modelIndex > 0) {
+			const selectedModel = models[modelIndex];
+			const newModels = [...models];
+			newModels.splice(modelIndex, 1);
+			newModels.unshift(selectedModel);
+			models = newModels;
+		}
+	}
 
-	// Derive friendly label for the current/last-used model
+	// Derive friendly label for the current/primary model (first enabled model)
 	let modelNameMap = $derived(Object.fromEntries(models.map((m) => [m.id, m.name])));
 	let currentModelLabel = $derived.by(() => {
-		const used = generationMetadata?.modelUsed;
-		if (used) return modelNameMap[used] || used;
 		const first = enabledModelIds[0];
 		return modelNameMap[first] || first || '';
 	});
-	
+
+
+	// Close dropdown when clicking outside
+	function handleClickOutside(event) {
+		const target = event.target;
+		if (!target?.closest('.model-dropdown-container')) {
+			showModelDropdown = false;
+		}
+	}
+
 	// Form submission handler
 	function handleSubmit() {
 		return async ({ result, update }) => {
@@ -263,6 +336,8 @@
 	}
 </script>
 
+<svelte:window onclick={handleClickOutside} />
+
 <svelte:head>
 	<title>Generate CV from Job Description</title>
 </svelte:head>
@@ -273,16 +348,82 @@
 		<div class="flex justify-between items-center">
 			<div class="flex items-center gap-3">
 				<p class="text-gray-600">Paste a job description to generate a tailored CV</p>
-				{#if currentModelLabel}
-					<span class="px-2 py-0.5 text-xs rounded bg-gray-100 text-gray-700 border">Model: {currentModelLabel}</span>
+				
+				<!-- Primary Model Selector -->
+				<div class="relative model-dropdown-container">
+					<button 
+						onclick={() => showModelDropdown = !showModelDropdown}
+						class="px-2 py-0.5 text-xs rounded bg-gray-100 text-gray-700 border hover:bg-gray-200 flex items-center gap-1"
+					>
+						<span>Model: {currentModelLabel}</span>
+						{#if models.length > 0}
+							{@const currentModel = models.find(m => modelNameMap[m.id] === currentModelLabel)}
+							{@const pricingText = formatPricing(currentModel?.pricing)}
+							{#if pricingText}
+								<span class="text-green-600">({pricingText}¢)</span>
+							{/if}
+						{/if}
+						<svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+							<path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+						</svg>
+					</button>
+					
+					{#if showModelDropdown}
+						<div class="absolute top-full left-0 mt-1 min-w-64 bg-white border rounded-lg shadow-lg p-1 z-10">
+							<div class="p-2 border-b text-xs text-gray-600 font-medium">Primary Model (others are fallbacks)</div>
+							{#each models as model, index}
+								{#if model.enabled}
+									{@const pricingText = formatPricing(model.pricing)}
+									<button
+										type="button"
+										onclick={() => {
+											setPrimaryModel(model.id);
+											showModelDropdown = false;
+										}}
+										class="w-full flex justify-between items-start px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer rounded text-left {index === 0 ? 'bg-blue-50 text-blue-700' : ''}"
+									>
+										<div class="flex-1">
+											<div class="font-medium">{model.name}</div>
+											{#if pricingText}
+												<div class="text-xs text-gray-500">{pricingText} ¢/1K (in/out)</div>
+											{/if}
+										</div>
+										{#if index === 0}
+											<span class="text-xs text-blue-600 ml-2">primary</span>
+										{/if}
+									</button>
+								{/if}
+							{/each}
+						</div>
+					{/if}
+				</div>
+				
+				{#if models.length > 0}
+					{@const costEstimate = estimateGenerationCost(models[0])}
+					{#if costEstimate}
+						<span class="px-2 py-0.5 text-xs rounded bg-green-100 text-green-700 border">
+							Est: {costEstimate.formatted}
+						</span>
+					{/if}
 				{/if}
 			</div>
-			<button
-				onclick={() => showModelSettings = !showModelSettings}
-				class="px-3 py-1 text-sm border rounded-lg hover:bg-gray-50"
-			>
-				⚙️ Model Settings
-			</button>
+			<div class="flex gap-2">
+				<button
+					onclick={() => showModelSettings = !showModelSettings}
+					class="px-3 py-1 text-sm border rounded-lg hover:bg-gray-50"
+				>
+					⚙️ Configure Models
+				</button>
+				<form method="post" action="?/refreshPricing" use:enhance>
+					<button
+						type="submit"
+						class="px-2 py-1 text-sm border rounded-lg hover:bg-gray-50 text-gray-600"
+						title="Refresh model pricing from OpenRouter"
+					>
+						💰🔄
+					</button>
+				</form>
+			</div>
 		</div>
 	</header>
 

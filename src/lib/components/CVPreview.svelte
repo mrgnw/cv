@@ -94,10 +94,19 @@
 												class="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed
 													{generationMetadata?.modelUsed === model.id ? 'bg-blue-50 text-blue-700 font-medium' : ''}"
 											>
-												{model.name}
-												{#if generationMetadata?.modelUsed === model.id}
-													<span class="text-xs text-blue-600">(current)</span>
-												{/if}
+												<div class="flex justify-between items-start">
+													<div class="flex-1">
+														<div class="font-medium">{model.name}</div>
+														{#if model.pricing}
+															<div class="text-xs text-gray-500 mt-0.5">
+																{((model.pricing.prompt * 1000 * 100).toFixed(2))} / {((model.pricing.completion * 1000 * 100).toFixed(2))} ¢/1K
+															</div>
+														{/if}
+													</div>
+													{#if generationMetadata?.modelUsed === model.id}
+														<span class="text-xs text-blue-600 ml-2">(current)</span>
+													{/if}
+												</div>
 											</button>
 										{/if}
 									{/each}
