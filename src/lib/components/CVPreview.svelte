@@ -50,9 +50,14 @@
 				</div>
 			{/if}
 			{#if generatedCV?.payScale}
-				<div class="flex items-center gap-2 px-3 py-1 rounded-lg text-sm font-medium bg-blue-100 text-blue-700">
-					<span>💰 Pay:</span>
-					<span class="font-bold">{generatedCV.payScale}</span>
+				{@const formattedPay = generatedCV.payScale
+					.replace(/[\$,]/g, '')
+					.replace(/\s*—\s*/, '-')
+					.replace(/(\d{3})\d{3}/g, '$1k')
+					.replace(/\/year.*/, '')
+					.trim()}
+				<div class="px-3 py-1 rounded-lg text-sm font-medium bg-blue-100 text-blue-700">
+					${formattedPay}
 				</div>
 			{/if}
 			<button

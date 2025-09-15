@@ -113,30 +113,36 @@
 
 	// Form submission handler
 	function handleSubmit() {
-		return async ({ result, update }) => {
-			isGenerating = false;
-			
-			if (result.type === 'success') {
-				generatedCV = result.data?.cv;
-				generationMetadata = {
-					modelUsed: result.data?.modelUsed,
-					generatedAt: result.data?.generatedAt
-				};
-				actionError = '';
-				
-				// Auto-populate company and title if suggested by LLM and fields are empty
-				if (generatedCV?.company && !company.trim()) {
-					company = generatedCV.company;
-				}
-				if (generatedCV?.title && !title.trim()) {
-					title = generatedCV.title;
-				}
-			} else if (result.type === 'failure') {
-				actionError = result.data?.error || 'Generation failed';
+		// This outer function runs immediately before the request is sent
+		return ({ formElement, formData, action, cancel, submitter }) => {
+			// Prevent parallel submissions (optional: could cancel previous instead)
+			if (isGenerating) {
+				cancel();
+				return;
 			}
-			
-			// Don't call update() to preserve form values
-			// await update();
+			isGenerating = true;
+			actionError = '';
+			// Return the post-submission handler
+			return async ({ result, update }) => {
+				try {
+					if (result.type === 'success') {
+						generatedCV = result.data?.cv;
+						generationMetadata = {
+							modelUsed: result.data?.modelUsed,
+							generatedAt: result.data?.generatedAt
+						};
+						actionError = '';
+						// Auto-populate company/title if suggested and empty
+						if (generatedCV?.company && !company.trim()) company = generatedCV.company;
+						if (generatedCV?.title && !title.trim()) title = generatedCV.title;
+					} else if (result.type === 'failure') {
+						actionError = result.data?.error || 'Generation failed';
+					}
+				} finally {
+					isGenerating = false; // Always reset
+				}
+				await update();
+			};
 		};
 	}
 
@@ -286,8 +292,8 @@
 			bind:jobDescription
 			bind:company
 			bind:title
-			{isGenerating}
 			{enabledModelIds}
+			bind:isGenerating
 			onGenerateSubmit={handleSubmit}
 		/>
 

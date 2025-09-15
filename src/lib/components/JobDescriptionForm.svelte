@@ -1,25 +1,26 @@
-<script>
+<script lang="ts">
+// @ts-nocheck
 	import { enhance } from '$app/forms';
 	
 	// Props
-	export let jobDescription;
-	export let company;
-	export let title;
-	export let isGenerating;
-	export let enabledModelIds;
+	export let jobDescription: string;
+	export let company: string;
+	export let title: string;
+	export let enabledModelIds: string[];
+	export let isGenerating: boolean = false;
+	// Parent supplies an enhance handler factory (handleSubmit) returning a SubmitFunction
+	export let onGenerateSubmit: (() => any) | undefined; // factory returning enhance pre-submit
 	
-	// Events
-	export let onGenerateSubmit;
+	let form: HTMLFormElement;
 	
 	// Auto-generate when job description changes (debounced)
-	let generateTimeout;
+	let generateTimeout: ReturnType<typeof setTimeout> | undefined;
 	
 	function triggerGeneration() {
 		if (jobDescription.length > 50 && !isGenerating) {
-			const form = document.getElementById('generate-form');
-			if (form) {
-				isGenerating = true;
-				form.requestSubmit();
+			const formEl = document.getElementById('generate-form');
+			if (formEl) {
+				(formEl as HTMLFormElement).requestSubmit();
 			}
 		}
 	}
@@ -33,6 +34,9 @@
 			}, 1000);
 		}
 	}
+	
+	// Use parent's enhance submit if provided
+	const enhanceHandler = onGenerateSubmit ? onGenerateSubmit() : undefined;
 </script>
 
 <div class="flex flex-col">
@@ -62,7 +66,7 @@
 		id="generate-form"
 		method="POST" 
 		action="?/generate"
-		use:enhance={onGenerateSubmit}
+		use:enhance={enhanceHandler}
 		class="flex-1 flex flex-col"
 	>
 		<!-- Company and Job Title fields (moved above textarea) -->
