@@ -13,19 +13,15 @@
 	let { data, form } = $props();
 	
 	let jobDescription = $state('');
-	let jobUrl = $state('');
 	let company = $state('');
 	let title = $state('');
 	let isGenerating = $state(false);
-	let isExtracting = $state(false);
 	let generatedCV = $state(null);
 	let generationMetadata = $state(null); // Track model used and generation timestamp
 	let showPreview = $state(true);
 	let saveSuccess = $state('');
 	let saveError = $state('');
 	let isSaving = $state(false);
-	let extractError = $state('');
-	let extractSuccess = $state('');
 	let savedVersionSlug = $state(''); // Track the slug of the saved version
 	let actionError = $state(''); // Track latest action error to avoid stale form errors
 	let pdfStatus = $state('');
@@ -95,6 +91,17 @@
 
 	// Get enabled model IDs in order - this is reactive in Svelte 5
 	let enabledModelIds = $derived(getEnabledModelIds(models));
+	// Trigger generation manually
+	function triggerGenerate() {
+		if (jobDescription.length > 50 && !isGenerating) {
+			const form = document.getElementById('generate-form');
+			if (form) {
+				isGenerating = true;
+				form.requestSubmit();
+			}
+		}
+	}
+	
 	// Set primary model (moves selected model to position 0)
 	function setPrimaryModel(modelId) {
 		const modelIndex = models.findIndex(m => m.id === modelId);
@@ -145,36 +152,6 @@
 	}
 
 	// URL extraction handler
-	function handleUrlExtraction() {
-		return async ({ result, update }) => {
-			isExtracting = false;
-			
-			if (result.type === 'success') {
-				jobDescription = result.data?.jobDescription || '';
-				extractError = '';
-				extractSuccess = `✅ Extracted ${jobDescription.length} characters from URL`;
-				
-				// Clear URL after successful extraction
-				jobUrl = '';
-				
-				// Clear success message after 3 seconds
-				setTimeout(() => {
-					extractSuccess = '';
-				}, 3000);
-				
-				// Auto-generate if we have enough content
-				if (jobDescription.length > 50) {
-					setTimeout(() => {
-						triggerGeneration();
-					}, 500);
-				}
-			} else if (result.type === 'failure') {
-				extractError = result.data?.error || 'Failed to extract job description';
-				extractSuccess = '';
-			}
-		};
-	}
-	
 	// Save CV function with versioning support
 	async function saveCV(createNewVersion = false) {
 		if (!generatedCV || isSaving) return;
@@ -264,56 +241,6 @@
 	}
 
 	// Regenerate with specific model
-	async function regenerateWithModel(modelId) {
-		if (isGenerating || !jobDescription) return;
-		
-		// Temporarily set only the selected model as enabled
-		const originalModels = [...models];
-		models = models.map(m => ({ ...m, enabled: m.id === modelId }));
-		
-		try {
-			isGenerating = true;
-			
-			const formData = new FormData();
-			formData.append('jobDescription', jobDescription);
-			formData.append('company', company);
-			formData.append('title', title);
-			formData.append('modelOrder', JSON.stringify([modelId])); // Force specific model
-			
-			const response = await fetch('?/generate', {
-				method: 'POST',
-				body: formData
-			});
-			
-			const result = await response.json();
-			
-			if (response.ok && result.cv) {
-				generatedCV = result.cv;
-				generationMetadata = {
-					modelUsed: result.modelUsed,
-					generatedAt: result.generatedAt
-				};
-				actionError = '';
-				
-				// Auto-populate company and title if suggested by LLM and fields are empty
-				if (generatedCV?.company && !company.trim()) {
-					company = generatedCV.company;
-				}
-				if (generatedCV?.title && !title.trim()) {
-					title = generatedCV.title;
-				}
-			} else {
-				actionError = result.error || 'Failed to regenerate CV';
-			}
-		} catch (error) {
-			actionError = 'Network error while regenerating';
-		} finally {
-			isGenerating = false;
-			// Restore original model settings
-			models = originalModels;
-		}
-	}
-
 	// Preview toggle handler
 	function handleTogglePreview() {
 		showPreview = !showPreview;
@@ -368,16 +295,11 @@
 		<!-- Left Panel: Job Description Input -->
 		<JobDescriptionForm
 			bind:jobDescription
-			bind:jobUrl
 			bind:company
 			bind:title
 			{isGenerating}
-			{isExtracting}
-			{extractError}
-			{extractSuccess}
 			{enabledModelIds}
 			onGenerateSubmit={handleSubmit}
-			onUrlExtraction={handleUrlExtraction}
 		/>
 
 		<!-- Right Panel: Generated CV -->
@@ -392,11 +314,10 @@
 			{isSaving}
 			{pdfStatus}
 			{pdfError}
-			{models}
 			{isGenerating}
 			onSaveCV={saveCV}
 			onTogglePreview={handleTogglePreview}
-			onRegenerateWithModel={regenerateWithModel}
+			onGenerate={triggerGenerate}
 		/>
 	</div>
 </div>

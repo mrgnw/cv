@@ -13,22 +13,19 @@
 	export let actionError: string;
 	export let pdfStatus: string;
 	export let pdfError: string;
-	export let models: string[] = [];
 	export let isGenerating: boolean = false;
-	export let onRegenerateWithModel: (model: string) => void = () => {};
 	
 	// Events
 	export let onSaveCV: (createNewVersion?: boolean) => Promise<void>;
 	export let onTogglePreview: () => void;
+	export let onGenerate: () => void = () => {};
 	
-	let showRegenerateOptions = false;
 	let showVersionOptions = false;
 	
 	// Close dropdowns when clicking outside
 	function handleClickOutside(event: Event) {
 		const target = event.target as HTMLElement;
 		if (!target?.closest('.dropdown-container')) {
-			showRegenerateOptions = false;
 			showVersionOptions = false;
 		}
 	}
@@ -67,53 +64,14 @@
 			</button>
 			{#if generatedCV}
 				<div class="flex gap-2">
-					<!-- Quick regenerate with different models -->
-					{#if models.length > 0}
-						<div class="relative">
-							<button
-								type="button"
-								onclick={() => showRegenerateOptions = !showRegenerateOptions}
-								disabled={isGenerating}
-								class="px-3 py-1 text-sm border rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed"
-							>
-								{isGenerating ? 'Regenerating...' : '🔄 Try Different Model'}
-							</button>
-							
-							{#if showRegenerateOptions}
-								<div class="absolute top-full right-0 mt-1 bg-white border rounded-lg shadow-lg z-10 min-w-48">
-									<div class="p-2 border-b text-xs text-gray-600 font-medium">Regenerate with:</div>
-									{#each models as model}
-										{#if model.enabled}
-											<button
-												type="button"
-												onclick={() => {
-													onRegenerateWithModel(model.id);
-													showRegenerateOptions = false;
-												}}
-												disabled={isGenerating}
-												class="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed
-													{generationMetadata?.modelUsed === model.id ? 'bg-blue-50 text-blue-700 font-medium' : ''}"
-											>
-												<div class="flex justify-between items-start">
-													<div class="flex-1">
-														<div class="font-medium">{model.name}</div>
-														{#if model.pricing}
-															<div class="text-xs text-gray-500 mt-0.5">
-																{((model.pricing.prompt * 1000 * 100).toFixed(2))} / {((model.pricing.completion * 1000 * 100).toFixed(2))} ¢/1K
-															</div>
-														{/if}
-													</div>
-													{#if generationMetadata?.modelUsed === model.id}
-														<span class="text-xs text-blue-600 ml-2">(current)</span>
-													{/if}
-												</div>
-											</button>
-										{/if}
-									{/each}
-								</div>
-							{/if}
-						</div>
-					{/if}
+					<button
+						type="button"
+						onclick={onGenerate}
+						disabled={isGenerating}
+						class="px-3 py-1 text-sm border rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed"
+					>
+						{isGenerating ? 'Generating...' : 'Generate'}
+					</button>
 					
 					<!-- Save options -->
 					<div class="relative">
