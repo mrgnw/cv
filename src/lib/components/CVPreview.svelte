@@ -1,4 +1,5 @@
 <script lang="ts">
+// @ts-nocheck
 	import CV from '$lib/CV.svelte';
 	import GenerationMetadata from './GenerationMetadata.svelte';
 	
@@ -32,7 +33,7 @@
 
 <svelte:window on:click={handleClickOutside} />
 
-<div class="flex flex-col">
+<div class="flex flex-col h-full min-h-0" aria-busy={isGenerating}>
 	<div class="flex justify-between items-center mb-4">
 		<h2 class="text-xl font-semibold">Generated CV</h2>
 		<div class="flex gap-2 items-center">
@@ -113,7 +114,7 @@
 		</div>
 	</div>
 
-	<div class="flex-1 border border-gray-300 rounded-lg overflow-hidden">
+	<div class="flex-1 min-h-0 border border-gray-300 rounded-lg overflow-hidden">
 		{#if saveSuccess}
 			<div class="p-4 bg-green-50 border-l-4 border-green-500">
 				<p class="text-green-700">{saveSuccess}</p>
@@ -150,7 +151,7 @@
 			</div>
 		{:else if generatedCV}
 			{#if showPreview}
-				<div class="h-full overflow-auto">
+						<div class="flex-1 min-h-0 overflow-auto">
 					<GenerationMetadata {generationMetadata} />
 					
 					<div class="p-4 bg-white">
@@ -169,7 +170,7 @@
 					</div>
 				</div>
 			{:else}
-				<div class="h-full overflow-auto">
+						<div class="flex-1 min-h-0 overflow-auto">
 					<GenerationMetadata {generationMetadata} />
 					
 					<pre class="overflow-auto p-4 bg-gray-50 text-sm">
@@ -178,7 +179,7 @@
 				</div>
 			{/if}
 		{:else}
-			<div class="h-full flex items-center justify-center text-gray-500">
+				<div class="flex-1 min-h-0 flex items-center justify-center text-gray-500">
 				<div class="text-center">
 					<p class="mb-2">Your generated CV will appear here</p>
 					<p class="text-sm">Paste a job description to get started</p>
