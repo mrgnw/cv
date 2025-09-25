@@ -2,6 +2,15 @@
 // @ts-nocheck
 	import CV from '$lib/CV.svelte';
 	import GenerationMetadata from './GenerationMetadata.svelte';
+
+	// Utilities
+	function slugify(s: string): string {
+		return s
+			.toLowerCase()
+			.replace(/[^a-z0-9]+/g, '-')
+			.replace(/^-+|-+$/g, '')
+			.slice(0, 80);
+	}
 	
 	// Props
 	export let generatedCV: any;
@@ -21,6 +30,11 @@
 	export let onTogglePreview: () => void;
 	
 	let showVersionOptions = false;
+    
+	// Derived displays
+	$: savePath = generatedCV
+		? `versions/${slugify(generatedCV.title || 'cv')}${generatedCV.company ? '.' + slugify(generatedCV.company) : ''}.json`
+		: '';
 	
 	// Close dropdowns when clicking outside
 	function handleClickOutside(event: Event) {
@@ -59,6 +73,11 @@
 					.trim()}
 				<div class="px-3 py-1 rounded-lg text-sm font-medium bg-blue-100 text-blue-700">
 					${formattedPay}
+				</div>
+			{/if}
+			{#if savePath}
+				<div class="px-3 py-1 rounded-lg text-xs font-mono bg-gray-100 text-gray-700 border">
+					📁 {savePath}
 				</div>
 			{/if}
 			<button
@@ -127,12 +146,15 @@
 						→ View saved version
 					</a>
 				{/if}
-				{#if pdfStatus}
-					<div class="text-sm text-green-800 mt-1">{pdfStatus}</div>
-				{/if}
 			</div>
 		{/if}
-		
+
+		{#if pdfStatus}
+			<div class="p-4 bg-blue-50 border-l-4 border-blue-500">
+				<p class="text-blue-700">PDF: {pdfStatus}</p>
+			</div>
+		{/if}
+
 		{#if saveError}
 			<div class="p-4 bg-red-50 border-l-4 border-red-500">
 				<p class="text-red-700">Error: {saveError}</p>
@@ -152,7 +174,7 @@
 		{:else if generatedCV}
 			{#if showPreview}
 						<div class="flex-1 min-h-0 overflow-auto">
-					<GenerationMetadata {generationMetadata} />
+					<GenerationMetadata {generationMetadata} {savePath} />
 					
 					<div class="p-4 bg-white">
 						<CV 
@@ -171,7 +193,7 @@
 				</div>
 			{:else}
 						<div class="flex-1 min-h-0 overflow-auto">
-					<GenerationMetadata {generationMetadata} />
+					<GenerationMetadata {generationMetadata} {savePath} />
 					
 					<pre class="overflow-auto p-4 bg-gray-50 text-sm">
 {JSON.stringify(generatedCV, null, 2)}
