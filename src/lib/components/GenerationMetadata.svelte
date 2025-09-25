@@ -70,9 +70,15 @@
 						<div class="absolute top-full left-0 mt-1 bg-white border rounded-lg shadow-lg z-10 min-w-48">
 							<button
 								type="button"
-								onclick={async () => {
+								onclick={async (e) => {
+									e.preventDefault();
+									e.stopPropagation();
 									if (onSaveCV) {
-										await onSaveCV(false);
+										try {
+											await onSaveCV(false);
+										} catch (error) {
+											console.error('Save error:', error);
+										}
 									}
 									showVersionOptions = false;
 								}}
@@ -84,9 +90,15 @@
 							</button>
 							<button
 								type="button"
-								onclick={async () => {
+								onclick={async (e) => {
+									e.preventDefault();
+									e.stopPropagation();
 									if (onSaveCV) {
-										await onSaveCV(true);
+										try {
+											await onSaveCV(true);
+										} catch (error) {
+											console.error('Save error:', error);
+										}
 									}
 									showVersionOptions = false;
 								}}

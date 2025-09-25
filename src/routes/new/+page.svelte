@@ -175,28 +175,46 @@
 			formData.append('title', title);
 			formData.append('createNewVersion', createNewVersion.toString());
 			
-			const response = await fetch('?/save', {
+			const response = await fetch('/new?/save', {
 				method: 'POST',
+				headers: {
+					'Accept': 'application/json',
+					'X-Requested-With': 'fetch'
+				},
 				body: formData
 			});
 			
-			const data = await response.json();
+			let data;
+			try {
+				const responseText = await response.text();
+				console.log('Raw response text:', responseText);
+				data = responseText ? JSON.parse(responseText) : {};
+			} catch (parseError) {
+				console.error('Failed to parse save response:', parseError);
+				data = {};
+			}
 
 			// Debug what we actually get from the server
 			console.log('Save response debug:', {
 				responseOk: response.ok,
 				responseStatus: response.status,
-				data: data
+				data: data,
+				dataType: data?.type,
+				dataData: data?.data
 			});
 
-			if (response.ok && data && data.filename && data.saved) {
+			// SvelteKit actions wrap responses in { type: 'success', data: {...} } or { type: 'failure', error: {...} }
+			const actualData = data?.type === 'success' ? data.data : data;
+			const isSuccess = response.ok && ((data?.type === 'success') || (actualData && actualData.filename !== undefined));
+
+			if (isSuccess && actualData) {
 				const scoreText = generatedCV?.matchScore ? ` (Match: ${generatedCV.matchScore}/10)` : '';
 				const payText = generatedCV?.payScale ? ` (${generatedCV.payScale})` : '';
-				const versionText = data.isNewVersion ? ` v${data.versionNumber}` : '';
-				saveSuccess = `✅ Version${versionText} saved as versions/${data.filename}${scoreText}${payText}`;
+				const versionText = actualData.isNewVersion ? ` v${actualData.versionNumber}` : '';
+				saveSuccess = `✅ Version${versionText} saved as versions/${actualData.filename}${scoreText}${payText}`;
 
 				// Store the slug for the preview link
-				savedVersionSlug = data.slug || '';
+				savedVersionSlug = actualData.slug || '';
 
 				// Optionally trigger PDF generation in dev for the saved version
 				if (dev && savedVersionSlug) {
@@ -225,8 +243,19 @@
 					pdfError = '';
 				}, 5000);
 			} else {
-				// Prefer explicit server-provided saveError or error
-				saveError = (data && (data.saveError || data.error)) ? (data.saveError || data.error) : 'Failed to save version';
+				// Handle different error cases
+				let errorMsg;
+				if (data?.type === 'failure') {
+					errorMsg = data.error || 'Save action failed';
+				} else if (actualData && actualData.saveError) {
+					errorMsg = actualData.saveError;
+				} else if (data && (data.saveError || data.error)) {
+					errorMsg = data.saveError || data.error;
+				} else {
+					errorMsg = `Save failed (${response.status})`;
+				}
+				saveError = errorMsg;
+				console.error('Save failed:', { status: response.status, data, actualData, isSuccess });
 			}
 		} catch (error) {
 			saveError = 'Network error while saving';
