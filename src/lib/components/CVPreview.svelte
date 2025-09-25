@@ -75,61 +75,13 @@
 					${formattedPay}
 				</div>
 			{/if}
-			{#if savePath}
-				<div class="px-3 py-1 rounded-lg text-xs font-mono bg-gray-100 text-gray-700 border">
-					📁 {savePath}
-				</div>
-			{/if}
+
 			<button
 				onclick={onTogglePreview}
 				class="px-3 py-1 text-sm border rounded-lg hover:bg-gray-50"
 			>
 				{showPreview ? 'Show JSON' : 'Show Preview'}
 			</button>
-			{#if generatedCV}
-				<div class="flex gap-2">
-					<!-- Save options -->
-					<div class="relative">
-						<button
-							type="button"
-							onclick={() => showVersionOptions = !showVersionOptions}
-							disabled={isSaving}
-							class="px-3 py-1 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-						>
-							{isSaving ? 'Saving...' : 'Save CV'}
-						</button>
-						
-						{#if showVersionOptions}
-							<div class="absolute top-full right-0 mt-1 bg-white border rounded-lg shadow-lg z-10 min-w-48">
-								<button
-									type="button"
-									onclick={() => {
-										onSaveCV(false);
-										showVersionOptions = false;
-									}}
-									disabled={isSaving}
-									class="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed"
-								>
-									💾 Save as Latest Version
-									<div class="text-xs text-gray-500">Overwrites previous version</div>
-								</button>
-								<button
-									type="button"
-									onclick={() => {
-										onSaveCV(true);
-										showVersionOptions = false;
-									}}
-									disabled={isSaving}
-									class="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed border-t"
-								>
-									📑 Save as New Version
-									<div class="text-xs text-gray-500">Keeps both versions</div>
-								</button>
-							</div>
-						{/if}
-					</div>
-				</div>
-			{/if}
 		</div>
 	</div>
 
@@ -174,7 +126,7 @@
 		{:else if generatedCV}
 			{#if showPreview}
 						<div class="flex-1 min-h-0 overflow-auto">
-					<GenerationMetadata {generationMetadata} {savePath} />
+					<GenerationMetadata {generationMetadata} {savePath} {isSaving} {onSaveCV} />
 					
 					<div class="p-4 bg-white">
 						<CV 
@@ -193,7 +145,7 @@
 				</div>
 			{:else}
 						<div class="flex-1 min-h-0 overflow-auto">
-					<GenerationMetadata {generationMetadata} {savePath} />
+					<GenerationMetadata {generationMetadata} {savePath} {isSaving} {onSaveCV} />
 					
 					<pre class="overflow-auto p-4 bg-gray-50 text-sm">
 {JSON.stringify(generatedCV, null, 2)}
