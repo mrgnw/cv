@@ -27,6 +27,80 @@
 	let pdfStatus = $state('');
 	let pdfError = $state('');
 	
+	// Debug mode
+	let debugMode = $state(true);
+	
+	// Debug CV data for testing save functionality
+	const debugCVData = {
+		title: "Full Stack Software Engineer",
+		company: "TechCorp",
+		matchScore: 8,
+		payScale: "$120,000 - $150,000",
+		normalizedTitle: "software-engineer-full-stack",
+		projects: [
+			{
+				name: "Real-time Analytics Dashboard",
+				description: "Built a high-performance dashboard processing 1M+ events/day using React, Node.js, and WebSocket connections",
+				url: "https://github.com/example/analytics-dashboard",
+				localized_name: "Analytics Dashboard"
+			},
+			{
+				name: "Microservices Architecture",
+				description: "Designed and implemented scalable microservices using Docker, Kubernetes, and gRPC",
+				url: "https://github.com/example/microservices",
+				localized_name: "Microservices Platform"
+			}
+		],
+		experience: [
+			{
+				title: "Senior Software Engineer",
+				company: "Previous Corp",
+				start: "2022-01-01",
+				end: null,
+				achievements: [
+					"Led development of core platform features serving 100k+ users",
+					"Reduced API response times by 40% through optimization",
+					"Mentored 3 junior developers"
+				]
+			}
+		],
+		skills: ["JavaScript", "TypeScript", "React", "Node.js", "PostgreSQL", "AWS", "Docker"],
+		education: [
+			{
+				provider: "University of Technology",
+				degree: "Computer Science",
+				year: "2020",
+				summary: "B.S. in Computer Science with focus on software engineering"
+			}
+		]
+	};
+	
+	// Initialize debug data if debug mode is enabled
+	$effect(() => {
+		if (debugMode && !generatedCV) {
+			generatedCV = debugCVData;
+			generationMetadata = {
+				modelUsed: "debug-mode",
+				generatedAt: new Date().toISOString()
+			};
+			company = debugCVData.company;
+			title = debugCVData.title;
+			jobDescription = "Debug mode: Sample job description for Full Stack Software Engineer position at TechCorp. Looking for someone with React, Node.js, and cloud experience.";
+		} else if (!debugMode && generationMetadata?.modelUsed === "debug-mode") {
+			// Clear debug data when debug mode is turned off
+			generatedCV = null;
+			generationMetadata = null;
+			company = '';
+			title = '';
+			jobDescription = '';
+			saveSuccess = '';
+			saveError = '';
+			savedVersionSlug = '';
+			pdfStatus = '';
+			pdfError = '';
+		}
+	});
+	
 	// Model prioritization with pricing data - initialized once with fallback pricing
 	let models = $state([
 		{ 
@@ -169,52 +243,36 @@
 				}
 			};
 			
-			const formData = new FormData();
-			formData.append('cvData', JSON.stringify(cvWithMetadata));
-			formData.append('company', company);
-			formData.append('title', title);
-			formData.append('createNewVersion', createNewVersion.toString());
-			
-			const response = await fetch('/new?/save', {
+			const response = await fetch('/api/save', {
 				method: 'POST',
 				headers: {
-					'Accept': 'application/json',
-					'X-Requested-With': 'fetch'
+					'Content-Type': 'application/json'
 				},
-				body: formData
+				body: JSON.stringify({
+					cvData: cvWithMetadata,
+					company,
+					title,
+					createNewVersion
+				})
 			});
 			
-			let data;
-			try {
-				const responseText = await response.text();
-				console.log('Raw response text:', responseText);
-				data = responseText ? JSON.parse(responseText) : {};
-			} catch (parseError) {
-				console.error('Failed to parse save response:', parseError);
-				data = {};
-			}
+			const data = await response.json();
 
 			// Debug what we actually get from the server
 			console.log('Save response debug:', {
 				responseOk: response.ok,
 				responseStatus: response.status,
-				data: data,
-				dataType: data?.type,
-				dataData: data?.data
+				data: data
 			});
 
-			// SvelteKit actions wrap responses in { type: 'success', data: {...} } or { type: 'failure', error: {...} }
-			const actualData = data?.type === 'success' ? data.data : data;
-			const isSuccess = response.ok && ((data?.type === 'success') || (actualData && actualData.filename !== undefined));
-
-			if (isSuccess && actualData) {
+			if (response.ok && data && data.filename !== undefined) {
 				const scoreText = generatedCV?.matchScore ? ` (Match: ${generatedCV.matchScore}/10)` : '';
 				const payText = generatedCV?.payScale ? ` (${generatedCV.payScale})` : '';
-				const versionText = actualData.isNewVersion ? ` v${actualData.versionNumber}` : '';
-				saveSuccess = `✅ Version${versionText} saved as versions/${actualData.filename}${scoreText}${payText}`;
+				const versionText = data.isNewVersion ? ` v${data.versionNumber}` : '';
+				saveSuccess = `✅ Version${versionText} saved as versions/${data.filename}${scoreText}${payText}`;
 
 				// Store the slug for the preview link
-				savedVersionSlug = actualData.slug || '';
+				savedVersionSlug = data.slug || '';
 
 				// Optionally trigger PDF generation in dev for the saved version
 				if (dev && savedVersionSlug) {
@@ -243,19 +301,10 @@
 					pdfError = '';
 				}, 5000);
 			} else {
-				// Handle different error cases
-				let errorMsg;
-				if (data?.type === 'failure') {
-					errorMsg = data.error || 'Save action failed';
-				} else if (actualData && actualData.saveError) {
-					errorMsg = actualData.saveError;
-				} else if (data && (data.saveError || data.error)) {
-					errorMsg = data.saveError || data.error;
-				} else {
-					errorMsg = `Save failed (${response.status})`;
-				}
+				// Handle error response
+				const errorMsg = data?.error || `Save failed (${response.status})`;
 				saveError = errorMsg;
-				console.error('Save failed:', { status: response.status, data, actualData, isSuccess });
+				console.error('Save failed:', { status: response.status, data });
 			}
 		} catch (error) {
 			saveError = 'Network error while saving';
@@ -282,6 +331,29 @@
 		<div class="flex justify-between items-center">
 			<div class="flex items-center gap-3">
 				<p class="text-gray-600">Paste a job description to generate a tailored CV</p>
+				
+				<!-- Debug Mode Toggle -->
+				<label class="flex items-center gap-2 px-3 py-1 rounded-lg border transition-colors"
+					class:bg-yellow-50={debugMode}
+					class:border-yellow-200={debugMode}
+					class:bg-gray-50={!debugMode}
+					class:border-gray-200={!debugMode}
+				>
+					<input
+						type="checkbox"
+						bind:checked={debugMode}
+						class="w-4 h-4"
+					/>
+					<span class="text-sm font-medium"
+						class:text-yellow-800={debugMode}
+						class:text-gray-600={!debugMode}
+					>
+						Debug Mode
+						{#if debugMode}
+							<span class="text-xs">(Active)</span>
+						{/if}
+					</span>
+				</label>
 				
 				<!-- Primary Model Selector -->
 				<ModelDropdown 

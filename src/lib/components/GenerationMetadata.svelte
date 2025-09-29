@@ -29,6 +29,16 @@
 		}
 	}
 	
+	// Prevent any form submission when clicking anywhere in this component
+	function handleComponentClick(event: Event) {
+		// Only prevent if this is within our save dropdown
+		const target = event.target as HTMLElement;
+		if (target?.closest('.absolute')) {
+			event.preventDefault();
+			event.stopPropagation();
+		}
+	}
+	
 	/**
 	 * Format timestamp to YYYY-MM-DD HH:MM:SS format
 	 */
@@ -47,13 +57,18 @@
 <svelte:window on:click={handleClickOutside} />
 
 {#if generationMetadata}
-	<div class="p-3 bg-gray-50 border-b border-gray-200 text-sm text-gray-600">
+	<div class="p-3 bg-gray-50 border-b border-gray-200 text-sm text-gray-600" onclick={handleComponentClick}>
 		<div class="flex items-center gap-4">
 			{#if savePath}
 				<div class="relative flex items-center gap-1">
 					<button
 						type="button"
-						onclick={() => showVersionOptions = !showVersionOptions}
+						form=""
+						onclick={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
+							showVersionOptions = !showVersionOptions;
+						}}
 						disabled={isSaving}
 						class="flex items-center gap-1 hover:bg-gray-100 rounded px-1 py-0.5 -mx-1 disabled:opacity-50 disabled:cursor-not-allowed"
 						title={isSaving ? 'Saving...' : 'Save CV'}
