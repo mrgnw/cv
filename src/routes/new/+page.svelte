@@ -2,15 +2,14 @@
 	import { page } from '$app/state';
 	import { enhance } from '$app/forms';
 	import { dev } from '$app/environment';
-	import CV from '$lib/CV.svelte';
-	import GenerationMetadata from '$lib/components/GenerationMetadata.svelte';
+
 	import ModelDropdown from '$lib/components/ModelDropdown.svelte';
 	import JobDescriptionForm from '$lib/components/JobDescriptionForm.svelte';
 	import CVPreview from '$lib/components/CVPreview.svelte';
 	import { getEnabledModelIds } from '$lib/utils/format.js';
 	
 	// Receive server-side data using Svelte 5 $props
-	let { data, form } = $props();
+	let { data } = $props();
 	
 	let jobDescription = $state('');
 	let company = $state('');
@@ -29,6 +28,28 @@
 	
 	// Debug mode
 	let debugMode = $state(true);
+    function toggleDebugMode() {
+    debugMode = !debugMode;
+    
+    if (debugMode && !generatedCV) {
+        generatedCV = debugCVData;
+        generationMetadata = {
+            modelUsed: "debug-mode",
+            generatedAt: new Date().toISOString()
+        };
+        company = debugCVData.company;
+        title = debugCVData.title;
+        jobDescription = "Debug mode: Sample job description for Full Stack Software Engineer position at TechCorp. Looking for someone with React, Node.js, and cloud experience.";
+    } else if (!debugMode && generationMetadata?.modelUsed === "debug-mode") {
+        // Clear debug data when debug mode is turned off
+        generatedCV = null;
+        generationMetadata = null;
+        company = '';
+        title = '';
+        jobDescription = '';
+        // Don't clear save-related state to avoid navigation issues
+    }
+}
 	
 	// Debug CV data for testing save functionality
 	const debugCVData = {
@@ -75,31 +96,7 @@
 		]
 	};
 	
-	// Initialize debug data if debug mode is enabled
-	$effect(() => {
-		if (debugMode && !generatedCV) {
-			generatedCV = debugCVData;
-			generationMetadata = {
-				modelUsed: "debug-mode",
-				generatedAt: new Date().toISOString()
-			};
-			company = debugCVData.company;
-			title = debugCVData.title;
-			jobDescription = "Debug mode: Sample job description for Full Stack Software Engineer position at TechCorp. Looking for someone with React, Node.js, and cloud experience.";
-		} else if (!debugMode && generationMetadata?.modelUsed === "debug-mode") {
-			// Clear debug data when debug mode is turned off
-			generatedCV = null;
-			generationMetadata = null;
-			company = '';
-			title = '';
-			jobDescription = '';
-			saveSuccess = '';
-			saveError = '';
-			savedVersionSlug = '';
-			pdfStatus = '';
-			pdfError = '';
-		}
-	});
+	
 	
 	// Model prioritization with pricing data - initialized once with fallback pricing
 	let models = $state([
@@ -225,6 +222,7 @@
 	async function saveCV(createNewVersion = false) {
 		if (!generatedCV || isSaving) return;
 		
+		console.log('🟡 Save starting...');
 		isSaving = true;
 		saveError = '';
 		saveSuccess = '';
@@ -239,10 +237,10 @@
 				metadata: {
 					savedAt: new Date().toISOString(),
 					version: '1.0.0'
-					// Note: modelUsed is intentionally omitted from saved version
 				}
 			};
 			
+			console.log('🟡 Making fetch request...');
 			const response = await fetch('/api/save', {
 				method: 'POST',
 				headers: {
@@ -256,60 +254,76 @@
 				})
 			});
 			
+			console.log('🟡 Fetch completed:', response.status, response.ok);
 			const data = await response.json();
-
-			// Debug what we actually get from the server
-			console.log('Save response debug:', {
-				responseOk: response.ok,
-				responseStatus: response.status,
-				data: data
-			});
+			console.log('🟡 Response data:', data);
 
 			if (response.ok && data && data.filename !== undefined) {
+				console.log('🟢 Save successful, setting success state...');
 				const scoreText = generatedCV?.matchScore ? ` (Match: ${generatedCV.matchScore}/10)` : '';
 				const payText = generatedCV?.payScale ? ` (${generatedCV.payScale})` : '';
 				const versionText = data.isNewVersion ? ` v${data.versionNumber}` : '';
 				saveSuccess = `✅ Version${versionText} saved as versions/${data.filename}${scoreText}${payText}`;
 
-				// Store the slug for the preview link
+				console.log('🟢 Setting savedVersionSlug...');
 				savedVersionSlug = data.slug || '';
 
-				// Optionally trigger PDF generation in dev for the saved version
+				// PDF generation
 				if (dev && savedVersionSlug) {
+					console.log('🟡 Starting PDF generation...');
 					try {
 						const pdfRes = await fetch('/dev/api/pdf', {
 							method: 'POST',
-							headers: { 'Content-Type': 'application/json' },
+							headers: { 
+								'Content-Type': 'application/json',
+								'Accept': 'application/json'
+							},
 							body: JSON.stringify({ versions: [savedVersionSlug] })
 						});
-						const pdfJson = await pdfRes.json().catch(() => ({}));
-						if (pdfRes.ok && pdfJson.ok) {
-							pdfStatus = `📄 PDF generated in ${pdfJson.duration || '—'}`;
+						
+						console.log('🟡 PDF response:', pdfRes.status, pdfRes.ok);
+						
+						if (!pdfRes.ok) {
+							console.log('🔴 PDF generation HTTP error:', pdfRes.status, pdfRes.statusText);
+							pdfError = `PDF generation failed (HTTP ${pdfRes.status})`;
 						} else {
-							pdfError = pdfJson?.stderr || pdfJson?.error || `PDF generation failed (status ${pdfRes.status})`;
+							try {
+								const pdfJson = await pdfRes.json();
+								console.log('🟡 PDF JSON response:', pdfJson);
+								
+								if (pdfJson.ok) {
+									console.log('🟢 PDF generation successful');
+									pdfStatus = `📄 PDF generated in ${pdfJson.duration || '—'}`;
+								} else {
+									console.log('🔴 PDF generation failed (ok=false)');
+									pdfError = pdfJson?.stderr || pdfJson?.error || 'PDF generation failed';
+								}
+							} catch (jsonError) {
+								console.log('🔴 PDF response JSON parse error:', jsonError);
+								pdfError = 'PDF response was not valid JSON';
+							}
 						}
-					} catch (e) {
-						pdfError = 'PDF generation request failed';
+					} catch (fetchError) {
+						console.log('🔴 PDF generation fetch error:', fetchError);
+						// Don't set any error state if it's just a network issue
+						// This prevents potential navigation triggers
+						console.log('🟡 Skipping PDF error state to avoid navigation issues');
 					}
 				}
 
-				// Clear success message after 5 seconds
-				setTimeout(() => {
-					saveSuccess = '';
-					savedVersionSlug = '';
-					pdfStatus = '';
-					pdfError = '';
-				}, 5000);
+				console.log('🟢 Save operation completed successfully');
 			} else {
-				// Handle error response
+				console.log('🔴 Save failed:', { status: response.status, data });
 				const errorMsg = data?.error || `Save failed (${response.status})`;
 				saveError = errorMsg;
-				console.error('Save failed:', { status: response.status, data });
 			}
 		} catch (error) {
+			console.log('🔴 Save error:', error);
 			saveError = 'Network error while saving';
 		} finally {
+			console.log('🟡 Setting isSaving = false');
 			isSaving = false;
+			console.log('🟢 Save function completed');
 		}
 	}
 
@@ -341,7 +355,8 @@
 				>
 					<input
 						type="checkbox"
-						bind:checked={debugMode}
+						checked={debugMode}
+						onchange={toggleDebugMode}
 						class="w-4 h-4"
 					/>
 					<span class="text-sm font-medium"
@@ -358,7 +373,8 @@
 				<!-- Primary Model Selector -->
 				<ModelDropdown 
 					{models}
-					{currentModelLabel}
+					{currentModelLabel
+                    }
 					{formatPricing}
 					{modelNameMap}
 					{setPrimaryModel}
