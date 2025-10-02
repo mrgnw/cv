@@ -220,111 +220,54 @@
 	// URL extraction handler
 	// Save CV function with versioning support
 	async function saveCV(createNewVersion = false) {
-		if (!generatedCV || isSaving) return;
-		
-		console.log('🟡 Save starting...');
-		isSaving = true;
-		saveError = '';
-		saveSuccess = '';
-		actionError = '';
-		pdfStatus = '';
-		pdfError = '';
-		
-		try {
-			// Create CV data with metadata (strip model info for final version)
-			const cvWithMetadata = {
-				...generatedCV,
-				metadata: {
-					savedAt: new Date().toISOString(),
-					version: '1.0.0'
-				}
-			};
-			
-			console.log('🟡 Making fetch request...');
-			const response = await fetch('/api/save', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					cvData: cvWithMetadata,
-					company,
-					title,
-					createNewVersion
-				})
-			});
-			
-			console.log('🟡 Fetch completed:', response.status, response.ok);
-			const data = await response.json();
-			console.log('🟡 Response data:', data);
-
-			if (response.ok && data && data.filename !== undefined) {
-				console.log('🟢 Save successful, setting success state...');
-				const scoreText = generatedCV?.matchScore ? ` (Match: ${generatedCV.matchScore}/10)` : '';
-				const payText = generatedCV?.payScale ? ` (${generatedCV.payScale})` : '';
-				const versionText = data.isNewVersion ? ` v${data.versionNumber}` : '';
-				saveSuccess = `✅ Version${versionText} saved as versions/${data.filename}${scoreText}${payText}`;
-
-				console.log('🟢 Setting savedVersionSlug...');
-				savedVersionSlug = data.slug || '';
-
-				// PDF generation
-				if (dev && savedVersionSlug) {
-					console.log('🟡 Starting PDF generation...');
-					try {
-						const pdfRes = await fetch('/dev/api/pdf', {
-							method: 'POST',
-							headers: { 
-								'Content-Type': 'application/json',
-								'Accept': 'application/json'
-							},
-							body: JSON.stringify({ versions: [savedVersionSlug] })
-						});
-						
-						console.log('🟡 PDF response:', pdfRes.status, pdfRes.ok);
-						
-						if (!pdfRes.ok) {
-							console.log('🔴 PDF generation HTTP error:', pdfRes.status, pdfRes.statusText);
-							pdfError = `PDF generation failed (HTTP ${pdfRes.status})`;
-						} else {
-							try {
-								const pdfJson = await pdfRes.json();
-								console.log('🟡 PDF JSON response:', pdfJson);
-								
-								if (pdfJson.ok) {
-									console.log('🟢 PDF generation successful');
-									pdfStatus = `📄 PDF generated in ${pdfJson.duration || '—'}`;
-								} else {
-									console.log('🔴 PDF generation failed (ok=false)');
-									pdfError = pdfJson?.stderr || pdfJson?.error || 'PDF generation failed';
-								}
-							} catch (jsonError) {
-								console.log('🔴 PDF response JSON parse error:', jsonError);
-								pdfError = 'PDF response was not valid JSON';
-							}
-						}
-					} catch (fetchError) {
-						console.log('🔴 PDF generation fetch error:', fetchError);
-						// Don't set any error state if it's just a network issue
-						// This prevents potential navigation triggers
-						console.log('🟡 Skipping PDF error state to avoid navigation issues');
-					}
-				}
-
-				console.log('🟢 Save operation completed successfully');
-			} else {
-				console.log('🔴 Save failed:', { status: response.status, data });
-				const errorMsg = data?.error || `Save failed (${response.status})`;
-				saveError = errorMsg;
-			}
-		} catch (error) {
-			console.log('🔴 Save error:', error);
-			saveError = 'Network error while saving';
-		} finally {
-			console.log('🟡 Setting isSaving = false');
-			isSaving = false;
-			console.log('🟢 Save function completed');
-		}
+    if (!generatedCV || isSaving) return;
+    
+    isSaving = true;
+    saveSuccess = '';
+    saveError = '';
+    
+    try {
+        console.log('Starting save...');
+        
+        const response = await fetch('/api/save', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                cvData: {
+                    ...generatedCV,
+                    metadata: {
+                        savedAt: new Date().toISOString(),
+                        version: '1.0.0'
+                    }
+                },
+                company,
+                title,
+                createNewVersion
+            })
+        });
+        
+        console.log('Response received:', response.status, response.ok);
+        
+        const data = await response.json();
+        console.log('Response data:', data);
+        
+        if (response.ok) {
+            const scoreText = generatedCV?.matchScore ? ` (Match: ${generatedCV.matchScore}/10)` : '';
+            const payText = generatedCV?.payScale ? ` (${generatedCV.payScale})` : '';
+            const versionText = data.isNewVersion ? ` v${data.versionNumber}` : '';
+            saveSuccess = `✅ Version${versionText} saved as versions/${data.filename}${scoreText}${payText}`;
+        } else {
+            saveError = `❌ Save failed with status ${response.status}: ${data.error || 'Unknown error'}`;
+        }
+    } catch (err) {
+        console.error('Save error:', err);
+        saveError = `❌ Network error: ${err.message}`;
+    } finally {
+        isSaving = false;
+        console.log('Save operation completed');
+    }
 	}
 
 	// Regenerate with specific model
@@ -423,10 +366,8 @@
 			{saveError}
 			{savedVersionSlug}
 			{actionError}
-			{isSaving}
 			{pdfStatus}
 			{pdfError}
-			{isGenerating}
 			onSaveCV={saveCV}
 			onTogglePreview={handleTogglePreview}
 		/>
