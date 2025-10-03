@@ -10,7 +10,9 @@ export default defineConfig({
 			ignored: [
 				'**/static/**/*.pdf',
 				'**/.pdf-cache.json',
-				'**/pdf-*.log'
+				'**/pdf-*.log',
+				// Ignore generated CV version files to avoid triggering full reloads on save
+				'**/src/lib/versions/**'
 			]
 		}
 	}

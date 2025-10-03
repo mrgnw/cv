@@ -3,6 +3,51 @@
     let saveResult = $state('');
     let error = $state('');
 
+    // Sample CV data for testing actual save functionality
+    const sampleCVData = {
+        title: "Full Stack Software Engineer",
+        company: "TestCorp",
+        matchScore: 9,
+        payScale: "$130,000 - $160,000",
+        normalizedTitle: "software-engineer-full-stack-test",
+        projects: [
+            {
+                name: "Test Analytics Dashboard",
+                description: "Built a test dashboard processing 1M+ events/day using React, Node.js, and WebSocket connections",
+                url: "https://github.com/example/test-analytics-dashboard",
+                localized_name: "Test Analytics Dashboard"
+            },
+            {
+                name: "Test Microservices Architecture",
+                description: "Designed and implemented test microservices using Docker, Kubernetes, and gRPC",
+                url: "https://github.com/example/test-microservices",
+                localized_name: "Test Microservices Platform"
+            }
+        ],
+        experience: [
+            {
+                title: "Senior Software Engineer",
+                company: "Test Previous Corp",
+                start: "2022-01-01",
+                end: null,
+                achievements: [
+                    "Led development of core platform features serving 100k+ users",
+                    "Reduced API response times by 40% through optimization",
+                    "Mentored 3 junior developers"
+                ]
+            }
+        ],
+        skills: ["JavaScript", "TypeScript", "React", "Node.js", "PostgreSQL", "AWS", "Docker", "Testing"],
+        education: [
+            {
+                provider: "University of Technology",
+                degree: "Computer Science",
+                year: "2020",
+                summary: "B.S. in Computer Science with focus on software engineering"
+            }
+        ]
+    };
+
     async function testSave() {
         if (isSaving) return;
         
@@ -11,16 +56,24 @@
         error = '';
         
         try {
-            console.log('Starting simulated save...');
+            console.log('Starting actual CV save...');
             
-            const response = await fetch('/api/simulate-save', {
+            const response = await fetch('/api/save', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    testData: 'This is a test save',
-                    timestamp: new Date().toISOString()
+                    cvData: {
+                        ...sampleCVData,
+                        metadata: {
+                            savedAt: new Date().toISOString(),
+                            version: '1.0.0'
+                        }
+                    },
+                    company: sampleCVData.company,
+                    title: sampleCVData.title,
+                    createNewVersion: false
                 })
             });
             
@@ -30,7 +83,10 @@
             console.log('Response data:', data);
             
             if (response.ok) {
-                saveResult = `✅ Simulated save successful! Response: ${JSON.stringify(data)}`;
+                const scoreText = sampleCVData?.matchScore ? ` (Match: ${sampleCVData.matchScore}/10)` : '';
+                const payText = sampleCVData?.payScale ? ` (${sampleCVData.payScale})` : '';
+                const versionText = data.isNewVersion ? ` v${data.versionNumber}` : '';
+                saveResult = `✅ Version${versionText} saved as versions/${data.filename}${scoreText}${payText}`;
             } else {
                 error = `❌ Save failed with status ${response.status}: ${data.error || 'Unknown error'}`;
             }
@@ -45,21 +101,24 @@
 </script>
 
 <svelte:head>
-    <title>Save Test Page</title>
+    <title>CV Save Test</title>
 </svelte:head>
 
 <div class="container max-w-2xl mx-auto p-8">
     <header class="mb-8">
-        <h1 class="text-3xl font-bold mb-2">Save Workflow Test</h1>
+        <h1 class="text-3xl font-bold mb-2">CV Save Test</h1>
         <p class="text-gray-600">
-            Testing fetch requests to confirm save functionality works without page reloads
+            Testing actual CV save functionality with sample data - no page reloads
         </p>
     </header>
 
     <div class="space-y-6">
         <!-- Test Button -->
         <div class="border rounded-lg p-6">
-            <h2 class="text-xl font-semibold mb-4">Simulate Save Operation</h2>
+            <h2 class="text-xl font-semibold mb-4">Save Sample CV</h2>
+            <p class="text-sm text-gray-600 mb-4">
+                This will save a sample CV with TestCorp company data to test the save functionality.
+            </p>
             
             <button
                 type="button"
@@ -67,7 +126,7 @@
                 disabled={isSaving}
                 class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-                {isSaving ? '⏳ Saving...' : '💾 Test Save'}
+                {isSaving ? '⏳ Saving...' : '💾 Save Test CV'}
             </button>
         </div>
 
@@ -91,6 +150,8 @@
             <h3 class="font-medium mb-2">Debug Info</h3>
             <ul class="text-sm text-gray-600 space-y-1">
                 <li>• Current saving state: <code>{isSaving}</code></li>
+                <li>• Uses real <code>/api/save</code> endpoint</li>
+                <li>• Saves sample CV data for TestCorp</li>
                 <li>• Page should NOT reload after clicking the button</li>
                 <li>• Check browser console for detailed logs</li>
                 <li>• Check Network tab to see the API request</li>

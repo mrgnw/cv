@@ -96,7 +96,21 @@
 		]
 	};
 	
-	
+	// Utilities
+	function slugify(s) {
+		return s
+			.toLowerCase()
+			.replace(/[^a-z0-9]+/g, "-")
+			.replace(/^-+|-+$/g, "")
+			.slice(0, 80);
+	}
+
+	// Derived displays - Svelte 5 style
+	let savePath = $derived(
+		generatedCV
+			? `versions/${slugify(generatedCV.title || "cv")}${generatedCV.company ? "." + slugify(generatedCV.company) : ""}.json`
+			: ""
+	);
 	
 	// Model prioritization with pricing data - initialized once with fallback pricing
 	let models = $state([
@@ -217,60 +231,58 @@
 		};
 	}
 
-	// URL extraction handler
-	// Save CV function with versioning support
+	// Save CV function - using direct fetch like in /save
 	async function saveCV(createNewVersion = false) {
-    if (!generatedCV || isSaving) return;
-    
-    isSaving = true;
-    saveSuccess = '';
-    saveError = '';
-    
-    try {
-        console.log('Starting save...');
-        
-        const response = await fetch('/api/save', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                cvData: {
-                    ...generatedCV,
-                    metadata: {
-                        savedAt: new Date().toISOString(),
-                        version: '1.0.0'
-                    }
-                },
-                company,
-                title,
-                createNewVersion
-            })
-        });
-        
-        console.log('Response received:', response.status, response.ok);
-        
-        const data = await response.json();
-        console.log('Response data:', data);
-        
-        if (response.ok) {
-            const scoreText = generatedCV?.matchScore ? ` (Match: ${generatedCV.matchScore}/10)` : '';
-            const payText = generatedCV?.payScale ? ` (${generatedCV.payScale})` : '';
-            const versionText = data.isNewVersion ? ` v${data.versionNumber}` : '';
-            saveSuccess = `✅ Version${versionText} saved as versions/${data.filename}${scoreText}${payText}`;
-        } else {
-            saveError = `❌ Save failed with status ${response.status}: ${data.error || 'Unknown error'}`;
-        }
-    } catch (err) {
-        console.error('Save error:', err);
-        saveError = `❌ Network error: ${err.message}`;
-    } finally {
-        isSaving = false;
-        console.log('Save operation completed');
-    }
+		if (!generatedCV || isSaving) return;
+		
+		isSaving = true;
+		saveSuccess = '';
+		saveError = '';
+		
+		try {
+			console.log('Starting save...');
+			
+			const response = await fetch('/api/save', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					cvData: {
+						...generatedCV,
+						metadata: {
+							savedAt: new Date().toISOString(),
+							version: '1.0.0'
+						}
+					},
+					company,
+					title,
+					createNewVersion
+				})
+			});
+			
+			console.log('Response received:', response.status, response.ok);
+			
+			const data = await response.json();
+			console.log('Response data:', data);
+			
+			if (response.ok) {
+				const scoreText = generatedCV?.matchScore ? ` (Match: ${generatedCV.matchScore}/10)` : '';
+				const payText = generatedCV?.payScale ? ` (${generatedCV.payScale})` : '';
+				const versionText = data.isNewVersion ? ` v${data.versionNumber}` : '';
+				saveSuccess = `✅ Version${versionText} saved as versions/${data.filename}${scoreText}${payText}`;
+			} else {
+				saveError = `❌ Save failed with status ${response.status}: ${data.error || 'Unknown error'}`;
+			}
+		} catch (err) {
+			console.error('Save error:', err);
+			saveError = `❌ Network error: ${err.message}`;
+		} finally {
+			isSaving = false;
+			console.log('Save operation completed');
+		}
 	}
 
-	// Regenerate with specific model
 	// Preview toggle handler
 	function handleTogglePreview() {
 		showPreview = !showPreview;
@@ -357,20 +369,90 @@
 			onGenerateSubmit={handleSubmit}
 		/>
 
-		<!-- Right Panel: Generated CV -->
-		<CVPreview
-			{generatedCV}
-			{generationMetadata}
-			{showPreview}
-			{saveSuccess}
-			{saveError}
-			{savedVersionSlug}
-			{actionError}
-			{pdfStatus}
-			{pdfError}
-			onSaveCV={saveCV}
-			onTogglePreview={handleTogglePreview}
-		/>
+		<!-- Right Panel: CV Display and Actions -->
+		<div class="flex flex-col h-full min-h-0 space-y-4">
+			<!-- Status Messages -->
+			{#if generatedCV && (saveSuccess || saveError || pdfStatus || pdfError || actionError)}
+				<div class="space-y-2">
+					{#if saveSuccess}
+						<div class="p-3 bg-green-50 border-l-4 border-green-500 rounded-r-lg">
+							<p class="text-green-700 text-sm">{saveSuccess}</p>
+							{#if savedVersionSlug}
+								<a
+									href="/{savedVersionSlug}"
+									class="text-green-600 underline text-sm mt-1 inline-block"
+									target="_blank"
+								>
+									→ View saved version
+								</a>
+							{/if}
+						</div>
+					{/if}
+
+					{#if pdfStatus}
+						<div class="p-3 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+							<p class="text-blue-700 text-sm">PDF: {pdfStatus}</p>
+						</div>
+					{/if}
+
+					{#if saveError}
+						<div class="p-3 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
+							<p class="text-red-700 text-sm">Error: {saveError}</p>
+						</div>
+					{/if}
+
+					{#if pdfError}
+						<div class="p-3 bg-yellow-50 border-l-4 border-yellow-500 rounded-r-lg">
+							<p class="text-yellow-800 text-sm">PDF: {pdfError}</p>
+						</div>
+					{/if}
+
+					{#if actionError}
+						<div class="p-3 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
+							<p class="text-red-700 text-sm">Error: {actionError}</p>
+						</div>
+					{/if}
+				</div>
+			{/if}
+
+			<!-- Save Controls - Simple like /save page -->
+			{#if generatedCV}
+				<div class="border rounded-lg p-4">
+					<h3 class="text-lg font-semibold mb-3">Save CV</h3>
+					<div class="flex gap-2">
+						<button
+							type="button"
+							onclick={() => saveCV(false)}
+							disabled={isSaving}
+							class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+						>
+							{isSaving ? '⏳ Saving...' : '💾 Save Latest Version'}
+						</button>
+						<button
+							type="button"
+							onclick={() => saveCV(true)}
+							disabled={isSaving}
+							class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+						>
+							{isSaving ? '⏳ Saving...' : '📑 Save New Version'}
+						</button>
+					</div>
+					<p class="text-sm text-gray-600 mt-2">
+						Save path: <code class="bg-gray-100 px-1 rounded">{savePath}</code>
+					</p>
+				</div>
+			{/if}
+
+			<!-- CV Preview -->
+			<div class="flex-1 min-h-0">
+				<CVPreview
+					{generatedCV}
+					{generationMetadata}
+					{showPreview}
+					onTogglePreview={handleTogglePreview}
+				/>
+			</div>
+		</div>
 	</div>
 </div>
 
