@@ -8,22 +8,25 @@
 	import { format } from "date-fns";
 
 	// Props
-	export let name: string;
-	export let title: string;
-	export let email: string;
-	export let github: string;
-	export let pdfLink: string = "/morgan-williams-cv";
-	export let resolvedProjects: any[] = [];
-	export let experience: any[];
-	export let skills: string[];
-	export let education: any[];
-	export let version: string | undefined = undefined;
-	export let lang: string = 'en';
-	export let variant: 'modern' | 'traditional' = 'modern';
+	let {
+		name,
+		title,
+		email,
+		github,
+		pdfLink = "/morgan-williams-cv",
+		resolvedProjects = [],
+		experience,
+		skills,
+		education,
+		version = undefined,
+		lang = 'en',
+		variant = 'modern',
+		contentLimits = null
+	} = $props();
 
 	const iconSize = 30;
 	let highlightedSkill = "";
-	$: projects = resolvedProjects;
+	// Use optimized projects from derived value above
 
 	function highlightStack(skill: string) {
 		highlightedSkill = skill;
@@ -41,15 +44,73 @@
 		}
 	}
 
-	const isPrinting = browser && new URLSearchParams(window.location.search).has("print");
 	const searchParams = browser ? new URLSearchParams(window.location.search) : null;
-	const removeProjects = searchParams?.get('removeProjects') 
-		? parseInt(searchParams.get('removeProjects')!) 
-		: 0;
+	const isPrinting = contentLimits?.print || (browser && searchParams?.has("print"));
 
-	if (removeProjects > 0 && projects?.length) {
-		projects = projects.slice(0, Math.max(0, projects.length - removeProjects));
+	// Use server-provided contentLimits if available, otherwise fall back to browser search params
+	const effectiveContentLimits = $derived(() => {
+		if (contentLimits) {
+			return contentLimits;
+		}
+
+		if (!searchParams) return getDefaultLimits();
+
+		// Only apply limits if they are explicitly set in searchParams
+		// This ensures web pages show full content, and only PDF optimization applies limits
+		return {
+			exp1: searchParams.has('limitExp1') ? parseInt(searchParams.get('limitExp1')) : null,
+			exp2: searchParams.has('limitExp2') ? parseInt(searchParams.get('limitExp2')) : null,
+			exp3: searchParams.has('limitExp3') ? parseInt(searchParams.get('limitExp3')) : null,
+			exp4: searchParams.has('limitExp4') ? parseInt(searchParams.get('limitExp4')) : null,
+			projects: searchParams.has('maxProjects') ? parseInt(searchParams.get('maxProjects')) : null,
+			removeProjects: searchParams.has('removeProjects') ? parseInt(searchParams.get('removeProjects')) : 0,
+			print: searchParams.has('print')
+		};
+	});
+
+	function getDefaultLimits() {
+		// Default is to show ALL content (no limits)
+		return { exp1: null, exp2: null, exp3: null, exp4: null, projects: null, removeProjects: 0, print: false };
 	}
+
+	// Apply content limits only when explicitly set
+	const optimizedExperience = $derived(
+		experience.map((exp, i) => {
+			const limit = getExpLimit(i);
+			return {
+				...exp,
+				achievements: limit !== null ? exp.achievements.slice(0, limit) : exp.achievements
+			};
+		})
+	);
+
+	const optimizedProjects = $derived(() => {
+		if (!resolvedProjects) return [];
+
+		const limits = effectiveContentLimits;
+		const maxProjects = limits.projects;
+		const removeCount = limits.removeProjects;
+
+		// If no limits specified, show all projects
+		if (maxProjects === null && removeCount === 0) {
+			return resolvedProjects;
+		}
+
+		// Apply limits
+		const effectiveMax = maxProjects !== null
+			? Math.max(0, maxProjects - removeCount)
+			: Math.max(0, resolvedProjects.length - removeCount);
+
+		return resolvedProjects.slice(0, effectiveMax);
+	});
+
+	function getExpLimit(index) {
+		const limits = effectiveContentLimits;
+		const limitValues = [limits.exp1, limits.exp2, limits.exp3, limits.exp4];
+		return limitValues[index]; // Returns null if not set, which means no limit
+	}
+
+
 
 	// Internationalization
 	const es_labels = {
@@ -68,27 +129,27 @@
 		present: 'Present'
 	};
 
-	$: labels = lang === 'es' ? es_labels : en_labels;
+	const labels = $derived(lang === 'es' ? es_labels : en_labels);
 
 	// Style classes based on variant
-	$: containerClass = variant === 'modern' 
-		? "max-w-3xl mx-auto p-8 bg-background text-foreground print:p-0 print:max-w-none print:m-0" 
-		: "max-w-[800px] mx-auto p-8 bg-white text-black print:p-4 font-serif";
+	const containerClass = $derived(variant === 'modern'
+		? "max-w-3xl mx-auto p-8 bg-background text-foreground print:p-0 print:max-w-none print:m-0"
+		: "max-w-[800px] mx-auto p-8 bg-white text-black print:p-4 font-serif");
 
-	$: headerClass = variant === 'modern'
+	const headerClass = $derived(variant === 'modern'
 		? "flex items-start justify-between mb-8 print:mb-2 print:mt-0"
-		: "text-center mb-4";
+		: "text-center mb-4");
 
-	$: titleClass = variant === 'modern' 
-		? "text-4xl font-bold mb-1" 
-		: "text-4xl font-bold";
+	const titleClass = $derived(variant === 'modern'
+		? "text-4xl font-bold mb-1"
+		: "text-4xl font-bold");
 
-	$: sectionHeaderClass = variant === 'modern'
+	const sectionHeaderClass = $derived(variant === 'modern'
 		? "text-2xl font-semibold shrink-0"
-		: "text-lg font-bold border-b border-black pb-0.5 mb-2";
+		: "text-lg font-bold border-b border-black pb-0.5 mb-2");
 </script>
 
-<div class={containerClass}>
+<div class={containerClass} class:print-optimizing={isPrinting}>
 	{#if variant === 'modern'}
 		<!-- Modern variant header -->
 		<header class={headerClass}>
@@ -141,14 +202,14 @@
 			<h2 class={sectionHeaderClass}>{labels.experience}</h2>
 			<Separator class="flex-grow" />
 		</div>
-		<Experience {experience} {highlightedSkill} />
+		<Experience experience={optimizedExperience} {highlightedSkill} />
 
-		{#if projects?.length > 0}
+		{#if optimizedProjects?.length > 0}
 			<div class="flex items-center gap-4 mb-2 w-[85%] print:mb-1">
 				<h2 class={sectionHeaderClass}>{labels.projects}</h2>
 				<Separator class="flex-grow" />
 			</div>
-			<Projects {projects} />
+			<Projects projects={optimizedProjects} />
 		{/if}
 
 		<div class="flex items-center gap-4 mb-2 w-[85%] print:mb-1">
@@ -182,7 +243,7 @@
 		<!-- Traditional variant -->
 		<header class={headerClass}>
 			<h1 class={titleClass}>{name}</h1>
-			
+
 			<!-- Contact Info -->
 			<div class="mt-2 text-sm space-x-2">
 				<a href={`mailto:${email}`} class="hover:underline">{email}</a>
@@ -204,7 +265,7 @@
 		<!-- Experience -->
 		<section class="mb-6">
 			<h2 class={sectionHeaderClass}>{labels.experience}</h2>
-			{#each experience as job}
+			{#each optimizedExperience as job}
 				<div class="mb-4">
 					<div class="flex justify-between items-baseline">
 						<div>
@@ -225,10 +286,11 @@
 		</section>
 
 		<!-- Projects -->
-		{#if projects?.length}
+		<!-- Projects -->
+		{#if optimizedProjects?.length > 0}
 			<section class="mb-6">
 				<h2 class={sectionHeaderClass}>{labels.projects}</h2>
-				{#each projects as project}
+				{#each optimizedProjects as project}
 					<div class="mb-3">
 						<div class="flex justify-between items-baseline">
 							<a href={project.url} target="_blank" rel="noopener noreferrer" class="font-bold hover:underline">
@@ -274,6 +336,52 @@
 </a>
 
 <style>
+	/* Enhanced print optimizations */
+	@media print {
+		.print-optimizing {
+			/* Priority-based content limiting for print */
+			--exp-1-max: 5;
+			--exp-2-max: 4;
+			--exp-3-max: 4;
+			--exp-4-max: 3;
+			--projects-max: 4;
+		}
+
+		/* Hide lower priority content if page overflow */
+		.print-optimizing :global(.experience-item:nth-child(4) .achievement:nth-child(n+4)) {
+			display: none;
+		}
+
+		.print-optimizing :global(.project-item:nth-child(n+5)) {
+			display: none;
+		}
+
+		/* Compact spacing for print */
+		.print-optimizing {
+			font-size: 11pt !important;
+			line-height: 1.3 !important;
+		}
+
+		.print-optimizing :global(.mb-4) {
+			margin-bottom: 0.75rem !important;
+		}
+
+		.print-optimizing :global(.mb-2) {
+			margin-bottom: 0.5rem !important;
+		}
+	}
+
+	/* Container queries for dynamic optimization */
+	@container (max-height: 800px) {
+		:global(.experience-item:nth-child(4)) {
+			opacity: 0.8;
+		}
+
+		:global(.project-item:nth-child(n+4)) {
+			opacity: 0.7;
+		}
+	}
+
 	/* Modern variant styles */
 	:root {
 		--line-height: 1.5;

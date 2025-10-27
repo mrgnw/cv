@@ -2,7 +2,7 @@
 
 ## ✨ **Smart Watch Mode Features**
 
-Our PDF generation system now includes **intelligent selective regeneration** that's incredibly efficient:
+Our PDF generation system now includes **intelligent selective regeneration** and **priority-based content optimization** that's incredibly efficient:
 
 ### 🎯 **Selective PDF Generation**
 - **Version File Changes**: Only regenerates PDFs for the specific versions that changed
@@ -51,6 +51,15 @@ npm run pdf:changed
 
 # Generate only versions changed vs another ref (example feature branch base)
 node pdf-cli.js --changed=origin/develop
+
+# Enhanced content optimization (NEW)
+npm run pdf:optimized
+
+# Force regenerate with optimization
+npm run pdf:force-optimized
+
+# Watch mode with optimization
+npm run pdf:watch-optimized
 ```
 
 ### **Watch Mode Demo**
@@ -81,6 +90,25 @@ $ npm run pdf:watch
 ✅ Regeneration complete
 ```
 
+## 🎯 **Content Optimization System**
+
+### **Priority-Based Content Reduction**
+The system intelligently reduces content to ensure single-page PDFs while maintaining the most important information:
+
+**Priority Order (highest to lowest):**
+1. **Experience Item #1** (min 3, max 5 bullet points)
+2. **Experience Items #2-3** (min 2, max 4 bullet points)  
+3. **Projects Section** (1-4 items)
+4. **Experience Item #4** (min 1, max 3 bullet points)
+
+**Optimization Parameters:**
+- `limitExp1=5` - Max achievements for top experience
+- `limitExp2=4` - Max achievements for second experience  
+- `limitExp3=4` - Max achievements for third experience
+- `limitExp4=3` - Max achievements for fourth experience
+- `maxProjects=4` - Max number of projects to show
+- `removeProjects=2` - Legacy parameter for project removal
+
 ## ⚡ **Performance Benefits**
 
 | Scenario | Before | After | Speedup |
@@ -89,19 +117,33 @@ $ npm run pdf:watch
 | **Global component change** | Regenerate all 11 PDFs (~45s) | Parallel generation (unlimited concurrency) (~10-15s) | **3-4x faster** |
 | **Multiple version changes** | Regenerate all 11 PDFs | Batch regenerate only changed | **5-8x faster** |
 | **No changes** | Always regenerate | Skip unchanged (cache) | **∞x faster** |
+| **Content optimization** | Manual content editing | Automatic priority-based reduction | **Seamless** |
 
 ## 🛠️ **Development Workflow**
 
 ### **Perfect for Iterative Development**
 ```bash
-# Start watch mode once
-npm run pdf:watch
+# Start optimized watch mode once
+npm run pdf:watch-optimized
 
-# Then just edit files - PDFs update automatically!
-# ✏️  Edit allianz backend requirements → only allianz-backend.pdf updates
-# ✏️  Edit coinbase skills → only coinbase.pdf updates  
-# ✏️  Edit CVSans component → all PDFs update
-# ✏️  Add new version → new PDF appears automatically
+# Then just edit files - PDFs update automatically with smart optimization!
+# ✏️  Edit allianz backend requirements → only allianz-backend.pdf updates (optimized)
+# ✏️  Edit coinbase skills → only coinbase.pdf updates (optimized)
+# ✏️  Edit CVSans component → all PDFs update (with content optimization)
+# ✏️  Add new version → new PDF appears automatically (single-page guaranteed)
+```
+
+### **Content Optimization Examples**
+```bash
+# Example optimization output
+🎯 Optimizing content for allianz-backend...
+📐 Applied reduction step 2: { limitExp4: 2 }
+✅ Generated: static/morgan-williams.allianz-backend.pdf
+
+# Example with more aggressive reduction needed  
+🎯 Optimizing content for main...
+📐 Applied reduction step 5: { limitExp4: 1, maxProjects: 1 }
+✅ Generated: static/morgan-williams.pdf
 ```
 
 ### **Git Integration**
@@ -136,6 +178,37 @@ src/lib/versions/dx.json                     → morgan-williams.dx.pdf
 - Parallel PDF generation (page pool sized by PDF_CONCURRENCY env var; default unlimited for small sets)
 - Persistent browser in watch mode reduces launch overhead
 
+## 🎨 **CSS Print Media Optimization**
+
+The system uses modern CSS techniques for intelligent content reduction:
+
+### **Priority-Based CSS Rules**
+```css
+/* Experience item priority limiting */
+.experience-item[data-priority="1"] .achievement:nth-child(n+6) { display: none; }
+.experience-item[data-priority="2"] .achievement:nth-child(n+5) { display: none; }
+.experience-item[data-priority="3"] .achievement:nth-child(n+5) { display: none; }
+.experience-item[data-priority="4"] .achievement:nth-child(n+4) { display: none; }
+
+/* Project limiting */
+.project-item:nth-child(n+5) { display: none; }
+```
+
+### **Responsive Print Layout**
+```css
+@media print {
+  .print-optimizing {
+    font-size: 11pt !important;
+    line-height: 1.3 !important;
+  }
+  
+  /* Container queries for dynamic adaptation */
+  @container (max-height: 800px) {
+    .experience-item:nth-child(4) { opacity: 0.8; }
+  }
+}
+```
+
 ---
 
-**This system makes PDF management completely seamless during development while ensuring production deployments always have up-to-date PDFs!** 🎉
+**This system makes PDF management completely seamless during development while ensuring production deployments always have up-to-date, single-page PDFs with intelligent content optimization!** 🎉

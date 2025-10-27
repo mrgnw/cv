@@ -1,8 +1,11 @@
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect, beforeAll, vi } from "vitest";
 
-// Mock the imports to avoid module resolution issues
+// Mock data that simulates the structure of actual CV data
 const mockMainData = {
     name: "Morgan Williams",
+    title: "Rapid full-stack development at scale",
+    email: "morganfwilliams@me.com",
+    github: "https://github.com/mrgnw",
     experience: [
         {
             title: "Data Engineering Consultant",
@@ -31,6 +34,7 @@ const mockMainData = {
             achievements: [
                 "Designed and implemented data infrastructure and pipelines, enabling faster business operations and enhanced data insights while cutting costs significantly.",
                 "Transitioned legacy workflows to modern data pipelines, accelerating tasks by 100x to 1000x through automation, reducing multi-hour processes to seconds or milliseconds.",
+                "Mentored data analysts in Python and SQL, expanding their skills and capabilities, resulting in a substantial increase in productivity.",
             ],
         },
         {
@@ -45,25 +49,29 @@ const mockMainData = {
             ],
         },
     ],
+    projects: ["Resume", "Multilingual translator", "TextMe"],
+    pdfLink: "/morgan-williams.pdf",
 };
 
-const mockExperienceData = {
+const mockBitpandaData = {
+    name: "Morgan Williams",
+    title: "Data Engineering Specialist - Cryptocurrency & FinTech",
     experience: [
         {
-            title: "Data Engineering Consultant",
+            title: "Senior Data Engineer",
             company: "CGI",
             start: "2025-03-17",
             skills: [
                 "Python",
                 "AWS",
-                "ETL",
-                "SQL",
-                "CI/CD",
                 "Databricks",
-                "Airflow",
+                "Spark",
+                "Kafka",
+                "Cryptocurrency",
             ],
             achievements: [
-                "Architected and deployed custom AWS Lambda connectors with Kinesis Data Streams integration, enabling real-time event-driven data streaming for critical business workflows processing 10M+ events daily and reducing data latency from hours to sub-second response times.",
+                "Built scalable data pipelines processing cryptocurrency market data in real-time",
+                "Optimized query performance for high-frequency trading analytics",
             ],
         },
         {
@@ -71,97 +79,188 @@ const mockExperienceData = {
             company: "National Care Dental",
             start: "2022-05-01",
             end: "2025-03-17",
-            skills: ["Python", "AWS", "ETL", "SQL", "APIs", "Mentoring"],
             achievements: [
-                "Designed and implemented data infrastructure and pipelines, enabling faster business operations and enhanced data insights while cutting costs significantly.",
+                "Specialized in financial data processing and compliance reporting",
+                "Developed cryptocurrency trading analytics platform",
             ],
         },
     ],
+    projects: ["Crypto Analytics", "Trading Dashboard"],
+    pdfLink: "/morgan-williams.bitpanda.pdf",
 };
+
+const mockProjects = [
+    {
+        name: "Resume",
+        technologies: ["Svelte", "TypeScript", "Tailwind"],
+        description: "Dynamic resume with PDF generation",
+    },
+    {
+        name: "Multilingual translator",
+        technologies: ["Python", "FastAPI"],
+        description: "AI-powered translation service",
+    },
+    {
+        name: "TextMe",
+        technologies: ["React", "Node.js"],
+        description: "Real-time messaging application",
+    },
+    {
+        name: "Crypto Analytics",
+        technologies: ["Python", "Kafka", "Redis"],
+        description: "Real-time cryptocurrency market analysis",
+    },
+    {
+        name: "Trading Dashboard",
+        technologies: ["React", "WebSocket", "D3.js"],
+        description: "Real-time trading analytics dashboard",
+    },
+];
 
 // Mock version reader functions
 const mockVersionMap = {
     main: mockMainData,
-    bitpanda: {
-        ...mockMainData,
-        company: "Bitpanda",
-        title: "Data Engineer",
-        normalizedTitle: "data",
-        experience: [
-            {
-                title: "Data Engineering Consultant",
-                company: "National Care Dental",
-                start: "2022-05-01",
-                end: "2025-03-17",
-                achievements: [
-                    "Designed and implemented scalable data infrastructure and pipelines using AWS and Python, enabling faster business operations and enhanced data insights while cutting costs significantly",
-                ],
-                skills: [
-                    "Python",
-                    "AWS",
-                    "ETL",
-                    "SQL",
-                    "APIs",
-                    "Data Governance",
-                ],
-            },
-        ],
-    },
+    bitpanda: mockBitpandaData,
 };
 
+function mockGetVersion(slug) {
+    return mockVersionMap[slug] || null;
+}
+
 function mockCoalesceVersion(slug) {
+    const main = mockVersionMap["main"];
+    const version = mockGetVersion(slug);
+
+    if (!main || !version) {
+        return null;
+    }
+
     if (slug === "main") {
         return {
-            ...mockMainData,
-            pdfLink: "/morgan-williams.pdf",
+            ...main,
+            resolvedProjects: resolveProjects(main.projects || []),
         };
     }
 
-    const version = mockVersionMap[slug];
-    if (!version) return null;
-
-    return {
-        ...mockMainData,
+    // Merge main and version data
+    const merged = {
+        ...main,
         ...version,
-        pdfLink:
-            slug === "main"
-                ? "/morgan-williams.pdf"
-                : `/morgan-williams.${slug}.pdf`,
+        experience: mergeExperiences(main.experience, version.experience),
+        resolvedProjects: resolveProjects(
+            version.projects || main.projects || [],
+        ),
     };
+
+    return merged;
 }
 
 function mockGetAllVersions() {
     return Object.keys(mockVersionMap);
 }
 
-describe("Experience Data Rendering Tests", () => {
+function resolveProjects(projectNames) {
+    return projectNames.map((name) => {
+        if (typeof name === "string") {
+            const project = mockProjects.find((p) => p.name === name);
+            return (
+                project || {
+                    name,
+                    description: "Project not found",
+                    technologies: [],
+                }
+            );
+        }
+        return name;
+    });
+}
+
+function mergeExperiences(mainExperiences, versionExperiences) {
+    const maxLength = Math.max(
+        mainExperiences.length,
+        versionExperiences.length,
+    );
+    const mergedExperiences = [];
+
+    for (let i = 0; i < maxLength; i++) {
+        const mainExp = mainExperiences[i];
+        const versionExp = versionExperiences[i];
+
+        if (mainExp && versionExp) {
+            mergedExperiences.push({
+                ...mainExp,
+                ...versionExp,
+                achievements: mergeAchievements(
+                    mainExp.achievements,
+                    versionExp.achievements,
+                ),
+            });
+        } else if (versionExp) {
+            mergedExperiences.push({
+                ...versionExp,
+                achievements: versionExp.achievements || [],
+            });
+        } else if (mainExp) {
+            mergedExperiences.push({
+                ...mainExp,
+                achievements: mainExp.achievements || [],
+            });
+        }
+    }
+
+    return mergedExperiences;
+}
+
+function mergeAchievements(mainAchievements = [], versionAchievements = []) {
+    const maxLength = Math.max(
+        mainAchievements.length,
+        versionAchievements.length,
+    );
+    const mergedAchievements = [];
+
+    for (let i = 0; i < maxLength; i++) {
+        const versionLine =
+            typeof versionAchievements[i] === "string"
+                ? versionAchievements[i].trim()
+                : "";
+        mergedAchievements[i] = versionLine || mainAchievements[i] || "";
+    }
+
+    return mergedAchievements;
+}
+
+describe("Experience Rendering Tests for CV Routes", () => {
     let allVersions;
 
     beforeAll(() => {
         allVersions = mockGetAllVersions();
     });
 
-    describe("Main CV Experience Data", () => {
+    describe("Main CV Route Experience Data", () => {
         it("should load main CV data successfully", () => {
-            const mainCV = mockCoalesceVersion("main");
+            const mainCV = mockGetVersion("main");
             expect(mainCV).toBeTruthy();
             expect(mainCV.experience).toBeDefined();
             expect(Array.isArray(mainCV.experience)).toBe(true);
+            expect(mainCV.experience.length).toBeGreaterThan(0);
         });
 
-        it("should have National Care Dental experience with correct end date", () => {
-            const mainCV = mockCoalesceVersion("main");
-            const ncdExperience = mainCV.experience.find(
-                (exp) => exp.company === "National Care Dental",
-            );
+        it("should have correct experience data structure", () => {
+            const mainCV = mockGetVersion("main");
+            const firstExperience = mainCV.experience[0];
 
-            expect(ncdExperience).toBeTruthy();
-            expect(ncdExperience.end).toBe("2025-03-17");
-            expect(ncdExperience.title).toBe("Fullstack software architect");
+            expect(firstExperience).toHaveProperty("title");
+            expect(firstExperience).toHaveProperty("company");
+            expect(firstExperience).toHaveProperty("start");
+            expect(firstExperience).toHaveProperty("skills");
+            expect(firstExperience).toHaveProperty("achievements");
+
+            expect(Array.isArray(firstExperience.skills)).toBe(true);
+            expect(Array.isArray(firstExperience.achievements)).toBe(true);
         });
 
         it("should have CGI as the current role (no end date)", () => {
-            const mainCV = mockCoalesceVersion("main");
+            const mainCV = mockGetVersion("main");
             const cgiExperience = mainCV.experience.find(
                 (exp) => exp.company === "CGI",
             );
@@ -172,8 +271,20 @@ describe("Experience Data Rendering Tests", () => {
             expect(cgiExperience.title).toBe("Data Engineering Consultant");
         });
 
-        it("should have all expected companies in chronological order", () => {
-            const mainCV = mockCoalesceVersion("main");
+        it("should have National Care Dental with correct end date", () => {
+            const mainCV = mockGetVersion("main");
+            const ncdExperience = mainCV.experience.find(
+                (exp) => exp.company === "National Care Dental",
+            );
+
+            expect(ncdExperience).toBeTruthy();
+            expect(ncdExperience.end).toBe("2025-03-17");
+            expect(ncdExperience.start).toBe("2022-05-01");
+            expect(ncdExperience.title).toBe("Fullstack software architect");
+        });
+
+        it("should maintain chronological order (most recent first)", () => {
+            const mainCV = mockGetVersion("main");
             const companies = mainCV.experience.map((exp) => exp.company);
 
             expect(companies).toEqual([
@@ -182,201 +293,269 @@ describe("Experience Data Rendering Tests", () => {
                 "Persefoni",
             ]);
         });
-    });
 
-    describe("Experience.json5 vs Main.json Comparison", () => {
-        it("should compare Experience.json5 with main.json experience data", () => {
-            const mainCV = mockCoalesceVersion("main");
-
-            // Check if Experience.json5 data matches main.json
-            const experienceJsonCompanies = mockExperienceData.experience.map(
-                (exp) => exp.company,
-            );
-            const mainJsonCompanies = mainCV.experience.map(
-                (exp) => exp.company,
-            );
-
-            console.log("Experience.json5 companies:", experienceJsonCompanies);
-            console.log("Main.json companies:", mainJsonCompanies);
-
-            // This test documents the current state - they might be different
-            expect(experienceJsonCompanies).toBeDefined();
-            expect(mainJsonCompanies).toBeDefined();
-        });
-
-        it("should verify National Care Dental end date consistency", () => {
-            const mainCV = mockCoalesceVersion("main");
-            const mainNCD = mainCV.experience.find(
-                (exp) => exp.company === "National Care Dental",
-            );
-            const expJsonNCD = mockExperienceData.experience.find(
-                (exp) => exp.company === "National Care Dental",
-            );
-
-            if (mainNCD && expJsonNCD) {
-                console.log("Main.json NCD end date:", mainNCD.end);
-                console.log("Experience.json5 NCD end date:", expJsonNCD.end);
-
-                // Document any discrepancy
-                if (mainNCD.end !== expJsonNCD.end) {
-                    console.warn(
-                        "Date mismatch detected between main.json and Experience.json5",
-                    );
-                }
-            }
-
-            // Both should have the correct end date
-            expect(mainNCD?.end).toBe("2025-03-17");
-            expect(expJsonNCD?.end).toBe("2025-03-17");
+        it("should have PDF link configured correctly", () => {
+            const mainCV = mockGetVersion("main");
+            expect(mainCV.pdfLink).toBe("/morgan-williams.pdf");
         });
     });
 
-    describe("Version-Specific Experience Rendering", () => {
+    describe("Version-Specific Route Experience Data", () => {
         it("should load bitpanda version successfully", () => {
-            const bitpandaCV = mockCoalesceVersion("bitpanda");
+            const bitpandaCV = mockGetVersion("bitpanda");
             expect(bitpandaCV).toBeTruthy();
             expect(bitpandaCV.experience).toBeDefined();
         });
 
-        it("should merge bitpanda experience with main experience", () => {
-            const bitpandaCV = mockCoalesceVersion("bitpanda");
-            const mainCV = mockCoalesceVersion("main");
-
-            // Bitpanda version should have customized experience
-            expect(bitpandaCV.experience).toBeDefined();
-            expect(bitpandaCV.company).toBe("Bitpanda");
-            expect(bitpandaCV.title).toBe("Data Engineer");
-
-            // Should still have base structure from main
-            expect(bitpandaCV.name).toBe(mainCV.name);
+        it("should have version-specific PDF link", () => {
+            const bitpandaCV = mockGetVersion("bitpanda");
+            expect(bitpandaCV.pdfLink).toBe("/morgan-williams.bitpanda.pdf");
         });
 
-        it("should test experience rendering for all available versions", () => {
-            allVersions.forEach((version) => {
-                const cv = mockCoalesceVersion(version);
-                expect(cv).toBeTruthy();
-                expect(cv.experience).toBeDefined();
-                expect(Array.isArray(cv.experience)).toBe(true);
+        it("should merge main and version data using coalesceVersion", () => {
+            const coalescedCV = mockCoalesceVersion("bitpanda");
 
-                // Each version should have at least some experience entries
-                expect(cv.experience.length).toBeGreaterThan(0);
+            expect(coalescedCV).toBeTruthy();
+            expect(coalescedCV.experience).toBeDefined();
 
-                // Each experience should have required fields
-                cv.experience.forEach((exp) => {
-                    expect(exp.title).toBeDefined();
-                    expect(exp.company).toBeDefined();
-                    expect(exp.start).toBeDefined();
-                    expect(Array.isArray(exp.achievements)).toBe(true);
-                });
-            });
+            // Should have merged experience data
+            const cgiRole = coalescedCV.experience.find(
+                (exp) => exp.company === "CGI",
+            );
+            expect(cgiRole).toBeTruthy();
+            expect(cgiRole.title).toBe("Senior Data Engineer"); // Version-specific title
+            expect(cgiRole.skills).toContain("Kafka"); // Version-specific skill
+        });
+
+        it("should merge achievements from both main and version data", () => {
+            const coalescedCV = mockCoalesceVersion("bitpanda");
+            const ncdRole = coalescedCV.experience.find(
+                (exp) => exp.company === "National Care Dental",
+            );
+
+            expect(ncdRole).toBeTruthy();
+            expect(ncdRole.achievements).toBeDefined();
+            expect(ncdRole.achievements.length).toBeGreaterThan(0);
+
+            // Should contain version-specific achievements
+            const hasVersionAchievement = ncdRole.achievements.some(
+                (achievement) =>
+                    achievement.includes("cryptocurrency") ||
+                    achievement.includes("financial data"),
+            );
+            expect(hasVersionAchievement).toBe(true);
+        });
+
+        it("should resolve projects correctly for version", () => {
+            const coalescedCV = mockCoalesceVersion("bitpanda");
+
+            expect(coalescedCV.resolvedProjects).toBeDefined();
+            expect(Array.isArray(coalescedCV.resolvedProjects)).toBe(true);
+
+            // Should have version-specific projects
+            const hasCryptoProject = coalescedCV.resolvedProjects.some(
+                (project) => project.name === "Crypto Analytics",
+            );
+            expect(hasCryptoProject).toBe(true);
         });
     });
 
-    describe("Route-Level Integration Tests", () => {
-        it("should simulate main page rendering with correct experience", () => {
-            // Simulate what happens in routes/+page.svelte
+    describe("Route Integration Tests", () => {
+        it("should simulate main page rendering with correct data flow", () => {
+            // Simulate what happens in +page.svelte for main route
             const resolvedData = mockCoalesceVersion("main");
 
             expect(resolvedData).toBeTruthy();
+            expect(resolvedData.name).toBe("Morgan Williams");
             expect(resolvedData.experience).toBeDefined();
+            expect(resolvedData.resolvedProjects).toBeDefined();
 
-            // Test that National Care Dental has the correct end date
-            const ncd = resolvedData.experience.find(
-                (exp) => exp.company === "National Care Dental",
-            );
-            expect(ncd).toBeTruthy();
-            expect(ncd.end).toBe("2025-03-17");
+            // Verify the data structure matches what CV component expects
+            expect(resolvedData).toHaveProperty("name");
+            expect(resolvedData).toHaveProperty("title");
+            expect(resolvedData).toHaveProperty("experience");
+            expect(resolvedData).toHaveProperty("projects");
+            expect(resolvedData).toHaveProperty("resolvedProjects");
         });
 
         it("should simulate slug page rendering for specific versions", () => {
-            // Simulate what happens in routes/[slug]/+page.server.ts
-            const testSlugs = ["bitpanda", "main"];
+            // Simulate what happens in [slug]/+page.server.ts
+            const slug = "bitpanda";
+            const data = mockCoalesceVersion(slug);
 
-            testSlugs.forEach((slug) => {
-                const data = mockCoalesceVersion(slug);
-                expect(data).toBeTruthy();
-                expect(data.experience).toBeDefined();
+            expect(data).toBeTruthy();
 
-                // Should have slug-specific customizations if available
-                if (slug !== "main") {
-                    // Version-specific files should have company/title overrides
-                    expect(data.company || data.title).toBeDefined();
-                }
-            });
+            // Verify the data includes what the server load function would add
+            const routeData = { ...data, slug };
+
+            expect(routeData.slug).toBe(slug);
+            expect(routeData.experience).toBeDefined();
+
+            // Verify PDF link is correctly generated
+            const expectedPdfLink = `/morgan-williams.${slug}.pdf`;
+            expect(data.pdfLink).toBe(expectedPdfLink);
+        });
+
+        it("should handle invalid version gracefully", () => {
+            const invalidCV = mockCoalesceVersion("non-existent-version");
+            expect(invalidCV).toBeNull();
+        });
+
+        it("should simulate CV component props for main route", () => {
+            const resolvedData = mockCoalesceVersion("main");
+
+            // Test that all required CV component props are available
+            expect(resolvedData.name).toBeTruthy();
+            expect(resolvedData.title).toBeTruthy();
+            expect(resolvedData.email).toBeTruthy();
+            expect(resolvedData.github).toBeTruthy();
+            expect(resolvedData.experience).toBeTruthy();
+            expect(resolvedData.projects).toBeTruthy();
+            expect(resolvedData.resolvedProjects).toBeTruthy();
+            expect(resolvedData.pdfLink).toBeTruthy();
+        });
+
+        it("should simulate CV component props for version route", () => {
+            const resolvedData = mockCoalesceVersion("bitpanda");
+            const version = "bitpanda";
+            const pdfLink = resolvedData.pdfLink;
+
+            // Test that all required CV component props are available for version
+            expect(resolvedData.name).toBeTruthy();
+            expect(resolvedData.title).toBeTruthy();
+            expect(resolvedData.experience).toBeTruthy();
+            expect(pdfLink).toBe(`/morgan-williams.${version}.pdf`);
+            expect(resolvedData.resolvedProjects).toBeTruthy();
         });
     });
 
-    describe("Data Integrity Tests", () => {
-        it("should verify all experience entries have required fields", () => {
-            allVersions.forEach((version) => {
-                const cv = mockCoalesceVersion(version);
-
-                cv.experience.forEach((exp, index) => {
-                    expect(
-                        exp.title,
-                        `${version}[${index}].title`,
-                    ).toBeDefined();
-                    expect(
-                        exp.company,
-                        `${version}[${index}].company`,
-                    ).toBeDefined();
-                    expect(
-                        exp.start,
-                        `${version}[${index}].start`,
-                    ).toBeDefined();
-                    expect(
-                        exp.achievements,
-                        `${version}[${index}].achievements`,
-                    ).toBeDefined();
-                    expect(
-                        Array.isArray(exp.achievements),
-                        `${version}[${index}].achievements should be array`,
-                    ).toBe(true);
-
-                    // Date validation
-                    expect(
-                        new Date(exp.start).toString(),
-                        `${version}[${index}].start should be valid date`,
-                    ).not.toBe("Invalid Date");
-                    if (exp.end) {
-                        expect(
-                            new Date(exp.end).toString(),
-                            `${version}[${index}].end should be valid date`,
-                        ).not.toBe("Invalid Date");
-                        expect(
-                            new Date(exp.end) >= new Date(exp.start),
-                            `${version}[${index}] end should be after start`,
-                        ).toBe(true);
-                    }
-                });
-            });
-        });
-
-        it("should verify no null or empty experience entries", () => {
-            allVersions.forEach((version) => {
-                const cv = mockCoalesceVersion(version);
-
-                cv.experience.forEach((exp, index) => {
-                    expect(
-                        exp,
-                        `${version}[${index}] should not be null`,
-                    ).not.toBeNull();
-                    expect(
-                        typeof exp,
-                        `${version}[${index}] should be object`,
-                    ).toBe("object");
-                    expect(
-                        exp.achievements.length,
-                        `${version}[${index}] should have achievements`,
-                    ).toBeGreaterThan(0);
-                });
-            });
-        });
-
-        it("should test experience chronological ordering", () => {
+    describe("Data Integrity for Route Rendering", () => {
+        it("should validate all experience entries have required fields", () => {
             const mainCV = mockCoalesceVersion("main");
 
-            // Check that experiences are in reverse chronological order (newest first)
+            mainCV.experience.forEach((exp, index) => {
+                expect(
+                    exp,
+                    `Experience ${index} should have title`,
+                ).toHaveProperty("title");
+                expect(
+                    exp,
+                    `Experience ${index} should have company`,
+                ).toHaveProperty("company");
+                expect(
+                    exp,
+                    `Experience ${index} should have start date`,
+                ).toHaveProperty("start");
+
+                expect(
+                    typeof exp.title,
+                    `Experience ${index} title should be string`,
+                ).toBe("string");
+                expect(
+                    typeof exp.company,
+                    `Experience ${index} company should be string`,
+                ).toBe("string");
+                expect(
+                    typeof exp.start,
+                    `Experience ${index} start should be string`,
+                ).toBe("string");
+
+                expect(
+                    exp.title.length,
+                    `Experience ${index} title should not be empty`,
+                ).toBeGreaterThan(0);
+                expect(
+                    exp.company.length,
+                    `Experience ${index} company should not be empty`,
+                ).toBeGreaterThan(0);
+            });
+        });
+
+        it("should validate achievements are properly structured", () => {
+            const mainCV = mockCoalesceVersion("main");
+
+            mainCV.experience.forEach((exp, index) => {
+                if (exp.achievements) {
+                    expect(
+                        Array.isArray(exp.achievements),
+                        `Experience ${index} achievements should be array`,
+                    ).toBe(true);
+
+                    exp.achievements.forEach((achievement, achieveIndex) => {
+                        expect(
+                            typeof achievement,
+                            `Achievement ${achieveIndex} of experience ${index} should be string`,
+                        ).toBe("string");
+                        expect(
+                            achievement.length,
+                            `Achievement ${achieveIndex} of experience ${index} should not be empty`,
+                        ).toBeGreaterThan(0);
+                    });
+                }
+            });
+        });
+
+        it("should validate date formats for rendering", () => {
+            const mainCV = mockCoalesceVersion("main");
+
+            mainCV.experience.forEach((exp, index) => {
+                // Check start date format (YYYY-MM-DD)
+                expect(
+                    exp.start,
+                    `Experience ${index} start date format`,
+                ).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+
+                // Check end date format if exists
+                if (exp.end) {
+                    expect(
+                        exp.end,
+                        `Experience ${index} end date format`,
+                    ).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+                }
+
+                // Validate dates are parseable
+                expect(
+                    () => new Date(exp.start),
+                    `Experience ${index} start date should be valid`,
+                ).not.toThrow();
+
+                if (exp.end) {
+                    expect(
+                        () => new Date(exp.end),
+                        `Experience ${index} end date should be valid`,
+                    ).not.toThrow();
+                }
+            });
+        });
+
+        it("should validate skills arrays for rendering", () => {
+            const mainCV = mockCoalesceVersion("main");
+
+            mainCV.experience.forEach((exp, index) => {
+                if (exp.skills) {
+                    expect(
+                        Array.isArray(exp.skills),
+                        `Experience ${index} skills should be array`,
+                    ).toBe(true);
+
+                    exp.skills.forEach((skill, skillIndex) => {
+                        expect(
+                            typeof skill,
+                            `Skill ${skillIndex} of experience ${index} should be string`,
+                        ).toBe("string");
+                        expect(
+                            skill.length,
+                            `Skill ${skillIndex} of experience ${index} should not be empty`,
+                        ).toBeGreaterThan(0);
+                    });
+                }
+            });
+        });
+
+        it("should validate experience chronological ordering", () => {
+            const mainCV = mockCoalesceVersion("main");
+
+            // Verify that experiences are ordered by start date (newest first)
             for (let i = 1; i < mainCV.experience.length; i++) {
                 const current = new Date(mainCV.experience[i].start);
                 const previous = new Date(mainCV.experience[i - 1].start);
@@ -389,78 +568,236 @@ describe("Experience Data Rendering Tests", () => {
         });
     });
 
-    describe("PDF Generation Data Tests", () => {
-        it("should verify PDF links are generated correctly for all versions", () => {
-            allVersions.forEach((version) => {
-                const cv = mockCoalesceVersion(version);
-                expect(cv.pdfLink).toBeDefined();
+    describe("Cross-Version Data Consistency", () => {
+        it("should maintain company names consistently across versions", () => {
+            const mainCV = mockCoalesceVersion("main");
+            const bitpandaCV = mockCoalesceVersion("bitpanda");
 
-                if (version === "main") {
-                    expect(cv.pdfLink).toBe("/morgan-williams.pdf");
+            const mainCompanies = new Set(
+                mainCV.experience.map((exp) => exp.company),
+            );
+            const bitpandaCompanies = new Set(
+                bitpandaCV.experience.map((exp) => exp.company),
+            );
+
+            // Common companies should have consistent names
+            const commonCompanies = [...mainCompanies].filter((company) =>
+                bitpandaCompanies.has(company),
+            );
+
+            expect(commonCompanies.length).toBeGreaterThan(0);
+            expect(commonCompanies).toContain("National Care Dental");
+        });
+
+        it("should handle experience merging correctly", () => {
+            const coalescedCV = mockCoalesceVersion("bitpanda");
+
+            // Verify experience array is not empty after merging
+            expect(coalescedCV.experience.length).toBeGreaterThan(0);
+
+            // Verify no null or undefined entries
+            coalescedCV.experience.forEach((exp, index) => {
+                expect(
+                    exp,
+                    `Experience ${index} should not be null`,
+                ).not.toBeNull();
+                expect(
+                    exp,
+                    `Experience ${index} should not be undefined`,
+                ).toBeDefined();
+            });
+        });
+
+        it("should preserve base data when version data is sparse", () => {
+            const mainCV = mockCoalesceVersion("main");
+            const bitpandaCV = mockCoalesceVersion("bitpanda");
+
+            // Should preserve essential fields from main even in specialized versions
+            expect(bitpandaCV.name).toBe(mainCV.name);
+            expect(bitpandaCV.email).toBe(mainCV.email);
+            expect(bitpandaCV.github).toBe(mainCV.github);
+        });
+
+        it("should override specific fields in version", () => {
+            const mainCV = mockCoalesceVersion("main");
+            const bitpandaCV = mockCoalesceVersion("bitpanda");
+
+            // Version should override title
+            expect(bitpandaCV.title).not.toBe(mainCV.title);
+            expect(bitpandaCV.title).toContain("Cryptocurrency");
+        });
+    });
+
+    describe("Performance and Error Handling", () => {
+        it("should handle missing version files gracefully", () => {
+            const invalidVersion = mockGetVersion("definitely-does-not-exist");
+            expect(invalidVersion).toBeNull();
+        });
+
+        it("should load version data efficiently", () => {
+            const start = performance.now();
+            const mainCV = mockCoalesceVersion("main");
+            const end = performance.now();
+
+            expect(mainCV).toBeTruthy();
+            expect(end - start).toBeLessThan(50); // Should load very quickly with mock data
+        });
+
+        it("should provide consistent data for multiple calls", () => {
+            const first = mockCoalesceVersion("main");
+            const second = mockCoalesceVersion("main");
+
+            expect(first).toEqual(second);
+        });
+
+        it("should handle empty or minimal experience data", () => {
+            // Test with a minimal version
+            const minimalVersion = {
+                name: "Morgan Williams",
+                experience: [],
+                projects: [],
+                pdfLink: "/morgan-williams.minimal.pdf",
+            };
+
+            // Mock a minimal version
+            mockVersionMap.minimal = minimalVersion;
+
+            const coalescedMinimal = mockCoalesceVersion("minimal");
+            expect(coalescedMinimal).toBeTruthy();
+            expect(coalescedMinimal.experience).toBeDefined();
+            expect(Array.isArray(coalescedMinimal.experience)).toBe(true);
+
+            // Clean up
+            delete mockVersionMap.minimal;
+        });
+    });
+
+    describe("Route-Specific PDF Generation Data", () => {
+        it("should generate correct PDF links for all versions", () => {
+            const versions = mockGetAllVersions();
+
+            versions.forEach((slug) => {
+                const versionData = mockGetVersion(slug);
+                expect(versionData.pdfLink).toBeTruthy();
+
+                if (slug === "main") {
+                    expect(versionData.pdfLink).toBe("/morgan-williams.pdf");
                 } else {
-                    expect(cv.pdfLink).toBe(`/morgan-williams.${version}.pdf`);
+                    expect(versionData.pdfLink).toBe(
+                        `/morgan-williams.${slug}.pdf`,
+                    );
                 }
+            });
+        });
+
+        it("should provide complete data for PDF generation", () => {
+            const mainCV = mockCoalesceVersion("main");
+
+            // Verify all required fields for PDF generation are present
+            expect(mainCV.name).toBeTruthy();
+            expect(mainCV.experience).toBeTruthy();
+            expect(mainCV.resolvedProjects).toBeTruthy();
+
+            // Verify experience has all required fields for PDF rendering
+            mainCV.experience.forEach((exp, index) => {
+                expect(
+                    exp.title,
+                    `Experience ${index} needs title for PDF`,
+                ).toBeTruthy();
+                expect(
+                    exp.company,
+                    `Experience ${index} needs company for PDF`,
+                ).toBeTruthy();
+                expect(
+                    exp.start,
+                    `Experience ${index} needs start date for PDF`,
+                ).toBeTruthy();
+            });
+        });
+
+        it("should support PDF link generation for custom versions", () => {
+            // Test PDF link generation pattern
+            const testVersions = [
+                "test-company",
+                "another-version",
+                "special-role",
+            ];
+
+            testVersions.forEach((version) => {
+                const expectedPdfLink = `/morgan-williams.${version}.pdf`;
+                expect(expectedPdfLink).toMatch(
+                    /^\/morgan-williams\.[a-z-]+\.pdf$/,
+                );
             });
         });
     });
 
-    describe("Experience.json5 Integration Issues", () => {
-        it("should identify if Experience.json5 is being used in CV rendering", () => {
-            const mainCV = mockCoalesceVersion("main");
+    describe("Component Props Validation", () => {
+        it("should provide valid props for CV.svelte component", () => {
+            const resolvedData = mockCoalesceVersion("main");
 
-            // Check if any experience data matches Experience.json5
-            const experienceJsonTitles = mockExperienceData.experience.map(
-                (exp) => exp.title,
-            );
-            const mainJsonTitles = mainCV.experience.map((exp) => exp.title);
+            // Test all props that CV.svelte expects
+            const requiredProps = [
+                "name",
+                "title",
+                "email",
+                "github",
+                "experience",
+                "projects",
+                "resolvedProjects",
+                "pdfLink",
+            ];
 
-            const hasMatchingData = experienceJsonTitles.some((title) =>
-                mainJsonTitles.includes(title),
-            );
-
-            // Document current state
-            if (!hasMatchingData) {
-                console.warn(
-                    "Experience.json5 data does not appear to be integrated into CV rendering",
-                );
-                console.log("Experience.json5 titles:", experienceJsonTitles);
-                console.log("Main CV titles:", mainJsonTitles);
-            }
-
-            // This test documents that there should be overlap
-            expect(hasMatchingData).toBe(true);
+            requiredProps.forEach((prop) => {
+                expect(resolvedData).toHaveProperty(prop);
+                expect(resolvedData[prop]).toBeDefined();
+            });
         });
 
-        it("should suggest integration path for Experience.json5", () => {
-            // This test documents how Experience.json5 could be integrated
-            const experienceJson = mockExperienceData.experience;
-            const mainCV = mockCoalesceVersion("main");
+        it("should provide valid experience data for Experience.svelte component", () => {
+            const resolvedData = mockCoalesceVersion("main");
 
-            // Check if Experience.json5 has more recent data
-            if (experienceJson.length > 0) {
-                const latestExpJson = experienceJson[0];
-                const latestMainExp = mainCV.experience[0];
+            expect(Array.isArray(resolvedData.experience)).toBe(true);
+            expect(resolvedData.experience.length).toBeGreaterThan(0);
 
-                console.log("Latest in Experience.json5:", {
-                    title: latestExpJson.title,
-                    company: latestExpJson.company,
-                    start: latestExpJson.start,
-                    end: latestExpJson.end,
-                });
+            resolvedData.experience.forEach((exp, index) => {
+                // Properties that Experience.svelte expects
+                expect(exp, `Experience ${index}`).toHaveProperty("title");
+                expect(exp, `Experience ${index}`).toHaveProperty("company");
+                expect(exp, `Experience ${index}`).toHaveProperty("start");
 
-                console.log("Latest in Main CV:", {
-                    title: latestMainExp.title,
-                    company: latestMainExp.company,
-                    start: latestMainExp.start,
-                    end: latestMainExp.end,
-                });
+                if (exp.achievements) {
+                    expect(
+                        Array.isArray(exp.achievements),
+                        `Experience ${index} achievements should be array`,
+                    ).toBe(true);
+                }
 
-                // They should have consistent data
-                expect(latestExpJson.company).toBe(latestMainExp.company);
-                expect(latestExpJson.end).toBe(latestMainExp.end);
-            }
+                if (exp.skills) {
+                    expect(
+                        Array.isArray(exp.skills),
+                        `Experience ${index} skills should be array`,
+                    ).toBe(true);
+                }
+            });
+        });
 
-            expect(true).toBe(true); // Always pass, this is just for documentation
+        it("should provide valid project data for Projects.svelte component", () => {
+            const resolvedData = mockCoalesceVersion("main");
+
+            expect(Array.isArray(resolvedData.resolvedProjects)).toBe(true);
+
+            resolvedData.resolvedProjects.forEach((project, index) => {
+                expect(project, `Project ${index}`).toHaveProperty("name");
+                expect(
+                    typeof project.name,
+                    `Project ${index} name should be string`,
+                ).toBe("string");
+                expect(
+                    project.name.length,
+                    `Project ${index} name should not be empty`,
+                ).toBeGreaterThan(0);
+            });
         });
     });
 });

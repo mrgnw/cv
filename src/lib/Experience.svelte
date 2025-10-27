@@ -23,9 +23,9 @@
 	}
 </script>
 
-<section class="mb-8">
-	{#each experience as exp}
-		<div class="mb-4 print:mb-3">
+<section class="mb-8" class:print-experience={isPrinting}>
+	{#each experience as exp, i}
+		<div class="mb-4 print:mb-3 experience-item" data-priority={i + 1}>
 			<div class="flex flex-col sm:flex-row justify-between gap-4 print:gap-2">
 				<div class="flex-1">
 					<h3 class="text-xl font-semibold">
@@ -45,7 +45,7 @@
 						</div>
 					{/if}
 				</div>
-				
+
 				<div class="text-right">
 					<p class="text-muted-foreground mb-1">
 						{exp.company}
@@ -55,12 +55,45 @@
 					</p>
 				</div>
 			</div>
-			{#each exp.achievements as paragraph}
-				<p class="mb-2 mt-1 print:mb-1.5 print:mt-0.5">{paragraph}</p>
-			{/each}
+			<div class="achievements">
+				{#each exp.achievements as paragraph, j}
+					<p class="mb-2 mt-1 print:mb-1.5 print:mt-0.5 achievement" data-index={j + 1}>
+						{paragraph}
+					</p>
+				{/each}
+			</div>
 		</div>
 	{/each}
 </section>
 
 <style>
+	@media print {
+		.print-experience {
+			/* More compact spacing for print */
+			font-size: 11pt;
+			line-height: 1.4;
+		}
+
+		/* Priority-based achievement limiting */
+		.experience-item[data-priority="1"] .achievement:nth-child(n+6) {
+			display: none; /* Max 5 achievements for top priority */
+		}
+
+		.experience-item[data-priority="2"] .achievement:nth-child(n+5) {
+			display: none; /* Max 4 achievements */
+		}
+
+		.experience-item[data-priority="3"] .achievement:nth-child(n+5) {
+			display: none; /* Max 4 achievements */
+		}
+
+		.experience-item[data-priority="4"] .achievement:nth-child(n+4) {
+			display: none; /* Max 3 achievements */
+		}
+
+		/* Hide entire low-priority experience items if needed */
+		.print-experience.compact .experience-item[data-priority="4"] {
+			display: none;
+		}
+	}
 </style>

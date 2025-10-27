@@ -9,7 +9,6 @@
     "PostgreSQL",
     "APIs",
     "Linux",
-    "Data Pipelines",
   ],
   "secondarySkills": [
     "DuckDB",
@@ -26,12 +25,12 @@
         start: "2025-03-17",
         "skills": ["Python", "AWS", "ETL", "SQL", "CI/CD", "Databricks", "Airflow"],
         "achievements":[
-				"Architected and deployed custom AWS Lambda connectors with Kinesis Data Streams integration, enabling real-time event-driven data streaming for critical business workflows processing 10M+ events daily and reducing data latency from hours to sub-second response times.",
-				"Designed and implemented CI/CD pipelines using GitLab Pipelines, AWS CodePipeline, and CodeBuild with automated testing frameworks (pytest, unittest), reducing deployment time by 80%, eliminating manual errors, and enabling continuous delivery across 15+ microservices.",
+				"Deployed custom AWS Lambda connector, coordinating with other teams to add a new integration enabling a new subscription type, while also ensuring that there was 0 downtime for the billions of other streaming transactions happening with our other clients.",
 				"Accelerated security vulnerability remediation from days to minutes by migrating 5 major projects to UV and Ruff, enabling rapid dependency updates and automated code quality checks while reducing package installation time by 10-100x and cutting CI/CD pipeline runtime by 60%.",
 				"Provided ongoing production support and troubleshooting for data pipeline issues across 5+ enterprise client projects, leveraging CloudWatch monitoring and logging",
+				// "Designed and implemented CI/CD pipelines using GitLab Pipelines (pytest, unittest), .",
 				// "Developed RESTful APIs using Python, FastAPI, and Flask with comprehensive OpenAPI documentation, empowering 50+ business users to programmatically access company data through secure endpoints, reducing manual reporting requests by 60% and improving data accessibility.",
-				"Modernized legacy ETL workflows to cloud-native architectures using Apache Airflow, Databricks, and AWS services (Lambda, S3, EC2, Glue), accelerating batch processing tasks by 100x-1000x through parallelization, automation, and serverless computing patterns.",
+				// "Modernized legacy ETL workflows to cloud-native architectures using Apache Airflow, Databricks, and AWS services (Lambda, S3, EC2, Glue), accelerating batch processing tasks by 100x-1000x through parallelization, automation, and serverless computing patterns.",
         ]
     },
     {
@@ -54,8 +53,8 @@
       "achievements": [
         "Implemented production-grade ETL pipelines in Databricks using Python and SQL for a rapidly growing climate-tech startup, applying solid engineering practices including testing and CI/CD",
         "Created scalable API endpoints in GoLang, collaborating across product and engineering teams to integrate multiple services and support business requirements",
-        "Documented and established new processes for data pipeline operations, improving team onboarding and increasing overall productivity through knowledge sharing",
-        "Partnered with stakeholders across operations and finance to turn business goals into measurable data solutions using modern cloud infrastructure"
+        // "Documented and established new processes for data pipeline operations, improving team onboarding and increasing overall productivity through knowledge sharing",
+        // "Partnered with stakeholders across operations and finance to turn business goals into measurable data solutions using modern cloud infrastructure"
       ],
       "skills": ["Python", "Databricks", "ETL", "SQL", "GoLang", "APIs"]
     },
@@ -130,5 +129,10 @@
     },
     "summary": "Excellent match with strong data engineering fundamentals, AWS/Python expertise, and stakeholder collaboration skills. Some gaps in specific tools like Snowflake and dbt."
   },
+  "projects": [
+    "Resume",
+    "Multilingual translator",
+    "TextMe"
+  ]
 
 }

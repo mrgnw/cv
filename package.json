@@ -23,10 +23,18 @@
         "pdf:local:list": "node pdf-cli.js --list",
         "test": "vitest",
         "test:run": "vitest run",
+        "test:experience-rendering": "vitest run tests/experience-rendering.test.js",
+        "test:route-integration": "vitest run tests/route-integration.test.js",
+        "test:unit": "vitest run tests/experience-rendering.test.js tests/route-integration.test.js",
+        "test:content-optimization": "node test-content-optimization-fix.mjs",
         "test:experience": "node test-experience.mjs",
         "test:integration": "node test-version-integration.mjs",
         "test:validate": "node validate-experience.mjs",
-        "test:all": "node run-all-tests.mjs"
+        "test:optimization": "node test-content-optimization.mjs",
+        "test:all": "node run-all-tests.mjs",
+        "pdf:optimized": "node pdf-cli.js --optimize",
+        "pdf:force-optimized": "node pdf-cli.js --optimize --force",
+        "pdf:watch-optimized": "node pdf-cli.js --optimize --watch"
     },
     "devDependencies": {
         "@sveltejs/adapter-cloudflare": "^4.7.2",
@@ -47,6 +55,7 @@
     },
     "type": "module",
     "dependencies": {
+        "@cloudflare/workerd-darwin-arm64": "^1.20251024.0",
         "@iconify/svelte": "^4.0.2",
         "@sveltejs/adapter-static": "^3.0.5",
         "bits-ui": "^2.9.6",

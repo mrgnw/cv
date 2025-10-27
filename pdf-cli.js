@@ -322,6 +322,84 @@ async function checkPdfPageCount(page) {
     });
 }
 
+class ContentOptimizer {
+    constructor() {
+        // More gradual reduction steps - preserve more content initially
+        this.reductionSteps = [
+            {}, // Start with no reduction - full content
+            { limitExp4: 4 }, // Reduce only the 4th experience slightly
+            { limitExp4: 3 }, // Reduce 4th experience more
+            { limitExp3: 4, limitExp4: 3 }, // Start limiting 3rd experience
+            { limitExp3: 4, limitExp4: 3, removeProjects: 1 }, // Remove 1 project
+            { limitExp2: 5, limitExp3: 4, limitExp4: 3, removeProjects: 1 }, // Limit 2nd experience
+            { limitExp2: 4, limitExp3: 4, limitExp4: 3, removeProjects: 1 }, // Further reduce 2nd
+            { limitExp2: 4, limitExp3: 3, limitExp4: 3, removeProjects: 2 }, // Remove more projects
+            {
+                limitExp1: 5,
+                limitExp2: 4,
+                limitExp3: 3,
+                limitExp4: 3,
+                removeProjects: 2,
+            }, // Start limiting 1st
+            {
+                limitExp1: 4,
+                limitExp2: 3,
+                limitExp3: 3,
+                limitExp4: 2,
+                removeProjects: 2,
+            }, // More aggressive if needed
+            {
+                limitExp1: 3,
+                limitExp2: 3,
+                limitExp3: 2,
+                limitExp4: 2,
+                maxProjects: 1,
+            }, // Final fallback
+        ];
+    }
+
+    async optimizeForOnePage(page, baseUrl, version) {
+        log(`🎯 Optimizing content for ${version}...`);
+
+        // Block JavaScript files to get server-rendered content only
+        await page.route("**/*.js", (route) => route.abort());
+
+        for (let i = 0; i < this.reductionSteps.length; i++) {
+            const params = new URLSearchParams({
+                print: "true",
+                ...this.reductionSteps[i],
+            });
+
+            log(`🔍 Testing step ${i}: ${params.toString()}`);
+
+            await page.goto(`${baseUrl}?${params}`, {
+                waitUntil: "domcontentloaded",
+            });
+
+            // Set print media type for CSS
+            await page.emulateMedia({ media: "print" });
+
+            const pageCount = await checkPdfPageCount(page);
+            log(`📏 Page count for step ${i}: ${pageCount} pages`);
+
+            if (pageCount === 1) {
+                if (i > 0) {
+                    log(
+                        `📐 Applied reduction step ${i}:`,
+                        this.reductionSteps[i],
+                    );
+                } else {
+                    log(`✅ Content fits on one page without any reductions!`);
+                }
+                return params.toString();
+            }
+        }
+
+        log("⚠️  Could not fit content on one page with available reductions");
+        return "print=true";
+    }
+}
+
 async function determineProjectsTrim(page, baseUrl, prevTrim) {
     // Quick check with previous value
     if (Number.isFinite(prevTrim)) {
@@ -352,25 +430,47 @@ async function determineProjectsTrim(page, baseUrl, prevTrim) {
 }
 
 async function generateVersion(browser, serverUrl, slug, cache) {
-    const url = `${serverUrl}/${slug}?print`;
+    const url = `${serverUrl}/${slug}`;
     const pdfPath = pdfPathFor(slug);
     if (!fs.existsSync("static")) fs.mkdirSync("static");
     const page = await browser.newPage();
-    const prevTrim = cache.versions?.[slug]?.lastProjectsTrim;
+
+    // Block JavaScript files to get server-rendered content only
+    await page.route("**/*.js", (route) => route.abort());
+
+    const optimizer = new ContentOptimizer();
+
     try {
-        const trim = await determineProjectsTrim(page, url, prevTrim);
-        await page.goto(`${url}&removeProjects=${trim}`, {
-            waitUntil: "networkidle",
-        });
+        // Use the optimizer instead of simple removeProjects
+        const optimizedParams = await optimizer.optimizeForOnePage(
+            page,
+            url,
+            slug,
+        );
+
+        log(`🖨️  Generating PDF: ${pdfPath}`);
+
+        // Set print media type to trigger print CSS
+        await page.emulateMedia({ media: "print" });
+
         await page.pdf({
             path: pdfPath,
             format: "A4",
-            printBackground: false,
+            printBackground: true, // Enable backgrounds and styling
             margin: { top: "6mm", bottom: "6mm", left: "8mm", right: "8mm" },
+            preferCSSPageSize: true, // Use CSS page size if specified
         });
+
+        // Cache the optimization params
+        if (!cache.versions) cache.versions = {};
+        cache.versions[slug] = {
+            lastOptimization: optimizedParams,
+            timestamp: Date.now(),
+        };
+
         const rel = pdfPath;
-        log(`🖨️  ${rel}${trim ? ` (removed ${trim} projects)` : ""}`);
-        return { ok: true, trim };
+        log(`✅ Generated: ${rel}`);
+        return { ok: true, optimization: optimizedParams };
     } catch (e) {
         logErr(`❌ Failed ${slug}:`, e.message);
         return { ok: false };
