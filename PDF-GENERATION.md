@@ -32,16 +32,16 @@ src/lib/projects-es.jsonc      # Spanish project definitions
 ### **Basic Commands (Unified CLI)**
 ```bash
 # Incremental PDF generation (only stale versions)
-npm run pdf
+bun run pdf
 
 # Generate specific versions
-bun run pdf main allianz-backend
+SERVER_URL=https://cv.skate-in.ts.net node pdf-cli.js main allianz-backend
 
 # Watch mode (persistent browser, selective regen)
 bun run pdf:watch
 
 # Force regenerate all targeted versions (ignore cache)
-bun run pdf:local:force
+bun run pdf:force
 
 # Force regenerate all versions
 bun run pdf:all:force
@@ -53,10 +53,10 @@ bun run pdf:list
 bun run pdf:changed
 
 # Generate only versions changed vs another ref (example feature branch base)
-node pdf-cli.js --changed=origin/develop
+SERVER_URL=https://cv.skate-in.ts.net node pdf-cli.js --changed=origin/develop
 
 # Generate specific version with force (RECOMMENDED APPROACH)
-bun run pdf bitpanda --force
+SERVER_URL=https://cv.skate-in.ts.net node pdf-cli.js bitpanda --force
 ```
 
 ### **Watch Mode Demo**
@@ -118,19 +118,22 @@ bun run pdf:watch
 ### **Recommended Development Workflow**
 ```bash
 # For single version updates (fastest and most reliable):
-bun run pdf bitpanda --force
-bun run pdf main --force
-bun run pdf allianz-backend --force
+SERVER_URL=https://cv.skate-in.ts.net node pdf-cli.js bitpanda --force
+SERVER_URL=https://cv.skate-in.ts.net node pdf-cli.js main --force
+SERVER_URL=https://cv.skate-in.ts.net node pdf-cli.js allianz-backend --force
 
 # For all versions:
 bun run pdf:all:force
 
 # For development with file watching:
 bun run pdf:watch
+
+# Note: All commands now use the live server at https://cv.skate-in.ts.net
+# No need to run local preview server!
 ```
 
 ### **Git Integration**
-Generation is now decoupled; run `bun run pdf:all:force` locally before committing if you want updated artifacts. Use `bun run pdf:changed` to only regenerate versions touched by changes.
+Generation is now decoupled and uses the live server; run `bun run pdf:all:force` locally before committing if you want updated artifacts. Use `bun run pdf:changed` to only regenerate versions touched by changes.
 
 ## 🎯 **File-to-PDF Mapping**
 
@@ -176,4 +179,4 @@ The system uses CSS print media queries for optimal PDF formatting:
 
 ---
 
-**This system makes PDF management completely seamless during development while ensuring production deployments always have up-to-date PDFs!** 🎉
+**This system makes PDF management completely seamless during development while ensuring production deployments always have up-to-date PDFs! All commands now use the live server at https://cv.skate-in.ts.net, eliminating the need for local preview servers.** 🎉
