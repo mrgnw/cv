@@ -7,8 +7,7 @@
     "Airflow",
     "Databricks",
     "PostgreSQL",
-    "APIs",
-    "Linux",
+    "APIs"
   ],
   "secondarySkills": [
     "DuckDB",
@@ -132,7 +131,7 @@
   "projects": [
     "Resume",
     "Multilingual translator",
-    "TextMe"
+    // "TextMe",
   ]
 
 }
