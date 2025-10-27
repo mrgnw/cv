@@ -154,8 +154,8 @@
 		<!-- Modern variant header -->
 		<header class={headerClass}>
 			<div>
-				<h1 class={titleClass}>{name}</h1>
-				<div class="text-muted-foreground">
+				<h1 class="inline {titleClass}">{name}</h1>
+				<span class="text-muted-foreground ml-4">
 					{#each skills as skill, index}
 						<span
 							role="button"
@@ -169,7 +169,7 @@
 							{skill}{#if index < skills.length - 1}<span class="mx-1">•</span>{/if}
 						</span>
 					{/each}
-				</div>
+				</span>
 			</div>
 			<div class="text-right text-sm text-muted-foreground space-y-1 mt-2">
 				<a
@@ -256,9 +256,13 @@
 
 		<!-- Skills -->
 		<section class="mb-6">
-			<h2 class={sectionHeaderClass}>{labels.skills}</h2>
-			<div class="flex flex-wrap gap-x-8">
-				{skills.join(', ')}
+			<div class="border-b border-black pb-0.5 mb-2">
+				<div class="flex items-baseline gap-4">
+					<h2 class="text-lg font-bold">{labels.skills}</h2>
+					<div class="flex flex-wrap gap-x-8">
+						{skills.join(', ')}
+					</div>
+				</div>
 			</div>
 		</section>
 
