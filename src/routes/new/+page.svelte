@@ -7,6 +7,10 @@
 	import JobDescriptionForm from '$lib/components/JobDescriptionForm.svelte';
 	import CVPreview from '$lib/components/CVPreview.svelte';
 	import { getEnabledModelIds } from '$lib/utils/format.js';
+	// Bits UI components
+	import { Button, DropdownMenu } from 'bits-ui';
+	// Toast notifications
+	import { toast } from 'svelte-sonner';
 	
 	// Receive server-side data using Svelte 5 $props
 	let { data } = $props();
@@ -25,6 +29,8 @@
 	let actionError = $state(''); // Track latest action error to avoid stale form errors
 	let pdfStatus = $state('');
 	let pdfError = $state('');
+	let toastMessage = $state(''); // Simple toast state
+	let toastType = $state(''); // 'success' or 'error'
 	
 	// Debug mode
 	let debugMode = $state(true);
@@ -96,7 +102,21 @@
 		]
 	};
 	
-	
+	// Utilities
+	function slugify(s) {
+		return s
+			.toLowerCase()
+			.replace(/[^a-z0-9]+/g, "-")
+			.replace(/^-+|-+$/g, "")
+			.slice(0, 80);
+	}
+
+	// Derived displays - Svelte 5 style
+	let savePath = $derived(
+		generatedCV
+			? `versions/${slugify(generatedCV.title || "cv")}${generatedCV.company ? "." + slugify(generatedCV.company) : ""}.json`
+			: ""
+	);
 	
 	// Model prioritization with pricing data - initialized once with fallback pricing
 	let models = $state([
@@ -217,60 +237,61 @@
 		};
 	}
 
-	// URL extraction handler
-	// Save CV function with versioning support
+	// Save CV function - using direct fetch like in /save
 	async function saveCV(createNewVersion = false) {
-    if (!generatedCV || isSaving) return;
-    
-    isSaving = true;
-    saveSuccess = '';
-    saveError = '';
-    
-    try {
-        console.log('Starting save...');
-        
-        const response = await fetch('/api/save', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                cvData: {
-                    ...generatedCV,
-                    metadata: {
-                        savedAt: new Date().toISOString(),
-                        version: '1.0.0'
-                    }
-                },
-                company,
-                title,
-                createNewVersion
-            })
-        });
-        
-        console.log('Response received:', response.status, response.ok);
-        
-        const data = await response.json();
-        console.log('Response data:', data);
-        
-        if (response.ok) {
-            const scoreText = generatedCV?.matchScore ? ` (Match: ${generatedCV.matchScore}/10)` : '';
-            const payText = generatedCV?.payScale ? ` (${generatedCV.payScale})` : '';
-            const versionText = data.isNewVersion ? ` v${data.versionNumber}` : '';
-            saveSuccess = `✅ Version${versionText} saved as versions/${data.filename}${scoreText}${payText}`;
-        } else {
-            saveError = `❌ Save failed with status ${response.status}: ${data.error || 'Unknown error'}`;
-        }
-    } catch (err) {
-        console.error('Save error:', err);
-        saveError = `❌ Network error: ${err.message}`;
-    } finally {
-        isSaving = false;
-        console.log('Save operation completed');
-    }
+		if (!generatedCV || isSaving) return;
+		
+		isSaving = true;
+		saveSuccess = '';
+		saveError = '';
+		
+		try {
+			console.log('Starting save...');
+			
+			const response = await fetch('/api/save', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					cvData: {
+						...generatedCV,
+						metadata: {
+							savedAt: new Date().toISOString(),
+							version: '1.0.0'
+						}
+					},
+					company,
+					title,
+					createNewVersion
+				})
+			});
+			
+			console.log('Response received:', response.status, response.ok);
+			
+			const data = await response.json();
+			console.log('Response data:', data);
+			
+			if (response.ok) {
+				const scoreText = generatedCV?.matchScore ? ` (Match: ${generatedCV.matchScore}/10)` : '';
+				const payText = generatedCV?.payScale ? ` (${generatedCV.payScale})` : '';
+				const versionText = data.isNewVersion ? ` v${data.versionNumber}` : '';
+				saveSuccess = `Version${versionText} saved: ${data.filename}${scoreText}${payText}`;
+				toast.success(saveSuccess, { duration: 4000 });
+			} else {
+				saveError = `Save failed (${response.status}): ${data.error || 'Unknown error'}`;
+				toast.error(saveError, { duration: 5000 });
+			}
+		} catch (err) {
+			console.error('Save error:', err);
+			saveError = `Network error: ${err.message}`;
+			toast.error(saveError, { duration: 6000 });
+		} finally {
+			isSaving = false;
+			console.log('Save operation completed');
+		}
 	}
 
-	// Regenerate with specific model
 	// Preview toggle handler
 	function handleTogglePreview() {
 		showPreview = !showPreview;
@@ -281,6 +302,8 @@
 <svelte:head>
 	<title>Generate CV from Job Description</title>
 </svelte:head>
+
+<Toaster richColors position="bottom-right" />
 
 <div class="container">
 	<header class="mb-8">
@@ -357,20 +380,93 @@
 			onGenerateSubmit={handleSubmit}
 		/>
 
-		<!-- Right Panel: Generated CV -->
-		<CVPreview
-			{generatedCV}
-			{generationMetadata}
-			{showPreview}
-			{saveSuccess}
-			{saveError}
-			{savedVersionSlug}
-			{actionError}
-			{pdfStatus}
-			{pdfError}
-			onSaveCV={saveCV}
-			onTogglePreview={handleTogglePreview}
-		/>
+		<!-- Right Panel: CV Display and Actions -->
+		<div class="flex flex-col h-full min-h-0 space-y-4">
+			<!-- Status Messages -->
+			{#if generatedCV && (saveSuccess || saveError || pdfStatus || pdfError || actionError)}
+				<div class="space-y-2">
+					{#if saveSuccess}
+						<div class="p-3 bg-green-50 border-l-4 border-green-500 rounded-r-lg">
+							<p class="text-green-700 text-sm">{saveSuccess}</p>
+							{#if savedVersionSlug}
+								<a
+									href="/{savedVersionSlug}"
+									class="text-green-600 underline text-sm mt-1 inline-block"
+									target="_blank"
+								>
+									→ View saved version
+								</a>
+							{/if}
+						</div>
+					{/if}
+
+					{#if pdfStatus}
+						<div class="p-3 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+							<p class="text-blue-700 text-sm">PDF: {pdfStatus}</p>
+						</div>
+					{/if}
+
+					{#if saveError}
+						<div class="p-3 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
+							<p class="text-red-700 text-sm">Error: {saveError}</p>
+						</div>
+					{/if}
+
+					{#if pdfError}
+						<div class="p-3 bg-yellow-50 border-l-4 border-yellow-500 rounded-r-lg">
+							<p class="text-yellow-800 text-sm">PDF: {pdfError}</p>
+						</div>
+					{/if}
+
+					{#if actionError}
+						<div class="p-3 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
+							<p class="text-red-700 text-sm">Error: {actionError}</p>
+						</div>
+					{/if}
+				</div>
+			{/if}
+
+		<!-- Floating Save Action -->
+		{#if generatedCV}
+			<div class="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-2">
+				<div class="text-xs text-gray-400 mb-1 font-mono truncate max-w-60" title={savePath}>{savePath}</div>
+				<DropdownMenu.Root>
+					<DropdownMenu.Trigger asChild let:builder>
+						<button type="button" use:builder.action {...builder} class="shadow-lg bg-white border border-gray-200 hover:border-gray-300 rounded-full px-4 h-11 flex items-center gap-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+							{#if isSaving}
+								<span class="animate-spin inline-block w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full"></span>
+								Saving...
+							{:else}
+								💾 Save
+							{/if}
+						</button>
+					</DropdownMenu.Trigger>
+					<DropdownMenu.Content class="min-w-48 bg-white/95 backdrop-blur border rounded-lg shadow-lg p-1">
+						<DropdownMenu.Item class="px-3 py-2 text-sm flex flex-col items-start gap-0.5 hover:bg-gray-50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+							onclick={() => saveCV(false)}
+							disabled={isSaving}>
+							<span class="font-medium">Save Latest Version</span>
+							<span class="text-xs text-gray-500">Overwrite current stable</span>
+						</DropdownMenu.Item>
+						<DropdownMenu.Item class="px-3 py-2 text-sm flex flex-col items-start gap-0.5 hover:bg-gray-50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+							onclick={() => saveCV(true)}
+							disabled={isSaving}>
+							<span class="font-medium">Save New Version</span>
+							<span class="text-xs text-gray-500">Keep previous versions</span>
+						</DropdownMenu.Item>
+					</DropdownMenu.Content>
+				</DropdownMenu.Root>
+			</div>
+		{/if}			<!-- CV Preview -->
+			<div class="flex-1 min-h-0">
+				<CVPreview
+					{generatedCV}
+					{generationMetadata}
+					{showPreview}
+					onTogglePreview={handleTogglePreview}
+				/>
+			</div>
+		</div>
 	</div>
 </div>
 

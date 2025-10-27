@@ -1,5 +1,6 @@
 {
   "skills": [
+    "Yo mama",
     "Python",
     "SQL",
     "ETL",
@@ -65,8 +66,8 @@
       "achievements": [
         "Created and optimized ETL workflows in Airflow, improving data processing performance by up to 1000x through efficient pipeline design and implementation",
         "Migrated multiple legacy codebases to Python3, enhancing maintainability and establishing modern engineering practices including code reviews and version control",
-        "Developed Python APIs and internal web interfaces using Flask, empowering business users across teams to meaningfully interact with company data and analytics",
-        "Built data transformation pipelines that supported advanced analytics and reporting requirements for healthcare data processing"
+        //"Developed Python APIs and internal web interfaces using Flask, empowering business users across teams to meaningfully interact with company data and analytics",
+        // "Built data transformation pipelines that supported advanced analytics and reporting requirements for healthcare data processing"
       ],
       "skills": ["Python", "Airflow", "Flask", "ETL", "Data Modeling"]
     }
