@@ -293,6 +293,7 @@ export function coalesceVersion(slug: string): CV | null {
     };
 
     // Use version experience if it exists, otherwise use main experience
+    // Version experience should completely override main experience when present
     if (version.experience) {
         merged.experience = version.experience.filter(
             (exp) => exp !== null && exp !== undefined,
@@ -304,85 +305,6 @@ export function coalesceVersion(slug: string): CV | null {
     }
 
     return merged;
-}
-
-/**
- * Merges two arrays of Experience objects by their index.
- * @param mainExperiences - The primary array of experiences.
- * @param versionExperiences - The array of experiences to merge from the version.
- * @returns A new array of merged Experience objects.
- */
-function mergeExperiences(
-    mainExperiences: Experience[],
-    versionExperiences: Experience[],
-): Experience[] {
-    const maxLength = Math.max(
-        mainExperiences.length,
-        versionExperiences.length,
-    );
-    const mergedExperiences: Experience[] = [];
-
-    for (let i = 0; i < maxLength; i++) {
-        const mainExp = mainExperiences[i];
-        const versionExp = versionExperiences[i];
-
-        if (mainExp && versionExp) {
-            mergedExperiences.push({
-                ...mainExp,
-                ...versionExp,
-                achievements: mergeAchievements(
-                    mainExp.achievements,
-                    versionExp.achievements,
-                ),
-            });
-        } else if (versionExp && versionExp !== null) {
-            // Ensure version experience has achievements array
-            mergedExperiences.push({
-                ...versionExp,
-                achievements: versionExp.achievements || [],
-            });
-        } else if (mainExp && mainExp !== null) {
-            // Ensure main experience has achievements array
-            mergedExperiences.push({
-                ...mainExp,
-                achievements: mainExp.achievements || [],
-            });
-        }
-    }
-
-    return mergedExperiences;
-}
-
-/**
- * Merges two arrays of achievements strings line by line.
- * Prefer version achievements over main achievements when available.
- * @param mainAchievements - The primary array of achievements.
- * @param versionAchievements - The array of achievements to merge from the version.
- * @returns A new array of merged achievements strings.
- */
-function mergeAchievements(
-    mainAchievements: string[] | undefined,
-    versionAchievements: string[] | undefined,
-): string[] {
-    // Handle undefined cases
-    const safeMainAchievements = mainAchievements || [];
-    const safeVersionAchievements = versionAchievements || [];
-
-    const maxLength = Math.max(
-        safeMainAchievements.length,
-        safeVersionAchievements.length,
-    );
-    const mergedAchievements: string[] = [];
-
-    for (let i = 0; i < maxLength; i++) {
-        const versionLine =
-            typeof safeVersionAchievements[i] === "string"
-                ? safeVersionAchievements[i].trim()
-                : "";
-        mergedAchievements[i] = versionLine || safeMainAchievements[i] || "";
-    }
-
-    return mergedAchievements;
 }
 
 /**

@@ -153,9 +153,9 @@
       "lastProjectsTrim": 0
     },
     "bitpanda": {
-      "pdfMTime": "2025-10-27T15:51:22.472Z",
+      "pdfMTime": "2025-10-27T16:08:08.318Z",
       "inputs": {
-        "src/lib/versions/data/bitpanda.json5": "2025-10-27T15:51:21.421Z",
+        "src/lib/versions/data/bitpanda.json5": "2025-10-27T16:08:07.373Z",
         "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
       },
       "lastProjectsTrim": 0
