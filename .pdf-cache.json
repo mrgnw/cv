@@ -1,9 +1,9 @@
 {
   "versions": {
     "main": {
-      "pdfMTime": "2025-09-10T10:50:45.049Z",
+      "pdfMTime": "2025-10-24T15:20:26.818Z",
       "inputs": {
-        "src/lib/versions/main.json": "2025-09-10T10:50:38.923Z",
+        "src/lib/versions/main.json": "2025-10-24T15:20:02.946Z",
         "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
       },
       "lastProjectsTrim": 0
@@ -132,6 +132,14 @@
       "pdfMTime": "2025-09-11T17:11:35.995Z",
       "inputs": {
         "src/lib/versions/backend/testcompany.json5": "2025-09-11T16:50:18.792Z",
+        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
+      },
+      "lastProjectsTrim": 0
+    },
+    "bitpanda": {
+      "pdfMTime": "2025-10-27T09:01:48.619Z",
+      "inputs": {
+        "src/lib/versions/data/bitpanda.json5": "2025-10-27T09:01:43.745Z",
         "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
       },
       "lastProjectsTrim": 0

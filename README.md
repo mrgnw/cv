@@ -11,9 +11,16 @@ bunx playwright install chromium
 bun run pdfs
 ```
 
-
-
 Unfortunately, pdf export is only supported on Chromium[*](https://playwright.dev/docs/api/class-page#page-pdf)
+
+## Testing
+
+```sh
+npm run test:all
+npm run test:experience      # Basic data validation
+npm run test:integration     # End-to-end route testing
+npm run test:validate        # Comprehensive validation
+```
 
 ## Generated using Svelte 5 template with [shadcn-svelte](http://shadcn-svelte.com) and [mdsvex](http://mdsvex.pngwn.io)
 

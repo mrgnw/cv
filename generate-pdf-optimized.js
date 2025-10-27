@@ -40,22 +40,22 @@ function saveCache(cache) {
 function needsRegeneration(version, cache) {
 	const metadata = getAllVersionMeta().find(meta => meta.slug === version);
 	if (!metadata) return true;
-	
+
 	const versionPath = metadata.path.replace(/^\/src\/lib\//, 'src/lib/');
 	const pdfPath = version === 'main' ? 'static/morgan-williams.pdf' : `static/morgan-williams.${version}.pdf`;
-	
+
 	try {
 		const versionStat = fs.statSync(versionPath);
 		const pdfExists = fs.existsSync(pdfPath);
-		
+
 		if (!pdfExists) return true;
-		
+
 		const pdfStat = fs.statSync(pdfPath);
 		const cachedMtime = cache[version];
-		
+
 		// Regenerate if source is newer than PDF or cache is invalid
-		return versionStat.mtime > pdfStat.mtime || 
-		       !cachedMtime || 
+		return versionStat.mtime > pdfStat.mtime ||
+		       !cachedMtime ||
 		       new Date(cachedMtime) < versionStat.mtime;
 	} catch (error) {
 		return true; // Regenerate on any error
@@ -69,7 +69,7 @@ async function getOptimalProjectCount(page, baseUrl, version) {
 	// Try to load from cache first
 	const cache = loadCache();
 	const cachedCount = cache[`${version}_projectCount`];
-	
+
 	if (cachedCount !== undefined) {
 		// Verify cached count still works
 		await page.goto(`${baseUrl}&removeProjects=${cachedCount}`, { waitUntil: 'networkidle' });
@@ -78,16 +78,16 @@ async function getOptimalProjectCount(page, baseUrl, version) {
 			return cachedCount;
 		}
 	}
-	
+
 	// Binary search for optimal project count
 	let left = 0, right = MAX_PROJECTS_TO_REMOVE;
 	let bestCount = 0;
-	
+
 	while (left <= right) {
 		const mid = Math.floor((left + right) / 2);
 		await page.goto(`${baseUrl}&removeProjects=${mid}`, { waitUntil: 'networkidle' });
 		const pageCount = await checkPdfPageCount(page);
-		
+
 		if (pageCount === 1) {
 			bestCount = mid;
 			right = mid - 1;
@@ -95,11 +95,11 @@ async function getOptimalProjectCount(page, baseUrl, version) {
 			left = mid + 1;
 		}
 	}
-	
+
 	// Cache the result
 	cache[`${version}_projectCount`] = bestCount;
 	saveCache(cache);
-	
+
 	return bestCount;
 }
 
@@ -109,21 +109,21 @@ async function getOptimalProjectCount(page, baseUrl, version) {
 async function generateVersionPDF(page, serverUrl, version, options, isSansStyle = false) {
 	const stylePrefix = isSansStyle ? '/sans' : '';
 	const baseUrl = `${serverUrl}${stylePrefix}/${version}?print`;
-	
+
 	const styleInfix = isSansStyle ? '-sans' : '';
 	const pdfName = version === 'main' ?
 		`morgan-williams${styleInfix}.pdf` :
 		`morgan-williams.${version}${styleInfix}.pdf`;
-	
+
 	const outputDir = isSansStyle ? path.join('static', 'sans') : 'static';
 	const pdfPath = path.join(outputDir, pdfName);
-	
+
 	// Use optimized project count detection
 	const projectsToRemove = await getOptimalProjectCount(page, baseUrl, version);
-	
+
 	await page.goto(`${baseUrl}&removeProjects=${projectsToRemove}`, { waitUntil: 'networkidle' });
 	await page.pdf({ path: pdfPath, ...options });
-	
+
 	console.log(`🖨️  ${pdfPath}${projectsToRemove > 0 ? ` (removed ${projectsToRemove} projects)` : ''}`);
 }
 
@@ -135,13 +135,13 @@ async function generatePDFsBatch(browser, serverUrl, versions, options) {
 	for (let i = 0; i < versions.length; i += MAX_CONCURRENT) {
 		batches.push(versions.slice(i, i + MAX_CONCURRENT));
 	}
-	
+
 	for (const batch of batches) {
 		const promises = batch.map(async (version) => {
 			const page = await browser.newPage();
 			try {
 				await generateVersionPDF(page, serverUrl, version, options, false);
-				
+
 				if (GENERATE_SANS_VERSION) {
 					await generateVersionPDF(page, serverUrl, version, options, true);
 				}
@@ -149,7 +149,7 @@ async function generatePDFsBatch(browser, serverUrl, versions, options) {
 				await page.close();
 			}
 		});
-		
+
 		await Promise.all(promises);
 	}
 }
@@ -161,15 +161,15 @@ async function checkPdfPageCount(page) {
 	return await page.evaluate(() => {
 		const printMediaQuery = window.matchMedia('print');
 		const originalMatches = printMediaQuery.matches;
-		
+
 		// Temporarily enable print media
 		Object.defineProperty(printMediaQuery, 'matches', { value: true, configurable: true });
-		
+
 		const pageCount = Math.ceil(document.body.scrollHeight / (297 * 3.78)); // A4 height in pixels
-		
+
 		// Restore original media query
 		Object.defineProperty(printMediaQuery, 'matches', { value: originalMatches, configurable: true });
-		
+
 		return pageCount;
 	});
 }
@@ -178,9 +178,8 @@ async function checkPdfPageCount(page) {
  * Detect which port the preview server is running on
  */
 async function detectServerPort() {
-	const ports = [4173, 4174, 4175, 4176, 4177];
-	const maxAttempts = 15; // 15 seconds total
-	
+	return 'https://cv.skate-in.ts.net';
+
 	for (let attempt = 0; attempt < maxAttempts; attempt++) {
 		for (const port of ports) {
 			const url = `http://localhost:${port}`;
@@ -201,14 +200,14 @@ async function detectServerPort() {
 				// Try next port
 			}
 		}
-		
+
 		// Wait 1 second before trying again
 		if (attempt < maxAttempts - 1) {
 			console.log(`⏳ Waiting for server to start... (${attempt + 1}/${maxAttempts})`);
 			await new Promise(resolve => setTimeout(resolve, 1000));
 		}
 	}
-	
+
 	throw new Error('Preview server not found on any expected port (4173-4177) after 15 seconds');
 }
 
@@ -224,7 +223,7 @@ function waitForServer(url) {
 		let attempt = 0;
 		const checkServer = () => {
 			const delay = Math.min(1000, 100 * Math.pow(2, attempt));
-			
+
 			http.get(url, (res) => {
 				clearTimeout(timeout);
 				resolve();
@@ -246,20 +245,14 @@ function waitForServer(url) {
 
 	console.log('🚀 Optimized PDF Generation Starting...');
 	console.log('🔍 Detecting preview server...');
-	
-	let serverUrl;
-	try {
-		serverUrl = await detectServerPort();
-	} catch (error) {
-		console.error('❌', error.message);
-		console.log('💡 Run `npm run preview` in another terminal first');
-		process.exit(1);
+
+
 	}
 
 	// Filter versions that need regeneration
 	const cache = loadCache();
 	const allVersions = Array.isArray(specificVersions) ? specificVersions : getAllVersions();
-	const versionsToGenerate = allVersions.filter(version => 
+	const versionsToGenerate = allVersions.filter(version =>
 		specificVersions.includes('all') || needsRegeneration(version, cache)
 	);
 
@@ -269,9 +262,9 @@ function waitForServer(url) {
 	}
 
 	console.log(`📄 Generating PDFs for ${versionsToGenerate.length} versions:`, versionsToGenerate.join(', '));
-	
+
 	const browser = await chromium.launch();
-	
+
 	const pdfOptions = {
 		format: 'A4',
 		printBackground: false,
@@ -290,20 +283,20 @@ function waitForServer(url) {
 	}
 
 	const startTime = Date.now();
-	
+
 	try {
 		await generatePDFsBatch(browser, serverUrl, versionsToGenerate, pdfOptions);
-		
+
 		// Update cache with current timestamps
 		const newCache = loadCache();
 		for (const version of versionsToGenerate) {
 			newCache[version] = new Date().toISOString();
 		}
 		saveCache(newCache);
-		
+
 		const duration = ((Date.now() - startTime) / 1000).toFixed(1);
 		console.log(`✅ Generated ${versionsToGenerate.length} PDFs in ${duration}s`);
-		
+
 	} catch (error) {
 		console.error('❌ Error generating PDFs:', error);
 		process.exit(1);
