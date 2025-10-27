@@ -154,23 +154,22 @@ for (const entry of tempEntries) {
 
         // Migrate old experience format to new format
         if (parsedData.experience && Array.isArray(parsedData.experience)) {
-            parsedData.experience = parsedData.experience.map((exp: any) => {
-                // Handle null entries
-                if (!exp) return null;
-
-                return {
-                    ...exp,
-                    // Migrate description/accomplishments -> achievements if needed
-                    achievements:
-                        exp.achievements ||
-                        exp.accomplishments ||
-                        exp.description ||
-                        [],
-                    // Remove old property names if they exist
-                    description: undefined,
-                    accomplishments: undefined,
-                };
-            });
+            parsedData.experience = parsedData.experience
+                .filter((exp: any) => exp !== null && exp !== undefined)
+                .map((exp: any) => {
+                    return {
+                        ...exp,
+                        // Migrate description/accomplishments -> achievements if needed
+                        achievements:
+                            exp.achievements ||
+                            exp.accomplishments ||
+                            exp.description ||
+                            [],
+                        // Remove old property names if they exist
+                        description: undefined,
+                        accomplishments: undefined,
+                    };
+                });
         }
 
         // Generate PDF link
@@ -295,9 +294,13 @@ export function coalesceVersion(slug: string): CV | null {
 
     // Use version experience if it exists, otherwise use main experience
     if (version.experience) {
-        merged.experience = version.experience;
+        merged.experience = version.experience.filter(
+            (exp) => exp !== null && exp !== undefined,
+        );
     } else if (main.experience) {
-        merged.experience = main.experience;
+        merged.experience = main.experience.filter(
+            (exp) => exp !== null && exp !== undefined,
+        );
     }
 
     return merged;
@@ -332,13 +335,13 @@ function mergeExperiences(
                     versionExp.achievements,
                 ),
             });
-        } else if (versionExp) {
+        } else if (versionExp && versionExp !== null) {
             // Ensure version experience has achievements array
             mergedExperiences.push({
                 ...versionExp,
                 achievements: versionExp.achievements || [],
             });
-        } else if (mainExp) {
+        } else if (mainExp && mainExp !== null) {
             // Ensure main experience has achievements array
             mergedExperiences.push({
                 ...mainExp,
