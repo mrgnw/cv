@@ -24,6 +24,9 @@
 		contentLimits = null
 	} = $props();
 
+
+
+
 	const iconSize = 30;
 	let highlightedSkill = "";
 	// Use optimized projects from derived value above
@@ -84,10 +87,10 @@
 		})
 	);
 
-	const optimizedProjects = $derived(() => {
+	const optimizedProjects = $derived.by(() => {
 		if (!resolvedProjects) return [];
 
-		const limits = effectiveContentLimits;
+		const limits = effectiveContentLimits();
 		const maxProjects = limits.projects;
 		const removeCount = limits.removeProjects;
 
@@ -105,7 +108,7 @@
 	});
 
 	function getExpLimit(index) {
-		const limits = effectiveContentLimits;
+		const limits = effectiveContentLimits();
 		const limitValues = [limits.exp1, limits.exp2, limits.exp3, limits.exp4];
 		return limitValues[index]; // Returns null if not set, which means no limit
 	}
@@ -148,6 +151,8 @@
 		? "text-2xl font-semibold shrink-0"
 		: "text-lg font-bold border-b border-black pb-0.5 mb-2");
 </script>
+
+
 
 <div class={containerClass} class:print-optimizing={isPrinting}>
 	{#if variant === 'modern'}
