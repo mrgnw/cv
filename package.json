@@ -32,9 +32,8 @@
         "test:validate": "node validate-experience.mjs",
         "test:optimization": "node test-content-optimization.mjs",
         "test:all": "node run-all-tests.mjs",
-        "pdf:optimized": "node pdf-cli.js --optimize",
-        "pdf:force-optimized": "node pdf-cli.js --optimize --force",
-        "pdf:watch-optimized": "node pdf-cli.js --optimize --watch"
+        "pdf:all": "node pdf-cli.js all",
+        "pdf:all:force": "node pdf-cli.js all --force"
     },
     "devDependencies": {
         "@sveltejs/adapter-cloudflare": "^4.7.2",
