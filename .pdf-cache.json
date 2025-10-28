@@ -1,42 +1,42 @@
 {
   "versions": {
     "coinbase": {
-      "pdfMTime": "2025-10-27T14:47:00.816Z",
+      "pdfMTime": "2025-10-28T21:13:00.503Z",
       "inputs": {
         "src/lib/versions/data/coinbase.json": "2025-09-10T10:50:38.923Z",
-        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
+        "src/lib/projects.jsonc": "2025-10-28T10:36:30.628Z"
       },
       "lastProjectsTrim": 0
     },
     "allianz-data": {
-      "pdfMTime": "2025-10-27T14:47:00.816Z",
+      "pdfMTime": "2025-10-28T21:13:00.503Z",
       "inputs": {
         "src/lib/versions/data/allianz.json5": "2025-09-10T10:50:38.923Z",
-        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
+        "src/lib/projects.jsonc": "2025-10-28T10:36:30.628Z"
       },
       "lastProjectsTrim": 0
     },
     "dx": {
-      "pdfMTime": "2025-10-27T14:47:00.816Z",
+      "pdfMTime": "2025-10-28T21:13:00.504Z",
       "inputs": {
         "src/lib/versions/dx.json": "2025-09-10T10:50:38.923Z",
-        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
+        "src/lib/projects.jsonc": "2025-10-28T10:36:30.628Z"
       },
       "lastProjectsTrim": 0
     },
     "pitch": {
-      "pdfMTime": "2025-10-27T14:47:00.816Z",
+      "pdfMTime": "2025-10-28T21:13:00.504Z",
       "inputs": {
         "src/lib/versions/pitch.json": "2025-09-10T10:50:38.927Z",
-        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
+        "src/lib/projects.jsonc": "2025-10-28T10:36:30.628Z"
       },
       "lastProjectsTrim": 0
     },
     "wanderlog-full-stack": {
-      "pdfMTime": "2025-10-27T14:47:00.817Z",
+      "pdfMTime": "2025-10-28T21:13:00.503Z",
       "inputs": {
         "src/lib/versions/wanderlog-full-stack.json5": "2025-09-10T11:30:50.281Z",
-        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
+        "src/lib/projects.jsonc": "2025-10-28T10:36:30.628Z"
       },
       "lastProjectsTrim": 0
     },
@@ -49,90 +49,90 @@
       "lastProjectsTrim": 0
     },
     "allianz-backend": {
-      "pdfMTime": "2025-10-27T14:47:00.816Z",
+      "pdfMTime": "2025-10-28T21:13:00.503Z",
       "inputs": {
         "src/lib/versions/backend/allianz.json5": "2025-09-10T10:50:38.923Z",
-        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
+        "src/lib/projects.jsonc": "2025-10-28T10:36:30.628Z"
       },
       "lastProjectsTrim": 0
     },
     "unknown": {
-      "pdfMTime": "2025-10-27T14:47:00.816Z",
+      "pdfMTime": "2025-10-28T21:13:00.503Z",
       "inputs": {
         "src/lib/versions/fullstack/unknown.json5": "2025-10-02T11:29:11.871Z",
-        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
+        "src/lib/projects.jsonc": "2025-10-28T10:36:30.628Z"
       },
       "lastProjectsTrim": 0
     },
     "pair-team": {
-      "pdfMTime": "2025-10-27T14:47:00.816Z",
+      "pdfMTime": "2025-10-28T21:13:00.503Z",
       "inputs": {
         "src/lib/versions/backend/pair-team.json5": "2025-09-10T12:03:20.756Z",
-        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
+        "src/lib/projects.jsonc": "2025-10-28T10:36:30.628Z"
       },
       "lastProjectsTrim": 0
     },
     "rbi": {
-      "pdfMTime": "2025-10-27T14:47:00.816Z",
+      "pdfMTime": "2025-10-28T21:13:00.504Z",
       "inputs": {
         "src/lib/versions/data/rbi.json5": "2025-09-10T10:50:38.923Z",
-        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
+        "src/lib/projects.jsonc": "2025-10-28T10:36:30.628Z"
       },
       "lastProjectsTrim": 0
     },
     "data": {
-      "pdfMTime": "2025-10-27T14:47:00.817Z",
+      "pdfMTime": "2025-10-28T21:13:00.503Z",
       "inputs": {
         "src/lib/versions/data.json": "2025-01-02T14:38:06.000Z",
-        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
+        "src/lib/projects.jsonc": "2025-10-28T10:36:30.628Z"
       },
       "lastProjectsTrim": 0
     },
     "main": {
-      "pdfMTime": "2025-10-27T14:47:00.817Z",
+      "pdfMTime": "2025-10-28T21:13:00.503Z",
       "inputs": {
         "src/lib/versions/main.json": "2025-10-24T15:20:02.946Z",
-        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
+        "src/lib/projects.jsonc": "2025-10-28T10:36:30.628Z"
       },
       "lastProjectsTrim": 0
     },
     "agave-full-stack-backend-engineer": {
-      "pdfMTime": "2025-10-27T14:47:00.816Z",
+      "pdfMTime": "2025-10-28T21:13:00.503Z",
       "inputs": {
         "src/lib/versions/agave-full-stack-backend-engineer.json5": "2025-09-10T11:55:56.553Z",
-        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
+        "src/lib/projects.jsonc": "2025-10-28T10:36:30.628Z"
       },
       "lastProjectsTrim": 0
     },
     "proxis": {
-      "pdfMTime": "2025-10-27T14:47:00.816Z",
+      "pdfMTime": "2025-10-28T21:13:00.503Z",
       "inputs": {
         "src/lib/versions/backend/proxis.json5": "2025-09-10T12:25:50.781Z",
-        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
+        "src/lib/projects.jsonc": "2025-10-28T10:36:30.628Z"
       },
       "lastProjectsTrim": 0
     },
     "fuseai": {
-      "pdfMTime": "2025-10-27T14:47:00.816Z",
+      "pdfMTime": "2025-10-28T21:13:00.503Z",
       "inputs": {
         "src/lib/versions/fullstack/fuseai.json5": "2025-09-10T12:19:29.543Z",
-        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
+        "src/lib/projects.jsonc": "2025-10-28T10:36:30.628Z"
       },
       "lastProjectsTrim": 0
     },
     "fullstack": {
-      "pdfMTime": "2025-10-27T14:47:00.816Z",
+      "pdfMTime": "2025-10-28T21:13:00.503Z",
       "inputs": {
         "src/lib/versions/fullstack.json5": "2025-09-10T10:50:38.923Z",
-        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
+        "src/lib/projects.jsonc": "2025-10-28T10:36:30.628Z"
       },
       "lastProjectsTrim": 0
     },
     "agave": {
-      "pdfMTime": "2025-10-27T14:47:00.816Z",
+      "pdfMTime": "2025-10-28T21:13:00.503Z",
       "inputs": {
         "src/lib/versions/backend/agave.json5": "2025-09-10T12:17:10.326Z",
-        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
+        "src/lib/projects.jsonc": "2025-10-28T10:36:30.628Z"
       },
       "lastProjectsTrim": 0
     },
@@ -145,18 +145,18 @@
       "lastProjectsTrim": 0
     },
     "solo": {
-      "pdfMTime": "2025-10-27T14:47:00.817Z",
+      "pdfMTime": "2025-10-28T21:13:00.504Z",
       "inputs": {
         "src/lib/versions/backend/solo.json5": "2025-09-10T12:13:24.642Z",
-        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
+        "src/lib/projects.jsonc": "2025-10-28T10:36:30.628Z"
       },
       "lastProjectsTrim": 0
     },
     "bitpanda": {
-      "pdfMTime": "2025-10-27T16:08:08.318Z",
+      "pdfMTime": "2025-10-28T21:23:04.903Z",
       "inputs": {
-        "src/lib/versions/data/bitpanda.json5": "2025-10-27T16:08:07.373Z",
-        "src/lib/projects.jsonc": "2025-09-10T10:33:44.285Z"
+        "src/lib/versions/data/bitpanda.json5": "2025-10-28T21:23:03.986Z",
+        "src/lib/projects.jsonc": "2025-10-28T10:36:30.628Z"
       },
       "lastProjectsTrim": 0
     }

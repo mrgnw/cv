@@ -24,8 +24,8 @@
         start: "2025-03-17",
         "skills": ["Python", "AWS", "ETL", "SQL", "CI/CD", "Databricks", "Airflow"],
         "achievements":[
-				"Deployed custom AWS Lambda connector, coordinating with other teams to add a new integration enabling a new subscription type, while also ensuring that there was 0 downtime for the billions of other streaming transactions happening with our other clients.",
-				"Accelerated security vulnerability remediation from days to minutes by migrating 5 major projects to UV and Ruff, enabling rapid dependency updates and automated code quality checks while reducing package installation time by 10-100x and cutting CI/CD pipeline runtime by 60%.",
+				"Created custom AWS Lambda connector enabling new customers to connect, while ensuring 0 downtime for existing clients",
+				"Modernized project deployment structure CI/CD pipelines to improve iteration speed and reduce CVE resolution time by 10x",
 				"Provided ongoing production support and troubleshooting for data pipeline issues across 5+ enterprise client projects, leveraging CloudWatch monitoring and logging",
 				// "Designed and implemented CI/CD pipelines using GitLab Pipelines (pytest, unittest), .",
 				// "Developed RESTful APIs using Python, FastAPI, and Flask with comprehensive OpenAPI documentation, empowering 50+ business users to programmatically access company data through secure endpoints, reducing manual reporting requests by 60% and improving data accessibility.",

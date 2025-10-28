@@ -78,20 +78,35 @@
 }
 
 @media print {
-    /* Reduce page margins - smaller top margin */
+    /* Page margins for PDF */
     @page {
-        margin: 0.25in 0.75in 0.5in 0.75in;
+        margin: 0.15in 0.75in 0.5in 0.75in;
     }
 
-    /* Reduce top spacing on the main container */
-    .print-optimizing {
-        padding-top: 0 !important;
+    /* Reset body margins only for print */
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+        color: black !important;
+    }
+
+    /* Remove container top spacing for print only */
+    .max-w-\[800px\] {
         margin-top: 0 !important;
     }
 
-    /* Specifically target the header to reduce top spacing */
+    /* Remove header top spacing for print only */
     header {
         margin-top: 0 !important;
-        padding-top: 0 !important;
+    }
+
+    /* Remove title top spacing for print only */
+    h1 {
+        margin-top: 0 !important;
+    }
+
+    .no-print {
+        display: none !important;
     }
 }

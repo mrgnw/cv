@@ -20,7 +20,7 @@
         education,
         version = undefined,
         lang = "en",
-        variant = "modern",
+
         contentLimits = null,
     } = $props();
 
@@ -167,8 +167,8 @@
     const labels = $derived(lang === "es" ? es_labels : en_labels);
 
     // Simple single layout approach
-    const containerClass = "max-w-[800px] mx-auto p-8 bg-white text-black print:pt-2 print:pb-0 print:px-4 font-serif";
-    const headerClass = "text-center mb-4 print:mb-2 print:mt-0";
+    const containerClass = "max-w-[800px] mx-auto px-8 pt-4 pb-8 bg-white text-black print:pt-2 print:pb-0 print:px-4 font-serif";
+    const headerClass = "text-center mb-4 mt-1 print:mb-2 print:mt-0";
     const titleClass = "text-4xl font-bold";
     const sectionHeaderClass = "text-lg font-bold border-b border-black pb-0.5 mb-2";
 </script>
@@ -277,9 +277,7 @@
     target="_blank"
     rel="noopener noreferrer"
     aria-label="Download Morgan's CV"
-    class="no-print fixed bottom-4 right-4 {variant === 'modern'
-        ? 'bg-background'
-        : 'bg-white'} p-2 rounded-full shadow-lg hover:bg-gray-50 flex items-center justify-center"
+    class="no-print fixed bottom-4 right-4 bg-white p-2 rounded-full shadow-lg hover:bg-gray-50 flex items-center justify-center"
     style="width: {iconSize}px; height: {iconSize}px;"
     data-sveltekit-preload-data="hover"
 >
@@ -323,53 +321,8 @@
         .print-optimizing :global(.mb-2) {
             margin-bottom: 0.5rem !important;
         }
-    }
 
-    /* Container queries for dynamic optimization */
-    @container (max-height: 800px) {
-        :global(.experience-item:nth-child(4)) {
-            opacity: 0.8;
-        }
-
-        :global(.project-item:nth-child(n + 4)) {
-            opacity: 0.7;
-        }
-    }
-
-    /* Modern variant styles */
-    :root {
-        --line-height: 1.5;
-        --font-size: 1.25rem;
-    }
-
-    @media (min-width: 640px) {
-        :root {
-            --line-height: 1.5;
-            --font-size: 1rem;
-        }
-    }
-
-    @media print {
-        @page {
-            size: A4;
-            margin: 10mm 12mm 12mm 10mm;
-        }
-
-        :global(body) {
-            margin: 0 !important;
-            padding: 0 !important;
-            font-size: 11pt !important;
-            line-height: 1.4 !important;
-        }
-
-        /* Traditional variant print styles */
-        .font-serif :global(body) {
-            font-family: "Times New Roman", Times, serif;
-            color: black;
-            background: white;
-        }
-
-        /* Modern variant print styles */
+        /* Font size overrides */
         :global(.text-4xl) {
             font-size: 26pt;
         }
@@ -392,10 +345,6 @@
 
         :global(.text-xs) {
             font-size: 9pt;
-        }
-
-        .no-print {
-            display: none !important;
         }
     }
 
