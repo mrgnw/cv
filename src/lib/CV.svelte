@@ -166,243 +166,109 @@
 
     const labels = $derived(lang === "es" ? es_labels : en_labels);
 
-    // Style classes based on variant
-    const containerClass = $derived(
-        variant === "modern"
-            ? "max-w-3xl mx-auto p-8 bg-background text-foreground print:p-0 print:max-w-none print:m-0"
-            : "max-w-[800px] mx-auto p-8 bg-white text-black print:p-4 font-serif",
-    );
-
-    const headerClass = $derived(
-        variant === "modern"
-            ? "flex items-start justify-between mb-8 print:mb-2 print:mt-0"
-            : "text-center mb-4",
-    );
-
-    const titleClass = $derived(
-        variant === "modern" ? "text-4xl font-bold mb-1" : "text-4xl font-bold",
-    );
-
-    const sectionHeaderClass = $derived(
-        variant === "modern"
-            ? "text-2xl font-semibold shrink-0"
-            : "text-lg font-bold border-b border-black pb-0.5 mb-2",
-    );
+    // Simple single layout approach
+    const containerClass = "max-w-[800px] mx-auto p-8 bg-white text-black print:pt-2 print:pb-0 print:px-4 font-serif";
+    const headerClass = "text-center mb-4 print:mb-2 print:mt-0";
+    const titleClass = "text-4xl font-bold";
+    const sectionHeaderClass = "text-lg font-bold border-b border-black pb-0.5 mb-2";
 </script>
 
 <div class={containerClass} class:print-optimizing={isPrinting}>
-    {#if variant === "modern"}
-        <!-- Modern variant header -->
-        <header class={headerClass}>
-            <div>
-                <h1 class="inline {titleClass}">{name}</h1>
-                <span class="text-muted-foreground ml-4">
-                    {#each skills as skill, index}
-                        <span
-                            role="button"
-                            tabindex="0"
-                            class="cursor-pointer hover:text-foreground transition-colors inline-block"
-                            onmouseenter={() => highlightStack(skill)}
-                            onmouseleave={() => highlightStack("")}
-                            ontouchstart={() => highlightStack(skill)}
-                            ontouchend={() => highlightStack("")}
-                        >
-                            {skill}{#if index < skills.length - 1}<span
-                                    class="mx-1">•</span
-                                >{/if}
-                        </span>
-                    {/each}
-                </span>
-            </div>
-            <div
-                class="text-right text-sm text-muted-foreground space-y-1 mt-2"
+    <header class={headerClass}>
+        <h1 class={titleClass}>{name}</h1>
+
+        <!-- Contact Info -->
+        <div class="mt-2 text-sm space-x-2">
+            <a href={`mailto:${email}`} class="hover:underline">{email}</a>
+            <span>|</span>
+            <a href={github} class="hover:underline">github.com/mrgnw</a>
+            <span>|</span>
+            <a href="https://linkedin.com/in/mrgnw" class="hover:underline"
+                >linkedin.com/in/mrgnw</a
             >
-                <a
-                    href={`mailto:${email}`}
-                    class="text-muted-foreground hover:text-foreground transition-colors block"
-                >
-                    {email}
-                </a>
-                <a
-                    href={github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="hover:text-foreground transition-colors block"
-                >
-                    <span class="font-semibold">github</span>.com/mrgnw
-                </a>
-                <a
-                    href="https://www.linkedin.com/in/mrgnw/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="hover:text-foreground transition-colors block"
-                >
-                    <span class="font-semibold">linkedin</span>.com/in/mrgnw
-                </a>
-            </div>
-        </header>
-
-        <!-- Modern variant sections with separators -->
-        <div class="flex items-center gap-4 mb-2 w-[81%] print:mb-1">
-            <h2 class={sectionHeaderClass}>{labels.experience}</h2>
-            <Separator class="flex-grow" />
         </div>
-        <Experience experience={optimizedExperience} {highlightedSkill} />
+    </header>
 
-        {#if optimizedProjects?.length > 0}
-            <div class="flex items-center gap-4 mb-2 w-[85%] print:mb-1">
-                <h2 class={sectionHeaderClass}>{labels.projects}</h2>
-                <Separator class="flex-grow" />
+    <!-- Skills -->
+    <section class="mb-6">
+        <div class="border-b border-black pb-0.5 mb-2">
+            <div class="flex items-baseline gap-4">
+                <h2 class="text-lg font-bold">{labels.skills}</h2>
+                <div class="flex flex-wrap gap-x-8">
+                    {skills.join(", ")}
+                </div>
             </div>
-            <Projects projects={optimizedProjects} />
-        {/if}
-
-        <div class="flex items-center gap-4 mb-2 w-[85%] print:mb-1">
-            <h2 class={sectionHeaderClass}>{labels.education}</h2>
-            <Separator class="flex-grow" />
         </div>
-        <section
-            class="education grid grid-cols-2 gap-x-8 gap-y-2 print:gap-y-1 print:gap-x-4"
-        >
-            {#each education as edu}
-                <div class="education-entry">
-                    <div class="flex justify-between items-baseline">
-                        <div class="flex gap-2 items-baseline">
-                            <h3 class="font-semibold text-base">
-                                {edu.provider}
-                            </h3>
-                            <p class="text-base text-muted-foreground">
-                                {edu.degree}
-                            </p>
-                        </div>
-                        <span
-                            class="text-muted-foreground text-sm whitespace-nowrap ml-2"
-                            >{edu.year}</span
-                        >
-                    </div>
-                    {#if edu.summary}
-                        <p class="text-sm text-muted-foreground">
-                            {edu.summary}
-                        </p>
-                    {/if}
-                    {#if edu.achievements?.length}
-                        <div
-                            class="text-sm text-muted-foreground inline-flex gap-2"
-                        >
-                            {#each edu.achievements as achievement, i}
-                                <span
-                                    >{achievement}{#if i < edu.achievements.length - 1}
-                                        •{/if}</span
-                                >
-                            {/each}
-                        </div>
-                    {/if}
-                </div>
-            {/each}
-        </section>
-    {:else}
-        <!-- Traditional variant -->
-        <header class={headerClass}>
-            <h1 class={titleClass}>{name}</h1>
+    </section>
 
-            <!-- Contact Info -->
-            <div class="mt-2 text-sm space-x-2">
-                <a href={`mailto:${email}`} class="hover:underline">{email}</a>
-                <span>|</span>
-                <a href={github} class="hover:underline">github.com/mrgnw</a>
-                <span>|</span>
-                <a href="https://linkedin.com/in/mrgnw" class="hover:underline"
-                    >linkedin.com/in/mrgnw</a
-                >
-            </div>
-        </header>
-
-        <!-- Skills -->
-        <section class="mb-6">
-            <div class="border-b border-black pb-0.5 mb-2">
-                <div class="flex items-baseline gap-4">
-                    <h2 class="text-lg font-bold">{labels.skills}</h2>
-                    <div class="flex flex-wrap gap-x-8">
-                        {skills.join(", ")}
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Experience -->
-        <section class="mb-6">
-            <h2 class={sectionHeaderClass}>{labels.experience}</h2>
-            {#each optimizedExperience as job}
-                <div class="mb-4">
-                    <div class="flex justify-between items-baseline">
-                        <div>
-                            <span class="font-bold">{job.title},</span>
-                            <span>{job.company}</span>
-                        </div>
-                        <span class="text-sm">
-                            {#if job.start}
-                                {formatDate(job.start)} – {job.end
-                                    ? formatDate(job.end)
-                                    : labels.present}
-                            {:else}
-                                {labels.present}
-                            {/if}
-                        </span>
-                    </div>
-                    <ul class="list-disc ml-4 mt-1">
-                        {#each job.achievements as bullet}
-                            <li class="text-sm leading-tight mb-1">{bullet}</li>
-                        {/each}
-                    </ul>
-                </div>
-            {/each}
-        </section>
-
-        <!-- Projects -->
-        <!-- Projects -->
-        {#if optimizedProjects?.length > 0}
-            <section class="mb-6">
-                <h2 class={sectionHeaderClass}>{labels.projects}</h2>
-                {#each optimizedProjects as project}
-                    <div class="mb-3">
-                        <div class="flex justify-between items-baseline">
-                            <a
-                                href={project.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                class="font-bold hover:underline"
-                            >
-                                {project.localized_name || project.name}
-                            </a>
-                            <a
-                                href={project.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                class="text-sm hover:underline"
-                            >
-                                {formatUrl(project.url)}
-                            </a>
-                        </div>
-                        <p class="text-sm mt-0.5">{project.description}</p>
-                    </div>
-                {/each}
-            </section>
-        {/if}
-
-        <!-- Education -->
-        <section>
-            <h2 class={sectionHeaderClass}>{labels.education}</h2>
-            {#each education as edu}
-                <div class="flex justify-between items-baseline mb-1">
+    <!-- Experience -->
+    <section class="mb-6">
+        <h2 class={sectionHeaderClass}>{labels.experience}</h2>
+        {#each optimizedExperience as job}
+            <div class="mb-4">
+                <div class="flex justify-between items-baseline">
                     <div>
-                        <span class="font-bold">{edu.provider}</span>
-                        <span> — {edu.degree}</span>
+                        <span class="font-bold">{job.title}</span>
+                        <span>at {job.company}</span>
                     </div>
-                    <span>{edu.year}</span>
+                    <span class="text-sm">
+                        {#if job.start}
+                            {formatDate(job.start)}{#if job.end} - {formatDate(job.end)}{:else} - Present{/if}
+                        {:else}
+                            {job.timeframe}
+                        {/if}
+                    </span>
+                </div>
+                <ul class="list-disc ml-4 mt-1">
+                    {#each job.achievements as bullet}
+                        <li class="text-sm leading-tight mb-1">{bullet}</li>
+                    {/each}
+                </ul>
+            </div>
+        {/each}
+    </section>
+
+    <!-- Projects -->
+    {#if optimizedProjects?.length > 0}
+        <section class="mb-6">
+            <h2 class={sectionHeaderClass}>{labels.projects}</h2>
+            {#each optimizedProjects as project}
+                <div class="mb-3">
+                    <div class="flex justify-between items-baseline">
+                        <a
+                            href={project.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="font-bold hover:underline"
+                            >{project.name}</a
+                        >
+                        <a
+                            href={project.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="text-sm hover:underline"
+                            >{formatUrl(project.url)}</a
+                        >
+                    </div>
+                    <p class="text-sm mt-0.5">{project.description}</p>
                 </div>
             {/each}
         </section>
     {/if}
+
+    <!-- Education -->
+    <section>
+        <h2 class={sectionHeaderClass}>{labels.education}</h2>
+        {#each education as edu}
+            <div class="flex justify-between items-baseline mb-1">
+                <div>
+                    <span class="font-bold">{edu.degree}</span>
+                    <span>from {edu.provider}</span>
+                </div>
+                <span>{edu.year}</span>
+            </div>
+        {/each}
+    </section>
 </div>
 
 <!-- PDF Download -->
