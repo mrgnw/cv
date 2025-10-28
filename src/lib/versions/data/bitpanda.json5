@@ -1,6 +1,5 @@
 {
   "skills": [
-    "Yo mama",
     "Python",
     "SQL",
     "ETL",
@@ -38,10 +37,11 @@
       "company": "National Care Dental",
       "start": "2022-05-01",
       "achievements": [
-        "Designed and implemented scalable data infrastructure and pipelines using AWS and Python, enabling faster business operations and enhanced data insights while cutting costs significantly",
-        "Transitioned legacy workflows to modern data pipelines with automated testing and monitoring, accelerating tasks by 100x to 1000x through automation and reducing multi-hour processes to seconds",
+        "Architected modern data pipelines, replacing manual tasks that took hours of human labor to tasks that completed automatically in seconds.",
+        "Created full-stack SAAS resources to enable our clients to integrate better with our product.",
         "Mentored data analysts in Python and SQL best practices, expanding their technical capabilities and establishing data quality standards and governance processes",
-        "Built robust, observable data pipelines with comprehensive documentation and clear lifecycle standards, ensuring performance and reliability across all data operations"
+        // "Consulted on business requirements and data needs, providing recommendations for data architecture and infrastructure design",
+        //"Built robust, observable data pipelines with comprehensive documentation and clear lifecycle standards, ensuring performance and reliability across all data operations"
       ],
       "skills": ["Python", "AWS", "ETL", "SQL", "APIs", "Data Governance"]
     },
@@ -65,7 +65,7 @@
       "end": "2021-08-01",
       "achievements": [
         "Created and optimized ETL workflows in Airflow, improving data processing performance by up to 1000x through efficient pipeline design and implementation",
-        "Migrated multiple legacy codebases to Python3, significantly reducing maintenance costs and improving performance",
+        "Migrated multiple legacy codebases to Python3, significantly reducing maintenance and improving performance",
         //"Developed Python APIs and internal web interfaces using Flask, empowering business users across teams to meaningfully interact with company data and analytics",
         // "Built data transformation pipelines that supported advanced analytics and reporting requirements for healthcare data processing"
       ],
@@ -130,8 +130,8 @@
     "summary": "Excellent match with strong data engineering fundamentals, AWS/Python expertise, and stakeholder collaboration skills. Some gaps in specific tools like Snowflake and dbt."
   },
   "projects": [
-    "Resume",
     "Multilingual translator",
+    "Resume",
     // "TextMe",
   ]
 
