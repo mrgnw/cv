@@ -11,4 +11,4 @@
             : `/morgan-williams.${data.slug}.pdf`;
 </script>
 
-<CV {...data} {pdfLink} variant="traditional" />
+<CV {...data} {pdfLink} />

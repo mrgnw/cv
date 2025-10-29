@@ -10,4 +10,4 @@
     }
 </script>
   
-<CV {...resolvedData} variant="traditional" />
+<CV {...resolvedData} pdfLink="/morgan-williams.pdf" />
