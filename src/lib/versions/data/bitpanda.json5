@@ -24,9 +24,9 @@
         start: "2025-03-17",
         "skills": ["Python", "AWS", "ETL", "SQL", "CI/CD", "Databricks", "Airflow"],
         "achievements":[
-				"Created custom AWS Lambda connector enabling new customers to connect, while ensuring 0 downtime for existing clients",
-				"Modernized project deployment structure CI/CD pipelines to improve iteration speed and reduce CVE resolution time by 10x",
-				"Provided ongoing production support and troubleshooting for data pipeline issues across 5+ enterprise client projects, leveraging CloudWatch monitoring and logging",
+				"Created custom connectors for real-time data streams processing billions of records, with robust testing & cross-team communication to ensure changes meet requirements and keep 99.999% uptime",
+				"Modernized project deployment structure CI/CD pipelines to improve iteration speed and reduce developer maintenance time, improving CVE resolution time by 10x",
+				"Provided ongoing production support and troubleshooting for data pipeline issues across multiple enterprise client projects involving our ETL and data streaming platforms (AWS lambda, kinesis, Snowflake, PostgreSQL, CloudWatch, etc.)",
 				// "Designed and implemented CI/CD pipelines using GitLab Pipelines (pytest, unittest), .",
 				// "Developed RESTful APIs using Python, FastAPI, and Flask with comprehensive OpenAPI documentation, empowering 50+ business users to programmatically access company data through secure endpoints, reducing manual reporting requests by 60% and improving data accessibility.",
 				// "Modernized legacy ETL workflows to cloud-native architectures using Apache Airflow, Databricks, and AWS services (Lambda, S3, EC2, Glue), accelerating batch processing tasks by 100x-1000x through parallelization, automation, and serverless computing patterns.",
@@ -36,11 +36,12 @@
       "title": "Data Engineering Consultant",
       "company": "National Care Dental",
       "start": "2022-05-01",
+      "end": "2025-03-17",
       "achievements": [
         "Architected modern data pipelines, replacing manual tasks that took hours of human labor to tasks that completed automatically in seconds.",
         "Created full-stack SAAS resources to enable our clients to integrate better with our product.",
-        "Mentored data analysts in Python and SQL best practices, expanding their technical capabilities and establishing data quality standards and governance processes",
-        // "Consulted on business requirements and data needs, providing recommendations for data architecture and infrastructure design",
+        "Mentored data analysts in Python and SQL, expanding their technical capabilities and establishing data quality standards and governance processes",
+        "Consulted business to adopt third party solutions when buying was more effective than building - significantly reducing the need for valuable internal resources",
         //"Built robust, observable data pipelines with comprehensive documentation and clear lifecycle standards, ensuring performance and reliability across all data operations"
       ],
       "skills": ["Python", "AWS", "ETL", "SQL", "APIs", "Data Governance"]
