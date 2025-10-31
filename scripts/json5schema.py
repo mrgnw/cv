@@ -107,6 +107,9 @@ def build_basics(source: dict[str, Any]) -> dict[str, Any]:
         basics["email"] = email
     if url := _clean_string(source.get("portfolio")):
         basics["url"] = url
+    summary = _clean_string(source.get("summary"))
+    basics["summary"] = summary if summary is not None else ""
+    basics["location"] = _build_location(source.get("location"))
     profiles: list[dict[str, Any]] = []
     for entry in _iter_dicts(source.get("profiles")):
         cleaned: dict[str, Any] = {}
@@ -132,8 +135,7 @@ def build_basics(source: dict[str, Any]) -> dict[str, Any]:
         if not any(_same_profile(p, gh_profile) for p in profiles):
             profiles.append(gh_profile)
 
-    if profiles:
-        basics["profiles"] = profiles
+    basics["profiles"] = profiles
     return basics
 
 
@@ -327,6 +329,20 @@ def _header_comment(schema_url: str, input_path: Path) -> str:
 
 def _today_iso() -> str:
     return dt.date.today().isoformat()
+
+
+def _build_location(value: Any) -> dict[str, Any]:
+    allowed_keys = {"address", "postalCode", "city", "countryCode", "region"}
+    location: dict[str, Any] = {}
+    if isinstance(value, dict):
+        for key, val in value.items():
+            if key in allowed_keys:
+                cleaned = _clean_string(val)
+                if cleaned is not None:
+                    location[key] = cleaned
+    if "address" not in location:
+        location["address"] = ""
+    return location
 
 
 if __name__ == "__main__":
