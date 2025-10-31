@@ -33,7 +33,7 @@
             title: "Volunteer ESL Teacher",
             company: "Brigham Young University",
             period: "2007 - 2009",
-            description: [
+            accomplishments: [
                 "Taught English to students from beginner to advanced levels",
                 "Achieved Russian language fluency through immersion",
                 "Developed custom curriculum materials for different learning styles",
@@ -44,7 +44,7 @@
             company:
                 "Zelis Healthcare • National Care Dental",
             period: "2018 – 2025",
-            description: [
+            accomplishments: [
                 "Regularly trained groups of 5-15 employees, teaching skills to improve their capabilities",
                 "Documented complex technical processes",
                 "Automated tasks that would normally require dedicated employees, saving time and improving efficiency",
@@ -56,7 +56,7 @@
             title: "Product catalog and customer satisfaction analyst",
             company: 'Walmart eCommerce / Jet.com',
             period: '2015 - 2017',
-            description: [
+            accomplishments: [
                 'Worked with countless customers over the phone, email, and social media to understand & resolve issues',
                 'Helped manage the quality of Jet/Walmart eCommerce catalog of 50+ million products, training employees in processes that I created to identify and prevent potential issues customer satisfaction or legal issues',
             ],
@@ -135,7 +135,7 @@
                     <span>{exp.period}</span>
                 </div>
                 <ul class="list-disc ml-4 text-sm font-serif">
-                    {#each exp.description as item}
+                    {#each exp.accomplishments as item}
                         <li>{item}</li>
                     {/each}
                 </ul>

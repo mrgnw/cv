@@ -1,0 +1,139 @@
+{
+  "skills": [
+    "Python",
+    "SQL",
+    "ETL",
+    "AWS",
+    "Airflow",
+    "Databricks",
+    "PostgreSQL",
+    "APIs"
+  ],
+  "secondarySkills": [
+    "DuckDB",
+    "SQLMesh",
+    "GoLang",
+    "FastAPI",
+    "JavaScript",
+    "Svelte"
+  ],
+  "experience": [
+  {
+    "title": "Data Engineering Consultant",
+        "company": "CGI",
+        start: "2025-03-17",
+        "skills": ["Python", "AWS", "ETL", "SQL", "CI/CD", "Databricks", "Airflow"],
+        "achievements":[
+				"Created custom connectors for real-time data streams processing billions of records, with robust testing & cross-team communication to ensure changes meet requirements and keep 99.999% uptime",
+				"Modernized project deployment structure CI/CD pipelines to improve iteration speed and reduce developer maintenance time, improving CVE resolution time by 10x",
+				"Provided ongoing production support and troubleshooting for data pipeline issues across multiple enterprise client projects involving our ETL and data streaming platforms (AWS lambda, kinesis, Snowflake, PostgreSQL, CloudWatch, etc.)",
+				// "Designed and implemented CI/CD pipelines using GitLab Pipelines (pytest, unittest), .",
+				// "Developed RESTful APIs using Python, FastAPI, and Flask with comprehensive OpenAPI documentation, empowering 50+ business users to programmatically access company data through secure endpoints, reducing manual reporting requests by 60% and improving data accessibility.",
+				// "Modernized legacy ETL workflows to cloud-native architectures using Apache Airflow, Databricks, and AWS services (Lambda, S3, EC2, Glue), accelerating batch processing tasks by 100x-1000x through parallelization, automation, and serverless computing patterns.",
+        ]
+    },
+    {
+      "title": "Data Engineering Consultant",
+      "company": "National Care Dental",
+      "start": "2022-05-01",
+      "end": "2025-03-17",
+      "achievements": [
+        "Architected modern data pipelines, replacing manual tasks that took hours of human labor to tasks that completed automatically in seconds.",
+        "Created full-stack SAAS resources to enable our clients to integrate better with our product.",
+        "Mentored data analysts in Python and SQL, expanding their technical capabilities and establishing data quality standards and governance processes",
+        "Consulted business to adopt third party solutions when buying was more effective than building - significantly reducing the need for valuable internal resources",
+        //"Built robust, observable data pipelines with comprehensive documentation and clear lifecycle standards, ensuring performance and reliability across all data operations"
+      ],
+      "skills": ["Python", "AWS", "ETL", "SQL", "APIs", "Data Governance"]
+    },
+    {
+      "title": "Senior Data Engineer",
+      "company": "Persefoni",
+      "start": "2021-08-01",
+      "end": "2022-05-31",
+      "achievements": [
+        "Implemented production-grade ETL pipelines in Databricks using Python and SQL for a rapidly growing climate-tech startup, applying solid engineering practices including testing and CI/CD",
+        "Created scalable API endpoints in GoLang, collaborating across product and engineering teams to integrate multiple services and support business requirements",
+        // "Documented and established new processes for data pipeline operations, improving team onboarding and increasing overall productivity through knowledge sharing",
+        // "Partnered with stakeholders across operations and finance to turn business goals into measurable data solutions using modern cloud infrastructure"
+      ],
+      "skills": ["Python", "Databricks", "ETL", "SQL", "GoLang", "APIs"]
+    },
+    {
+      "title": "Software Engineer",
+      "company": "Zelis Healthcare",
+      "start": "2018-12-01",
+      "end": "2021-08-01",
+      "achievements": [
+        "Created and optimized ETL workflows in Airflow, improving data processing performance by up to 1000x through efficient pipeline design and implementation",
+        "Migrated multiple legacy codebases to Python3, significantly reducing maintenance and improving performance",
+        //"Developed Python APIs and internal web interfaces using Flask, empowering business users across teams to meaningfully interact with company data and analytics",
+        // "Built data transformation pipelines that supported advanced analytics and reporting requirements for healthcare data processing"
+      ],
+      "skills": ["Python", "Airflow", "Flask", "ETL", "Data Modeling"]
+    }
+  ],
+  "keywords": [
+    "Data Engineering",
+    "Python",
+    "SQL",
+    "ETL",
+    "AWS",
+    "Airflow",
+    "Databricks",
+    "Spark",
+    "Data Pipelines",
+    "Data Governance",
+    "Data Quality",
+    "Snowflake",
+    "dbt",
+    "Terraform",
+    "CI/CD",
+    "Data Modeling",
+    "Analytics",
+    "Business Intelligence",
+    "Cloud Computing",
+    "Performance Optimization",
+    "Data Warehousing",
+    "APIs",
+    "Kubernetes",
+    "Data Validation",
+    "Documentation",
+    "Stakeholder Collaboration",
+    "Financial Data",
+    "Healthcare Data",
+    "Climate Data"
+  ],
+  "company": "Bitpanda",
+  "title": "Data Engineer",
+  "normalizedTitle": "data",
+  "matchScore": 8,
+  "matchFactors": {
+    "positives": [
+      "Strong Python and SQL experience with production ETL pipelines",
+      "Extensive AWS and Airflow experience matching tech stack requirements",
+      "Data governance and quality experience aligns with role requirements",
+      "Cross-functional stakeholder collaboration experience",
+      "Mentoring and documentation skills for team contribution"
+    ],
+    "negatives": [
+      "No direct Snowflake experience mentioned",
+      "Limited dbt and Dagster experience",
+      "No specific Terraform infrastructure-as-code experience listed"
+    ],
+    "scoreBreakdown": {
+      "techStack": 3,
+      "role": 2,
+      "culture": 2,
+      "domain": 1,
+      "constraints": 0
+    },
+    "summary": "Excellent match with strong data engineering fundamentals, AWS/Python expertise, and stakeholder collaboration skills. Some gaps in specific tools like Snowflake and dbt."
+  },
+  "projects": [
+    "Multilingual translator",
+    "Resume",
+    // "TextMe",
+  ]
+
+}

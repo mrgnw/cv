@@ -1,0 +1,119 @@
+{
+  "skills": [
+    "Python",
+    "SQL",
+    "API Development",
+    "ETL",
+    "Data Pipelines",
+    "Automation",
+    "Mentoring",
+    "AWS",
+    "GoLang",
+    "Databricks",
+    "PySpark",
+    "Airflow",
+    "Legacy Code Migration",
+    "Web Interfaces",
+    "Cross-functional Collaboration",
+    "Documentation",
+    "Onboarding",
+    "Technical Leadership"
+  ],
+  "experience": [
+    {
+      "title": "Data Engineering Consultant",
+      "company": "National Care Dental",
+      "start": "2022-05-01",
+      "achievements": [
+        "Designed and implemented scalable data infrastructure and pipelines, accelerating business operations and enabling enhanced data insights while reducing operational costs.",
+        "Automated legacy workflows, increasing processing speeds by 100x to 1000x and reducing multi-hour tasks to seconds or milliseconds, improving platform reliability and usability.",
+        "Created secure API endpoints to enable clients and third-party integrations, enhancing data accessibility and interoperability.",
+        "Mentored over 50 analysts and engineers in Python and SQL best practices, fostering a data-driven culture and increasing team productivity by 40%.",
+        "Developed comprehensive project documentation and developer tutorials, reducing onboarding time by 30% and improving cross-team knowledge sharing."
+      ],
+      "skills": [
+        "Python",
+        "SQL",
+        "API Development",
+        "Automation",
+        "Mentoring",
+        "Documentation"
+      ]
+    },
+    {
+      "title": "Senior Data Engineer",
+      "company": "Persefoni",
+      "start": "2021-08-01",
+      "end": "2022-05-31",
+      "achievements": [
+        "Implemented scalable ETL pipelines using Databricks and PySpark, improving data processing efficiency by 60% for a fast-growing climate tech startup.",
+        "Led development of API endpoints in GoLang, enabling seamless integration between multiple services to support complex data workflows.",
+        "Documented and streamlined onboarding processes, accelerating new hire ramp-up and improving team productivity.",
+        "Mentored junior engineers, enhancing technical capabilities and fostering a collaborative engineering environment."
+      ],
+      "skills": [
+        "Databricks",
+        "PySpark",
+        "GoLang",
+        "API Development",
+        "Mentoring",
+        "ETL"
+      ]
+    },
+    {
+      "title": "Software Engineer",
+      "company": "Zelis Healthcare",
+      "start": "2018-12-01",
+      "end": "2021-08-01",
+      "achievements": [
+        "Developed and optimized ETL workflows using Apache Airflow, improving processing speeds by up to 1000x and increasing platform scalability.",
+        "Migrated legacy codebases to Python 3, enhancing maintainability and performance of internal tools.",
+        "Created secure Python APIs and internal web interfaces, empowering cross-functional teams with better data access and user experiences.",
+        "Collaborated with business users to streamline processes and improve system usability, aligning technical solutions with operational goals."
+      ],
+      "skills": [
+        "Python",
+        "Airflow",
+        "API Development",
+        "Legacy Code Migration",
+        "Web Interfaces",
+        "Cross-functional Collaboration"
+      ]
+    }
+  ],
+  "keywords": [
+    "Full-stack Development",
+    "Backend Engineering",
+    "Frontend Engineering",
+    "Ruby on Rails",
+    "React",
+    "AWS",
+    "API Development",
+    "ETL",
+    "Data Pipelines",
+    "Automation",
+    "Mentoring",
+    "System Design",
+    "Technical Leadership",
+    "Scalable Applications",
+    "Healthcare Technology",
+    "Care Management Platform",
+    "User-centered Design",
+    "Cross-functional Collaboration",
+    "Data-driven Decision Making",
+    "Problem Solving",
+    "Software Development",
+    "Onboarding",
+    "Documentation",
+    "Performance Optimization",
+    "Legacy System Migration",
+    "Cloud Services",
+    "Python",
+    "SQL",
+    "GoLang",
+    "Airflow"
+  ],
+  "company": "Pair Team",
+  "title": "Senior Engineer - Product",
+  "normalizedTitle": "backend"
+}
