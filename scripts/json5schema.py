@@ -55,7 +55,8 @@ def main() -> None:
 
     version_data = json5.load(args.input.open("r", encoding="utf-8"))
     merged = deep_merge(base_data, version_data)
-    resume = to_json_resume(merged)
+    project_catalog = load_project_catalog()
+    resume = to_json_resume(merged, project_catalog)
 
     if args.json:
         payload = json.dumps(resume, indent=2)
@@ -71,11 +72,13 @@ def main() -> None:
         print(output, end="")
 
 
-def to_json_resume(source: dict[str, Any]) -> dict[str, Any]:
+def to_json_resume(
+    source: dict[str, Any], project_catalog: dict[str, dict[str, Any]]
+) -> dict[str, Any]:
     basics = build_basics(source)
     work = build_work(source)
     skills = build_skills(source)
-    projects = build_projects(source)
+    projects = build_projects(source, project_catalog)
     education = build_education(source)
     interests = build_interests(source)
     meta = build_meta(source)
@@ -164,22 +167,39 @@ def build_skills(source: dict[str, Any]) -> list[dict[str, Any]]:
     return blocks
 
 
-def build_projects(source: dict[str, Any]) -> list[dict[str, Any]]:
+def build_projects(
+    source: dict[str, Any], project_catalog: dict[str, dict[str, Any]]
+) -> list[dict[str, Any]]:
     projects: list[dict[str, Any]] = []
     for item in source.get("projects", []) or []:
         if isinstance(item, str):
-            projects.append({"name": item})
+            entry: dict[str, Any] = {"name": item}
+            catalog = project_catalog.get(item)
+        elif isinstance(item, dict):
+            entry = {}
+            for key, value in item.items():
+                cleaned_value = _clean_string(value)
+                if cleaned_value is None:
+                    continue
+                entry[key] = cleaned_value
+            catalog = project_catalog.get(entry.get("name"))
+        else:
             continue
         if isinstance(item, dict):
-            entry: dict[str, Any] = {}
-            if name := item.get("name"):
-                entry["name"] = name
-            if description := item.get("description"):
-                entry["description"] = description
-            if url := item.get("url"):
-                entry["url"] = url
-            if skills := _ensure_list(item.get("skills")):
-                entry["keywords"] = skills
+            if "skills" in item and "keywords" not in entry:
+                skills = _ensure_list(item.get("skills"))
+                if skills:
+                    entry["keywords"] = skills
+        if catalog:
+            if "url" not in entry and catalog.get("url"):
+                entry["url"] = catalog["url"]
+            if "description" not in entry and catalog.get("description"):
+                entry["description"] = catalog["description"]
+            if "keywords" not in entry:
+                catalog_skills = _ensure_list(catalog.get("skills"))
+                if catalog_skills:
+                    entry["keywords"] = catalog_skills
+        if entry:
             projects.append(entry)
     return projects
 
@@ -224,6 +244,29 @@ def deep_merge(base: dict[str, Any], overlay: dict[str, Any]) -> dict[str, Any]:
         else:
             result[key] = left
     return result
+
+
+def load_project_catalog() -> dict[str, dict[str, Any]]:
+    catalog: dict[str, dict[str, Any]] = {}
+    script_dir = Path(__file__).resolve().parent
+    default_path = script_dir.parent / "src" / "lib" / "projects.jsonc"
+    if not default_path.exists():
+        return catalog
+
+    try:
+        data = json5.load(default_path.open("r", encoding="utf-8"))
+    except Exception:
+        return catalog
+
+    if not isinstance(data, list):
+        return catalog
+
+    for entry in data:
+        if isinstance(entry, dict):
+            name = _clean_string(entry.get("name"))
+            if name:
+                catalog[str(name)] = entry
+    return catalog
 
 
 def _clean_string(value: Any) -> Any:
