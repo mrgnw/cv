@@ -1,8 +1,10 @@
-Mission:
+## Mission:
+
 A Data Engineer is responsible for designing, building, and maintaining large-scale data systems that enable data-driven decision-making.
 They work with various stakeholders to understand data requirements, data architectures, and implement data pipelines to support business intelligence, analytics, and data science initiatives.
 
-Job Related Experience:
+## Job Related Experience:
+
 Bachelor’s Degree in MIS/Engineering/Computer Science
 Data Warehousing / BI Certification a plus
 Advanced in SQL
@@ -19,7 +21,8 @@ or
 2+ Experience working with at least two of the top BI tools: Tableau, Qlik, OBIEE, …
 Flexible to adapt and quickly (willing to) learning different technologies.
 
-Others
+## Others
+
 English C1
 Ability to cooperate and work in multicultural environment
 Communication and teaching oriented, knowledge transfer ability.

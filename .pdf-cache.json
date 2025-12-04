@@ -159,6 +159,22 @@
         "src/lib/projects.jsonc": "2025-10-28T10:36:30.628Z"
       },
       "lastProjectsTrim": 0
+    },
+    "nava": {
+      "pdfMTime": "2025-11-14T16:05:00.333Z",
+      "inputs": {
+        "src/lib/versions/backend/nava.json5": "2025-11-14T15:56:03.543Z",
+        "src/lib/projects.jsonc": "2025-11-08T17:41:23.825Z"
+      },
+      "lastProjectsTrim": 0
+    },
+    "schneider-electric": {
+      "pdfMTime": "2025-12-04T10:13:39.361Z",
+      "inputs": {
+        "src/lib/versions/data/schneider-electric.json5": "2025-12-04T10:13:03.900Z",
+        "src/lib/projects.jsonc": "2025-11-08T17:41:23.825Z"
+      },
+      "lastProjectsTrim": 0
     }
   }
 }
