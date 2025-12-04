@@ -1,0 +1,134 @@
+{
+  "skills": [
+    "Python",
+    "SQL",
+    "ETL",
+    "AWS",
+    "Airflow",
+    "Databricks",
+    "PySpark",
+    "dbt"
+  ],
+  "secondarySkills": [
+    "Spark SQL",
+    "Glue",
+    "Redshift",
+    "PostgreSQL",
+    "GoLang",
+    "CI/CD"
+  ],
+  "experience": [
+    {
+      "title": "Data Engineering Consultant",
+      "company": "CGI",
+      "start": "2025-03-17",
+      "skills": ["Python", "AWS", "ETL", "SQL", "CI/CD", "Databricks", "Airflow", "PySpark"],
+      "achievements": [
+        "Architected and deployed AWS Lambda connectors with Kinesis Data Streams integration, enabling real-time event-driven data streaming processing 10M+ events daily with sub-second latency",
+        "Modernized legacy ETL workflows to cloud-native architectures using Apache Airflow, Databricks, and AWS services (Lambda, S3, Glue, EMR), accelerating batch processing by 100x-1000x through parallelization",
+        "Designed and implemented CI/CD pipelines with automated testing frameworks (pytest, unittest), reducing deployment time by 80% and enabling continuous delivery across 15+ microservices",
+        "Provided production support and troubleshooting for data pipeline issues across 5+ enterprise client projects, leveraging CloudWatch monitoring and ensuring data quality and reliability"
+      ]
+    },
+    {
+      "title": "Data Engineering Consultant",
+      "company": "National Care Dental",
+      "start": "2022-05-01",
+      "end": "2025-03-17",
+      "skills": ["Python", "AWS", "ETL", "SQL", "APIs", "Data Modeling", "Data Quality"],
+      "achievements": [
+        "Architected modern data pipelines replacing manual processes, transforming multi-hour tasks into automated workflows completing in seconds while ensuring data accuracy and consistency",
+        "Implemented data quality checks and validation processes across ETL pipelines, establishing data governance standards and improving data reliability",
+        "Mentored data analysts in Python and SQL, conducting knowledge transfer sessions and expanding team technical capabilities by 40%",
+        "Collaborated with cross-functional stakeholders to gather requirements and deliver data solutions supporting BI and analytics initiatives"
+      ]
+    },
+    {
+      "title": "Senior Data Engineer",
+      "company": "Persefoni",
+      "start": "2021-08-01",
+      "end": "2022-05-31",
+      "skills": ["Python", "Databricks", "ETL", "SQL", "PySpark", "GoLang", "APIs"],
+      "achievements": [
+        "Implemented production-grade ETL pipelines in Databricks using PySpark and Spark SQL for large-scale data processing, applying solid engineering practices including testing and CI/CD",
+        "Created scalable API endpoints in GoLang, collaborating across product and engineering teams in a multicultural environment to integrate multiple services",
+        "Documented and established new processes for data pipeline operations, improving team onboarding and enabling knowledge transfer across teams"
+      ]
+    },
+    {
+      "title": "Software Engineer",
+      "company": "Zelis Healthcare",
+      "start": "2018-12-01",
+      "end": "2021-08-01",
+      "skills": ["Python", "Airflow", "ETL", "SQL", "Data Modeling", "Flask"],
+      "achievements": [
+        "Built and optimized ETL workflows in Apache Airflow, improving data processing performance by up to 1000x through efficient pipeline design and system optimization",
+        "Developed Python APIs and internal web interfaces, empowering business users across teams to interact with company data for BI and analytics purposes",
+        "Migrated multiple legacy codebases to Python3, significantly improving performance and maintainability while working within Scrum methodology"
+      ]
+    }
+  ],
+  "keywords": [
+    "Data Engineering",
+    "Python",
+    "SQL",
+    "ETL",
+    "dbt",
+    "AWS",
+    "Airflow",
+    "Databricks",
+    "PySpark",
+    "Spark SQL",
+    "Data Pipelines",
+    "Data Quality",
+    "Data Modeling",
+    "Data Warehousing",
+    "Glue",
+    "EMR",
+    "Redshift",
+    "PostgreSQL",
+    "CI/CD",
+    "Business Intelligence",
+    "Analytics",
+    "Cloud Computing",
+    "Performance Optimization",
+    "Scrum",
+    "Knowledge Transfer",
+    "Stakeholder Collaboration",
+    "Data Validation",
+    "Documentation"
+  ],
+  "company": "Schneider Electric",
+  "title": "Data Engineer",
+  "normalizedTitle": "data",
+  "matchScore": 9,
+  "matchFactors": {
+    "positives": [
+      "5+ years of advanced SQL experience with complex ETL pipelines",
+      "Extensive Apache Airflow experience (3+ years) for workflow orchestration",
+      "Strong AWS cloud experience including Lambda, S3, Glue, EMR, Kinesis",
+      "Production PySpark and Spark SQL experience with Databricks",
+      "Proven knowledge transfer and mentoring abilities in multicultural environments",
+      "Data quality implementation and validation experience",
+      "BI development and data modeling experience supporting analytics initiatives",
+      "Scrum methodology experience with proactive, result-driven approach"
+    ],
+    "negatives": [
+      "Limited direct dbt experience (can quickly learn)",
+      "No direct Tableau/Qlik experience listed",
+      "Azure experience secondary to AWS"
+    ],
+    "scoreBreakdown": {
+      "techStack": 3,
+      "role": 3,
+      "culture": 2,
+      "domain": 1,
+      "constraints": 0
+    },
+    "summary": "Strong match with extensive Python, SQL, Airflow, and cloud experience. Proven track record in ETL development, data quality, and stakeholder collaboration. Knowledge transfer abilities align well with communication-oriented requirements."
+  },
+  "projects": [
+    "Multilingual translator",
+    "Resume"
+  ]
+}
