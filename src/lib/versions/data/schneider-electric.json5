@@ -1,32 +1,30 @@
 {
+  "summary": "Data Engineer with 6+ years building data pipelines, infrastructure, and business intelligence. Actively exploring & creating new tech to improve system performance and development workflows. Thrives in collaborative environments, growing as a team as well as working across teams to make things better for everyone",
   "skills": [
-    "Python",
-    "SQL",
-    "ETL",
-    "AWS",
-    "Airflow",
-    "Databricks",
-    "PySpark",
-    "dbt"
+    "SqlMesh/DBT",
+    "Airflow/Dagster, Spark/Polars/DataBricks, DuckDB, ETL",
+    "PostgresSQL,MySQL, Data Warehousing",
+    "AWS RDS, Glue, SQS, Kinesis, EC2",
+    "BI: Looker, Snowflake, Clickhouse",
+    "Documentation, Collaboration, Data modeling, Data quality, Git, CI/CD, Docker"
   ],
-  "secondarySkills": [
-    "Spark SQL",
-    "Glue",
-    "Redshift",
-    "PostgreSQL",
-    "GoLang",
-    "CI/CD"
-  ],
+  //"secondarySkills": [
+  //  "Spark SQL",
+  //  "Glue",
+  //  "Redshift",
+  //  "PostgreSQL",
+  //  "GoLang",
+  //  "CI/CD"
+  //],
   "experience": [
     {
       "title": "Data Engineering Consultant",
       "company": "CGI",
       "start": "2025-03-17",
-      "skills": ["Python", "AWS", "ETL", "SQL", "CI/CD", "Databricks", "Airflow", "PySpark"],
+      //"skills": ["Python", "AWS", "ETL", "SQL", "CI/CD", "Databricks", "Airflow", "PySpark"],
       "achievements": [
         "Architected and deployed AWS Lambda connectors with Kinesis Data Streams integration, enabling real-time event-driven data streaming processing 10M+ events daily with sub-second latency",
-        "Modernized legacy ETL workflows to cloud-native architectures using Apache Airflow, Databricks, and AWS services (Lambda, S3, Glue, EMR), accelerating batch processing by 100x-1000x through parallelization",
-        "Designed and implemented CI/CD pipelines with automated testing frameworks (pytest, unittest), reducing deployment time by 80% and enabling continuous delivery across 15+ microservices",
+        "Designed and implemented CI/CD pipelines with automated testing frameworks (pytest, unittest), improving team iteration speed while reducing maintenance time and risk of downtime or regressions",
         "Provided production support and troubleshooting for data pipeline issues across 5+ enterprise client projects, leveraging CloudWatch monitoring and ensuring data quality and reliability"
       ]
     },
@@ -35,12 +33,11 @@
       "company": "National Care Dental",
       "start": "2022-05-01",
       "end": "2025-03-17",
-      "skills": ["Python", "AWS", "ETL", "SQL", "APIs", "Data Modeling", "Data Quality"],
+      //"skills": ["Python", "AWS", "ETL", "SQL", "APIs", "Data Modeling", "Data Quality"],
       "achievements": [
-        "Architected modern data pipelines replacing manual processes, transforming multi-hour tasks into automated workflows completing in seconds while ensuring data accuracy and consistency",
-        "Implemented data quality checks and validation processes across ETL pipelines, establishing data governance standards and improving data reliability",
-        "Mentored data analysts in Python and SQL, conducting knowledge transfer sessions and expanding team technical capabilities by 40%",
-        "Collaborated with cross-functional stakeholders to gather requirements and deliver data solutions supporting BI and analytics initiatives"
+        "Modernized legacy workflows to cloud-native data pipelines, accelerating batch processing tasks by 100x-1000x through automation and efficient pipeline design, reducing multi-hour processes to seconds",
+        "Mentored data analysts in Python and SQL, expanding their technical capabilities while establishing data quality standards and governance processes to ensure data accuracy and consistency",
+        "Created API endpoints enabling clients and third-party sources to securely interface with company data, collaborating with stakeholders to understand requirements and deliver appropriate solutions"
       ]
     },
     {
@@ -48,7 +45,7 @@
       "company": "Persefoni",
       "start": "2021-08-01",
       "end": "2022-05-31",
-      "skills": ["Python", "Databricks", "ETL", "SQL", "PySpark", "GoLang", "APIs"],
+      //"skills": ["Python", "Databricks", "ETL", "SQL", "PySpark", "GoLang", "APIs"],
       "achievements": [
         "Implemented production-grade ETL pipelines in Databricks using PySpark and Spark SQL for large-scale data processing, applying solid engineering practices including testing and CI/CD",
         "Created scalable API endpoints in GoLang, collaborating across product and engineering teams in a multicultural environment to integrate multiple services",
@@ -129,6 +126,6 @@
   },
   "projects": [
     "Multilingual translator",
-    "Resume"
+    //"Resume"
   ]
 }
