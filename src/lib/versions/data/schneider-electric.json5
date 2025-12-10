@@ -35,9 +35,9 @@
       "end": "2025-03-17",
       //"skills": ["Python", "AWS", "ETL", "SQL", "APIs", "Data Modeling", "Data Quality"],
       "achievements": [
-        "Modernized legacy workflows to cloud-native data pipelines, accelerating batch processing tasks by 100x-1000x through automation and efficient pipeline design, reducing multi-hour processes to seconds",
+        "Modernized legacy manual workflows to automated data pipelines, reducing multi-hour processes to seconds and saving an estimated $100K/year in labor costs through efficient pipeline design and automation",
         "Mentored data analysts in Python and SQL, expanding their technical capabilities while establishing data quality standards and governance processes to ensure data accuracy and consistency",
-        "Created API endpoints enabling clients and third-party sources to securely interface with company data, collaborating with stakeholders to understand requirements and deliver appropriate solutions"
+        "Collaborated with business stakeholders to evaluate requirements and recommend appropriate solutions, including third-party tools when more effective than custom development—reducing costs and accelerating time-to-value"
       ]
     },
     {
