@@ -1,0 +1,28 @@
+{
+  // Contact information - shared across all resumes
+  "name": "Morgan Williams",
+  "email": "morgan@example.com",
+  "github": "https://github.com/mrgnw",
+  "linkedin": "https://linkedin.com/in/mrgnw",
+
+  // Education - shared across resumes (can override or set to [] to hide)
+  "education": [
+    {
+      "degree": "B.S. Computer Science",
+      "provider": "University of California, Berkeley",
+      "year": "2018"
+    }
+  ],
+
+  // Projects - shared across resumes (can override or set to [] to hide)
+  "projects": [
+    {
+      "name": "Resume Generator",
+      "url": "https://github.com/mrgnw/resume-generator",
+      "description": "CLI tool to generate PDF resumes from JSON5 data with Tailwind styling"
+    }
+  ],
+
+  // Language for labels (en or es)
+  "lang": "en"
+}
