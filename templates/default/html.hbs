@@ -27,16 +27,16 @@
     </section>
     {{/if}}
 
-    {{#if skills}}
+    {{#if skillsPrimary}}
     <section class="skills-section">
       <h2 class="section-header">{{labels.skills}}</h2>
       <div class="skills-list">
         <div class="skills-primary">
-          {{#each skills}}{{#if @index}}, {{/if}}{{#lt @index 2}}{{this}}{{/lt}}{{/each}}
+          {{skillsPrimary}}
         </div>
-        {{#if (gt skills.length 2)}}
+        {{#if skillsSecondary}}
         <div class="skills-secondary">
-          {{#each skills}}{{#if @index}}, {{/if}}{{#gte @index 2}}{{this}}{{/gte}}{{/each}}
+          {{skillsSecondary}}
         </div>
         {{/if}}
       </div>
@@ -53,13 +53,7 @@
             <span class="job-title">{{this.title}}</span>
             <span>at {{this.company}}</span>
           </div>
-          <span class="job-dates">
-            {{#if this.start}}
-              {{formatDate this.start}}{{#if this.end}} - {{formatDate this.end}}{{else}} - {{../labels.present}}{{/if}}
-            {{else}}
-              {{this.timeframe}}
-            {{/if}}
-          </span>
+          <span class="job-dates">{{this.formattedDate}}</span>
         </div>
         {{#if this.achievements}}
         <ul class="achievements-list">
@@ -82,8 +76,8 @@
           <a href="{{this.url}}" target="_blank" rel="noopener noreferrer" class="project-name">
             {{this.name}}
           </a>
-          {{#if (ne this.url "#")}}
-          <a href="{{this.url}}" target="_blank" rel="noopener noreferrer" class="project-url">{{formatUrl this.url}}</a>
+          {{#if this.showUrl}}
+          <a href="{{this.url}}" target="_blank" rel="noopener noreferrer" class="project-url">{{this.formattedUrl}}</a>
           {{/if}}
         </div>
         {{#if this.description}}

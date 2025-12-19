@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.13"
+# dependencies = [
+#     "json5",
+#     "playwright",
+#     "pybars3",
+# ]
+# ///
 
 import argparse
 import sys
@@ -6,29 +14,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-try:
-	import json5
-except ImportError:
-	print('Error: json5 library required. Install with: pip install json5')
-	sys.exit(1)
-
-try:
-	from pybars3 import Compiler
-except ImportError:
-	print('Error: pybars3 library required. Install with: pip install pybars3')
-	sys.exit(1)
-
-try:
-	from playwright.sync_api import sync_playwright
-except ImportError:
-	print('Error: Playwright required. Install with: pip install playwright')
-	print('Then run: playwright install')
-	sys.exit(1)
-
+import json5
+from playwright.sync_api import sync_playwright
+from pybars import Compiler
 
 SCRIPT_DIR = Path(__file__).parent
-CSS_FILE = SCRIPT_DIR / 'styles' / 'cv.css'
-TEMPLATE_FILE = SCRIPT_DIR / 'templates' / 'cv.hbs'
+TEMPLATE_DIR = SCRIPT_DIR / 'templates' / 'default'
+TEMPLATE_FILE = TEMPLATE_DIR / 'html.hbs'
+CSS_FILE = TEMPLATE_DIR / 'style.css'
 DEFAULTS_FILE = SCRIPT_DIR / 'defaults.json5'
 
 quiet = False
@@ -140,6 +133,28 @@ def format_url(url: str) -> str:
 		return url
 
 
+def format_experience(experience: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+	"""Format experience with formatted dates"""
+	result = []
+	for job in experience or []:
+		if job is None:
+			continue
+		job_copy = dict(job)
+		if job_copy.get('start'):
+			date_str = format_date(job_copy['start'])
+			if job_copy.get('end'):
+				date_str += f' - {format_date(job_copy["end"])}'
+			else:
+				date_str += ' - Present'
+			job_copy['formattedDate'] = date_str
+		elif job_copy.get('timeframe'):
+			job_copy['formattedDate'] = job_copy['timeframe']
+		else:
+			job_copy['formattedDate'] = ''
+		result.append(job_copy)
+	return result
+
+
 def load_css() -> str:
 	if not CSS_FILE.exists():
 		logErr(f'Warning: CSS file not found at {CSS_FILE}')
@@ -159,42 +174,57 @@ def generate_html(raw_resume: Dict[str, Any]) -> str:
 	defaults = load_defaults()
 	resume = merge_with_defaults(raw_resume, defaults)
 
-	if resume['lang'] == 'es':
-		labels = {
+	labels = (
+		{
 			'skills': 'Habilidades',
 			'experience': 'Experiencia',
 			'projects': 'Proyectos',
 			'education': 'Educación',
 			'present': 'Presente',
 		}
-	else:
-		labels = {
+		if resume['lang'] == 'es'
+		else {
 			'skills': 'Skills',
 			'experience': 'Experience',
 			'projects': 'Projects',
 			'education': 'Education',
 			'present': 'Present',
 		}
+	)
+
+	# Format skills for template
+	skills = resume.get('skills', []) or []
+	skills_primary = ', '.join(skills[:2]) if len(skills) > 0 else ''
+	skills_secondary = ', '.join(skills[2:]) if len(skills) > 2 else ''
+
+	# Format experience with dates
+	formatted_experience = format_experience(resume.get('experience', []))
 
 	valid_projects = []
-	for p in resume.get('projects') or []:
+	for p in resume.get('projects', []) or []:
 		if p is None:
 			continue
 		if isinstance(p, str):
 			continue
 		if not (p.get('name') or p.get('url') or p.get('description')):
 			continue
+		url = p.get('url', '#')
 		valid_projects.append(
 			{
 				'name': p.get('name', 'Untitled'),
-				'url': p.get('url', '#'),
+				'url': url,
 				'description': p.get('description', ''),
+				'showUrl': url != '#',
+				'formattedUrl': format_url(url) if url != '#' else '',
 			}
 		)
 
 	template_data = {
 		**resume,
 		'labels': labels,
+		'skillsPrimary': skills_primary,
+		'skillsSecondary': skills_secondary,
+		'experience': formatted_experience,
 		'validProjects': valid_projects,
 		'css': load_css(),
 	}
@@ -203,17 +233,7 @@ def generate_html(raw_resume: Dict[str, Any]) -> str:
 	template_source = load_template()
 	template = compiler.compile(template_source)
 
-	return template(
-		template_data,
-		helpers={
-			'formatDate': format_date,
-			'formatUrl': format_url,
-			'lt': lambda a, b: a < b,
-			'gte': lambda a, b: a >= b,
-			'gt': lambda a, b: a > b,
-			'ne': lambda a, b: a != b,
-		},
-	)
+	return template(template_data)
 
 
 def generate_pdf(browser, resume_path: str, output_path: str) -> Dict[str, Any]:

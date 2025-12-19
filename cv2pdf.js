@@ -8,8 +8,9 @@ import { chromium } from "playwright";
 import Handlebars from "handlebars";
 
 const SCRIPT_DIR = path.dirname(new URL(import.meta.url).pathname);
-const TEMPLATE_FILE = path.join(SCRIPT_DIR, "templates", "cv.hbs");
-const CSS_FILE = path.join(SCRIPT_DIR, "styles", "cv.css");
+const TEMPLATE_DIR = path.join(SCRIPT_DIR, "templates", "default");
+const TEMPLATE_FILE = path.join(TEMPLATE_DIR, "html.hbs");
+const CSS_FILE = path.join(TEMPLATE_DIR, "style.css");
 const DEFAULTS_FILE = path.join(SCRIPT_DIR, "defaults.json5");
 
 // Parse CLI arguments
@@ -162,30 +163,27 @@ function loadTemplate() {
   return fs.readFileSync(TEMPLATE_FILE, "utf-8");
 }
 
-function registerHandlebarsHelpers() {
-  Handlebars.registerHelper("lt", function (a, b, options) {
-    return a < b ? options.fn(this) : options.inverse(this);
-  });
-
-  Handlebars.registerHelper("gte", function (a, b, options) {
-    return a >= b ? options.fn(this) : options.inverse(this);
-  });
-
-  Handlebars.registerHelper("gt", function (a, b, options) {
-    return a > b ? options.fn(this) : options.inverse(this);
-  });
-
-  Handlebars.registerHelper("ne", function (a, b, options) {
-    return a !== b ? options.fn(this) : options.inverse(this);
-  });
-
-  Handlebars.registerHelper("formatDate", function (dateStr) {
-    return formatDate(dateStr);
-  });
-
-  Handlebars.registerHelper("formatUrl", function (url) {
-    return formatUrl(url);
-  });
+function formatExperience(experience) {
+  return (Array.isArray(experience) ? experience : [])
+    .filter((job) => job !== null && job !== undefined)
+    .map((job) => {
+      let formattedDate = "";
+      if (job.start) {
+        formattedDate = formatDate(job.start);
+        if (job.end) {
+          formattedDate += ` - ${formatDate(job.end)}`;
+        } else {
+          formattedDate += " - Present";
+        }
+      } else if (job.timeframe) {
+        formattedDate = job.timeframe;
+      }
+      return {
+        ...job,
+        achievements: job.achievements || [],
+        formattedDate,
+      };
+    });
 }
 
 function generateHtml(rawResume) {
@@ -209,21 +207,35 @@ function generateHtml(rawResume) {
           present: "Present",
         };
 
+  const skills = resume.skills || [];
+  const skillsPrimary = skills.slice(0, 2).join(", ");
+  const skillsSecondary = skills.length > 2 ? skills.slice(2).join(", ") : "";
+
+  const formattedExperience = formatExperience(resume.experience);
+
   const validProjects = (resume.projects || [])
     .filter((p) => p !== null && p !== undefined)
     .filter((p) => {
       if (typeof p === "string") return false;
       return p.name || p.url || p.description;
     })
-    .map((p) => ({
-      name: p.name || "Untitled",
-      url: p.url || "#",
-      description: p.description || "",
-    }));
+    .map((p) => {
+      const url = p.url || "#";
+      return {
+        name: p.name || "Untitled",
+        url,
+        description: p.description || "",
+        showUrl: url !== "#",
+        formattedUrl: url !== "#" ? formatUrl(url) : "",
+      };
+    });
 
   const templateData = {
     ...resume,
     labels,
+    skillsPrimary,
+    skillsSecondary,
+    experience: formattedExperience,
     validProjects,
     css: loadCss(),
   };
@@ -289,8 +301,6 @@ Options:
 `);
       process.exit(1);
     }
-
-    registerHandlebarsHelpers();
 
     const inputFiles = expandFiles(inputPattern);
 
