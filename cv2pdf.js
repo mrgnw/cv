@@ -1,18 +1,16 @@
 #!/usr/bin/env node
-/**
- * Direct CLI to generate PDFs from JSON/JSON5 resume files
- * Usage:
- *   node cv-to-pdf-direct.js <resume.json5> <output.pdf>
- *   node cv-to-pdf-direct.js cvs/*.json5 output/ --parallel 3
- */
 
 import fs from "fs";
 import path from "path";
 import { format } from "date-fns";
 import JSON5 from "json5";
 import { chromium } from "playwright";
+import Handlebars from "handlebars";
 
-const SERIF_FONTS = `"Bitstream Charter", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif`;
+const SCRIPT_DIR = path.dirname(new URL(import.meta.url).pathname);
+const TEMPLATE_FILE = path.join(SCRIPT_DIR, "templates", "cv.hbs");
+const CSS_FILE = path.join(SCRIPT_DIR, "styles", "cv.css");
+const DEFAULTS_FILE = path.join(SCRIPT_DIR, "defaults.json5");
 
 // Parse CLI arguments
 const args = process.argv.slice(2);
@@ -42,12 +40,7 @@ function logErr(...args) {
 }
 
 function loadDefaults() {
-  const defaultsPath = path.join(
-    path.dirname(import.meta.url).slice(7),
-    "defaults.json5",
-  );
-
-  if (!fs.existsSync(defaultsPath)) {
+  if (!fs.existsSync(DEFAULTS_FILE)) {
     return {
       name: "Your Name",
       email: "email@example.com",
@@ -59,7 +52,7 @@ function loadDefaults() {
     };
   }
 
-  const content = fs.readFileSync(defaultsPath, "utf-8");
+  const content = fs.readFileSync(DEFAULTS_FILE, "utf-8");
   try {
     const parsed = JSON5.parse(content);
     return {
@@ -153,39 +146,54 @@ function formatUrl(url) {
 }
 
 function loadCss() {
-  const cssPath = path.join(
-    path.dirname(import.meta.url).slice(7),
-    "styles",
-    "cv.css",
-  );
-
-  if (!fs.existsSync(cssPath)) {
-    logErr(`Warning: CSS file not found at ${cssPath}`);
+  if (!fs.existsSync(CSS_FILE)) {
+    logErr(`Warning: CSS file not found at ${CSS_FILE}`);
     return "";
   }
 
-  return fs.readFileSync(cssPath, "utf-8");
+  return fs.readFileSync(CSS_FILE, "utf-8");
+}
+
+function loadTemplate() {
+  if (!fs.existsSync(TEMPLATE_FILE)) {
+    throw new Error(`Template file not found: ${TEMPLATE_FILE}`);
+  }
+
+  return fs.readFileSync(TEMPLATE_FILE, "utf-8");
+}
+
+function registerHandlebarsHelpers() {
+  Handlebars.registerHelper("lt", function (a, b, options) {
+    return a < b ? options.fn(this) : options.inverse(this);
+  });
+
+  Handlebars.registerHelper("gte", function (a, b, options) {
+    return a >= b ? options.fn(this) : options.inverse(this);
+  });
+
+  Handlebars.registerHelper("gt", function (a, b, options) {
+    return a > b ? options.fn(this) : options.inverse(this);
+  });
+
+  Handlebars.registerHelper("ne", function (a, b, options) {
+    return a !== b ? options.fn(this) : options.inverse(this);
+  });
+
+  Handlebars.registerHelper("formatDate", function (dateStr) {
+    return formatDate(dateStr);
+  });
+
+  Handlebars.registerHelper("formatUrl", function (url) {
+    return formatUrl(url);
+  });
 }
 
 function generateHtml(rawResume) {
   const defaults = loadDefaults();
   const resume = mergeWithDefaults(rawResume, defaults);
 
-  const {
-    name,
-    email,
-    github,
-    linkedin,
-    summary,
-    skills,
-    experience,
-    projects,
-    education,
-    lang,
-  } = resume;
-
   const labels =
-    lang === "es"
+    resume.lang === "es"
       ? {
           skills: "Habilidades",
           experience: "Experiencia",
@@ -201,166 +209,29 @@ function generateHtml(rawResume) {
           present: "Present",
         };
 
-  const optimizedExperience = Array.isArray(experience)
-    ? experience
-        .filter((exp) => exp !== null && exp !== undefined)
-        .map((exp) => ({
-          ...exp,
-          achievements: exp.achievements || [],
-        }))
-    : [];
-
-  const skillsHtml = skills.length
-    ? `
-    <section class="skills-section">
-      <h2 class="section-header">${labels.skills}</h2>
-      <div class="skills-list">
-        <div class="skills-primary">
-          ${skills.slice(0, 2).join(", ")}
-        </div>
-        ${
-          skills.length > 2
-            ? `<div class="skills-secondary">${skills.slice(2).join(", ")}</div>`
-            : ""
-        }
-      </div>
-    </section>
-  `
-    : "";
-
-  const experienceHtml =
-    optimizedExperience.length > 0
-      ? `
-    <section class="experience-section">
-      <h2 class="section-header">${labels.experience}</h2>
-      ${optimizedExperience
-        .map(
-          (job) => `
-        <div class="job-item">
-          <div class="job-header">
-            <div>
-              <span class="job-title">${job.title}</span>
-              <span>at ${job.company}</span>
-            </div>
-            <span class="job-dates">
-              ${
-                job.start
-                  ? `${formatDate(job.start)}${job.end ? ` - ${formatDate(job.end)}` : ` - ${labels.present}`}`
-                  : job.timeframe || ""
-              }
-            </span>
-          </div>
-          <ul class="achievements-list">
-            ${job.achievements.map((bullet) => `<li>${bullet}</li>`).join("")}
-          </ul>
-        </div>
-      `,
-        )
-        .join("")}
-    </section>
-  `
-      : "";
-
-  const validProjects = projects
+  const validProjects = (resume.projects || [])
     .filter((p) => p !== null && p !== undefined)
     .filter((p) => {
       if (typeof p === "string") return false;
       return p.name || p.url || p.description;
-    });
+    })
+    .map((p) => ({
+      name: p.name || "Untitled",
+      url: p.url || "#",
+      description: p.description || "",
+    }));
 
-  const projectsHtml =
-    validProjects && validProjects.length > 0
-      ? `
-    <section class="projects-section">
-      <h2 class="section-header">${labels.projects}</h2>
-      ${validProjects
-        .map((project) => {
-          const name = project.name || "Untitled";
-          const url = project.url || "#";
-          const description = project.description || "";
-          return `
-        <div class="project-item">
-          <div class="project-header">
-            <a href="${url}" target="_blank" rel="noopener noreferrer" class="project-name">
-              ${name}
-            </a>
-            ${url !== "#" ? `<a href="${url}" target="_blank" rel="noopener noreferrer" class="project-url">${formatUrl(url)}</a>` : ""}
-          </div>
-          ${description ? `<p class="project-description">${description}</p>` : ""}
-        </div>
-      `;
-        })
-        .join("")}
-    </section>
-  `
-      : "";
+  const templateData = {
+    ...resume,
+    labels,
+    validProjects,
+    css: loadCss(),
+  };
 
-  const educationHtml =
-    education && education.length > 0
-      ? `
-    <section class="education-section">
-      <h2 class="section-header">${labels.education}</h2>
-      ${education
-        .map(
-          (edu) => `
-        <div class="education-item">
-          <div>
-            <span class="degree">${edu.degree || "Degree"}</span>
-            <span>from ${edu.school || "School"}</span>
-          </div>
-          <span class="year">${edu.year || ""}</span>
-        </div>
-      `,
-        )
-        .join("")}
-    </section>
-  `
-      : "";
+  const templateSource = loadTemplate();
+  const template = Handlebars.compile(templateSource);
 
-  const css = loadCss();
-
-  return `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${name} - CV</title>
-  <style>
-${css}
-  </style>
-</head>
-<body>
-  <div class="container">
-    <header>
-      <h1>${name}</h1>
-      <div class="contact-info">
-        <a href="mailto:${email}">${email}</a>
-        <span>|</span>
-        <a href="${github}">github.com/mrgnw</a>
-        <span>|</span>
-        <a href="${linkedin}">linkedin.com/in/mrgnw</a>
-      </div>
-    </header>
-
-    ${
-      summary
-        ? `
-      <section class="summary-section">
-        <p>${summary}</p>
-      </section>
-    `
-        : ""
-    }
-
-    ${skillsHtml}
-    ${experienceHtml}
-    ${projectsHtml}
-    ${educationHtml}
-  </div>
-</body>
-</html>
-  `.trim();
+  return template(templateData);
 }
 
 async function generatePdf(browser, resumePath, outputPath) {
@@ -405,12 +276,12 @@ async function generatePdf(browser, resumePath, outputPath) {
 async function main() {
   try {
     if (!inputPattern || !outputPath) {
-      console.log(`Usage: node cv-to-pdf-direct.js <input> <output> [options]
+      console.log(`Usage: node cv2pdf.js <input> <output> [options]
 
 Examples:
-  node cv-to-pdf-direct.js resume.json5 output.pdf
-  node cv-to-pdf-direct.js cvs/*.json5 output/
-  node cv-to-pdf-direct.js cvs/*.json5 output/ --parallel 3 --quiet
+  node cv2pdf.js resume.json5 output.pdf
+  node cv2pdf.js cvs/*.json5 output/
+  node cv2pdf.js cvs/*.json5 output/ --parallel 3 --quiet
 
 Options:
   --parallel N      Number of PDFs to generate in parallel (default: 2)
@@ -418,6 +289,8 @@ Options:
 `);
       process.exit(1);
     }
+
+    registerHandlebarsHelpers();
 
     const inputFiles = expandFiles(inputPattern);
 

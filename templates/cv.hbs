@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{name}} - CV</title>
+  <style>
+{{{css}}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>{{name}}</h1>
+      <div class="contact-info">
+        <a href="mailto:{{email}}">{{email}}</a>
+        <span>|</span>
+        <a href="{{github}}">github.com/mrgnw</a>
+        <span>|</span>
+        <a href="{{linkedin}}">linkedin.com/in/mrgnw</a>
+      </div>
+    </header>
+
+    {{#if summary}}
+    <section class="summary-section">
+      <p>{{summary}}</p>
+    </section>
+    {{/if}}
+
+    {{#if skills}}
+    <section class="skills-section">
+      <h2 class="section-header">{{labels.skills}}</h2>
+      <div class="skills-list">
+        <div class="skills-primary">
+          {{#each skills}}{{#if @index}}, {{/if}}{{#lt @index 2}}{{this}}{{/lt}}{{/each}}
+        </div>
+        {{#if (gt skills.length 2)}}
+        <div class="skills-secondary">
+          {{#each skills}}{{#if @index}}, {{/if}}{{#gte @index 2}}{{this}}{{/gte}}{{/each}}
+        </div>
+        {{/if}}
+      </div>
+    </section>
+    {{/if}}
+
+    {{#if experience}}
+    <section class="experience-section">
+      <h2 class="section-header">{{labels.experience}}</h2>
+      {{#each experience}}
+      <div class="job-item">
+        <div class="job-header">
+          <div>
+            <span class="job-title">{{this.title}}</span>
+            <span>at {{this.company}}</span>
+          </div>
+          <span class="job-dates">
+            {{#if this.start}}
+              {{formatDate this.start}}{{#if this.end}} - {{formatDate this.end}}{{else}} - {{../labels.present}}{{/if}}
+            {{else}}
+              {{this.timeframe}}
+            {{/if}}
+          </span>
+        </div>
+        {{#if this.achievements}}
+        <ul class="achievements-list">
+          {{#each this.achievements}}
+          <li>{{this}}</li>
+          {{/each}}
+        </ul>
+        {{/if}}
+      </div>
+      {{/each}}
+    </section>
+    {{/if}}
+
+    {{#if validProjects}}
+    <section class="projects-section">
+      <h2 class="section-header">{{labels.projects}}</h2>
+      {{#each validProjects}}
+      <div class="project-item">
+        <div class="project-header">
+          <a href="{{this.url}}" target="_blank" rel="noopener noreferrer" class="project-name">
+            {{this.name}}
+          </a>
+          {{#if (ne this.url "#")}}
+          <a href="{{this.url}}" target="_blank" rel="noopener noreferrer" class="project-url">{{formatUrl this.url}}</a>
+          {{/if}}
+        </div>
+        {{#if this.description}}
+        <p class="project-description">{{this.description}}</p>
+        {{/if}}
+      </div>
+      {{/each}}
+    </section>
+    {{/if}}
+
+    {{#if education}}
+    <section class="education-section">
+      <h2 class="section-header">{{labels.education}}</h2>
+      {{#each education}}
+      <div class="education-item">
+        <div>
+          <span class="degree">{{this.degree}}</span>
+          <span>from {{this.school}}</span>
+        </div>
+        <span class="year">{{this.year}}</span>
+      </div>
+      {{/each}}
+    </section>
+    {{/if}}
+  </div>
+</body>
+</html>

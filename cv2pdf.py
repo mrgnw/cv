@@ -13,6 +13,12 @@ except ImportError:
 	sys.exit(1)
 
 try:
+	from pybars3 import Compiler
+except ImportError:
+	print('Error: pybars3 library required. Install with: pip install pybars3')
+	sys.exit(1)
+
+try:
 	from playwright.sync_api import sync_playwright
 except ImportError:
 	print('Error: Playwright required. Install with: pip install playwright')
@@ -22,6 +28,7 @@ except ImportError:
 
 SCRIPT_DIR = Path(__file__).parent
 CSS_FILE = SCRIPT_DIR / 'styles' / 'cv.css'
+TEMPLATE_FILE = SCRIPT_DIR / 'templates' / 'cv.hbs'
 DEFAULTS_FILE = SCRIPT_DIR / 'defaults.json5'
 
 quiet = False
@@ -141,22 +148,18 @@ def load_css() -> str:
 	return CSS_FILE.read_text(encoding='utf-8')
 
 
+def load_template() -> str:
+	if not TEMPLATE_FILE.exists():
+		raise FileNotFoundError(f'Template file not found: {TEMPLATE_FILE}')
+
+	return TEMPLATE_FILE.read_text(encoding='utf-8')
+
+
 def generate_html(raw_resume: Dict[str, Any]) -> str:
 	defaults = load_defaults()
 	resume = merge_with_defaults(raw_resume, defaults)
 
-	name = resume['name']
-	email = resume['email']
-	github = resume['github']
-	linkedin = resume['linkedin']
-	summary = resume['summary']
-	skills = resume['skills']
-	experience = resume['experience']
-	projects = resume['projects']
-	education = resume['education']
-	lang = resume['lang']
-
-	if lang == 'es':
+	if resume['lang'] == 'es':
 		labels = {
 			'skills': 'Habilidades',
 			'experience': 'Experiencia',
@@ -173,185 +176,44 @@ def generate_html(raw_resume: Dict[str, Any]) -> str:
 			'present': 'Present',
 		}
 
-	optimized_experience = [
-		{**exp, 'achievements': exp.get('achievements', [])}
-		for exp in (experience if isinstance(experience, list) else [])
-		if exp is not None
-	]
-
-	skills_html = ''
-	if skills:
-		skills_secondary = ''
-		if len(skills) > 2:
-			skills_secondary = f'<div class="skills-secondary">{", ".join(skills[2:])}</div>'
-
-		skills_html = f"""
-    <section class="skills-section">
-      <h2 class="section-header">{labels['skills']}</h2>
-      <div class="skills-list">
-        <div class="skills-primary">
-          {', '.join(skills[:2])}
-        </div>
-        {skills_secondary}
-      </div>
-    </section>
-  """
-
-	experience_html = ''
-	if optimized_experience:
-		experience_items = []
-		for job in optimized_experience:
-			title = job.get('title', '')
-			company = job.get('company', '')
-			start = job.get('start', '')
-			end = job.get('end', '')
-			timeframe = job.get('timeframe', '')
-			achievements = job.get('achievements', [])
-
-			if start:
-				date_str = format_date(start)
-				if end:
-					date_str += f' - {format_date(end)}'
-				else:
-					date_str += f' - {labels["present"]}'
-			else:
-				date_str = timeframe
-
-			achievements_html = '\n            '.join(f'<li>{bullet}</li>' for bullet in achievements)
-
-			experience_items.append(f"""
-        <div class="job-item">
-          <div class="job-header">
-            <div>
-              <span class="job-title">{title}</span>
-              <span>at {company}</span>
-            </div>
-            <span class="job-dates">{date_str}</span>
-          </div>
-          <ul class="achievements-list">
-            {achievements_html}
-          </ul>
-        </div>
-      """)
-
-		experience_html = f"""
-    <section class="experience-section">
-      <h2 class="section-header">{labels['experience']}</h2>
-      {''.join(experience_items)}
-    </section>
-  """
-
 	valid_projects = []
-	for p in projects:
+	for p in resume.get('projects') or []:
 		if p is None:
 			continue
 		if isinstance(p, str):
 			continue
 		if not (p.get('name') or p.get('url') or p.get('description')):
 			continue
-		valid_projects.append(p)
+		valid_projects.append(
+			{
+				'name': p.get('name', 'Untitled'),
+				'url': p.get('url', '#'),
+				'description': p.get('description', ''),
+			}
+		)
 
-	projects_html = ''
-	if valid_projects:
-		project_items = []
-		for project in valid_projects:
-			name_p = project.get('name', 'Untitled')
-			url_p = project.get('url', '#')
-			description = project.get('description', '')
+	template_data = {
+		**resume,
+		'labels': labels,
+		'validProjects': valid_projects,
+		'css': load_css(),
+	}
 
-			url_link = ''
-			if url_p != '#':
-				url_link = f'<a href="{url_p}" target="_blank" rel="noopener noreferrer" class="project-url">{format_url(url_p)}</a>'
+	compiler = Compiler()
+	template_source = load_template()
+	template = compiler.compile(template_source)
 
-			description_html = ''
-			if description:
-				description_html = f'<p class="project-description">{description}</p>'
-
-			project_items.append(f'''
-        <div class="project-item">
-          <div class="project-header">
-            <a href="{url_p}" target="_blank" rel="noopener noreferrer" class="project-name">
-              {name_p}
-            </a>
-            {url_link}
-          </div>
-          {description_html}
-        </div>
-      ''')
-
-		projects_html = f"""
-    <section class="projects-section">
-      <h2 class="section-header">{labels['projects']}</h2>
-      {''.join(project_items)}
-    </section>
-  """
-
-	education_html = ''
-	if education:
-		education_items = []
-		for edu in education:
-			degree = edu.get('degree', 'Degree')
-			school = edu.get('school', 'School')
-			year = edu.get('year', '')
-
-			education_items.append(f"""
-        <div class="education-item">
-          <div>
-            <span class="degree">{degree}</span>
-            <span>from {school}</span>
-          </div>
-          <span class="year">{year}</span>
-        </div>
-      """)
-
-		education_html = f"""
-    <section class="education-section">
-      <h2 class="section-header">{labels['education']}</h2>
-      {''.join(education_items)}
-    </section>
-  """
-
-	css = load_css()
-
-	summary_html = ''
-	if summary:
-		summary_html = f"""
-      <section class="summary-section">
-        <p>{summary}</p>
-      </section>
-    """
-
-	return f'''<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{name} - CV</title>
-  <style>
-{css}
-  </style>
-</head>
-<body>
-  <div class="container">
-    <header>
-      <h1>{name}</h1>
-      <div class="contact-info">
-        <a href="mailto:{email}">{email}</a>
-        <span>|</span>
-        <a href="{github}">github.com/mrgnw</a>
-        <span>|</span>
-        <a href="{linkedin}">linkedin.com/in/mrgnw</a>
-      </div>
-    </header>
-
-    {summary_html}
-    {skills_html}
-    {experience_html}
-    {projects_html}
-    {education_html}
-  </div>
-</body>
-</html>'''.strip()
+	return template(
+		template_data,
+		helpers={
+			'formatDate': format_date,
+			'formatUrl': format_url,
+			'lt': lambda a, b: a < b,
+			'gte': lambda a, b: a >= b,
+			'gt': lambda a, b: a > b,
+			'ne': lambda a, b: a != b,
+		},
+	)
 
 
 def generate_pdf(browser, resume_path: str, output_path: str) -> Dict[str, Any]:
