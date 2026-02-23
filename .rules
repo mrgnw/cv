@@ -1,0 +1,14 @@
+# Project Rules
+
+Don't write summaries unless I ask you to.
+
+## Package Manager
+Use `pnpm` instead of `npm` or `yarn` for all package operations.
+
+Examples:
+- `pnpm install` (not `npm install`)
+- `pnpm run dev` (not `npm run dev`)
+- `pnpm add <package>` (not `npm install <package>`)
+
+## Python
+Use `uv` for Python package management and script execution.

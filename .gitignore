@@ -1,10 +1,11 @@
-.pdf_gen_ts
+test-results
 node_modules
-descriptions
 
 # Output
 .output
 .vercel
+.netlify
+.wrangler
 /.svelte-kit
 /build
 
@@ -21,4 +22,6 @@ Thumbs.db
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
-/tailscale
+
+.dev.vars*
+!.dev.vars.example
