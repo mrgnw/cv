@@ -1,83 +1,38 @@
-## Morgan's CV
+# sv
 
-My CV/resume. src/versions allows me to tailor my resume
+Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
 
-`bun install`
+## Creating a project
 
-### Generate pdf
-
-```sh
-bunx playwright install chromium
-bun run pdfs
-```
-
-Unfortunately, pdf export is only supported on Chromium[*](https://playwright.dev/docs/api/class-page#page-pdf)
-
-## Testing
-
-### Comprehensive Test Suite (52 tests total)
+If you're seeing this, you've probably already done this step. Congrats!
 
 ```sh
-# Run all tests (MJS + Vitest)
-npm run test:all             # Legacy MJS tests (4 test suites)
-npm run test:run             # Modern Vitest tests (52 tests)
+# create a new project in the current directory
+npx sv create
 
-# Vitest-based tests (recommended)
-npm run test:unit            # All unit & integration tests (52 tests)
-npm run test:experience-rendering  # Experience rendering tests (35 tests)
-npm run test:route-integration     # Route integration tests (17 tests)
-
-# Legacy MJS-based tests
-npm run test:experience      # Basic data validation
-npm run test:integration     # End-to-end route testing
-npm run test:validate        # Comprehensive validation
-npm run test:optimization    # Content optimization tests
+# create a new project in my-app
+npx sv create my-app
 ```
 
-### Test Coverage
-- ✅ **52 Vitest tests** covering experience rendering, route integration, and data validation
-- ✅ **4 MJS test suites** for legacy validation and system health checks
-- ✅ **Real data validation** ensures National Care Dental end date (2025-03-17) is correct
-- ✅ **Route testing** validates main page (`/`) and version pages (`/[slug]`) work correctly
-- ✅ **Component integration** tests ensure CV.svelte receives proper data
+## Developing
 
-See [EXPERIENCE-RENDERING-TESTS.md](./EXPERIENCE-RENDERING-TESTS.md) for detailed test documentation.
-
-## Generated using Svelte 5 template with [shadcn-svelte](http://shadcn-svelte.com) and [mdsvex](http://mdsvex.pngwn.io)
-
-### Use this template
+Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
 
 ```sh
-appname="svwhatever"
+npm run dev
+
+# or start the server and open the app in a new browser tab
+npm run dev -- --open
 ```
+
+## Building
+
+To create a production version of your app:
 
 ```sh
-gh repo create $appname \
-  --template https://github.com/mrgnw/shadcn-svelte-template \
-  --private --clone
-cd $appname
+npm run build
 ```
 
-## Setting up Git Hooks
+You can preview the production build with `npm run preview`.
 
-We have two git hooks to generate the pdfs any time there are changes.
-
-To generate the pdfs on the computer you are coding on:
-
-```sh
-bun install
-```
-
-```sh
-chmod +x pre-push.local.sh
-mkdir -p .git/hooks
-cp pre-push.local.sh .git/hooks/pre-push
-```
-
-To send a command to the primary computer to have it generate the pdfs:
-
-```sh
-mkdir -p .git/hooks
-chmod +x pre-push.remote.sh
-cp pre-push.remote.sh .git/hooks/pre-push
-```
+> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
