@@ -6,5 +6,9 @@
 	"assets": {
 		"directory": "./.svelte-kit/cloudflare",
 		"binding": "ASSETS"
-	}
+	},
+	"workers_dev": false,
+	"routes": [
+		{ "pattern": "cv.morganwill.com/*", "zone_name": "morganwill.com" }
+	]
 }
