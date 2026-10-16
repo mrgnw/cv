@@ -21,7 +21,7 @@ const mockMainData = {
                 "Airflow",
             ],
             achievements: [
-                "Architected and deployed custom AWS Lambda connectors with Kinesis Data Streams integration, enabling real-time event-driven data streaming for critical business workflows processing 10M+ events daily and reducing data latency from hours to sub-second response times.",
+                "Architected and deployed custom AWS Lambda connectors with Kinesis Data Streams integration, enabling real-time event-driven data streaming for critical business workflows processing events and reducing data latency from hours to sub-second response times.",
                 "Designed and implemented CI/CD pipelines using GitLab Pipelines, AWS CodePipeline, and CodeBuild with automated testing frameworks (pytest, unittest), reducing deployment time by 80%, eliminating manual errors, and enabling continuous delivery across 15+ microservices.",
             ],
         },
