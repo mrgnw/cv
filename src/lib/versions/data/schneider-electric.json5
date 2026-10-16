@@ -23,7 +23,7 @@
       "start": "2025-03-17",
       //"skills": ["Python", "AWS", "ETL", "SQL", "CI/CD", "Databricks", "Airflow", "PySpark"],
       "achievements": [
-        "Architected and deployed AWS Lambda connectors with Kinesis Data Streams integration, enabling real-time event-driven data streaming processing 10M+ events daily with sub-second latency",
+        "Architected and deployed AWS Lambda connectors with Kinesis Data Streams integration, enabling real-time event-driven data streaming processing events with sub-second latency",
         "Designed and implemented CI/CD pipelines with automated testing frameworks (pytest, unittest), improving team iteration speed while reducing maintenance time and risk of downtime or regressions",
         "Provided production support and troubleshooting for data pipeline issues across 5+ enterprise client projects, leveraging CloudWatch monitoring and ensuring data quality and reliability"
       ]
