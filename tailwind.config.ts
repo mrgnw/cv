@@ -57,9 +57,6 @@ const config: Config = {
 			fontFamily: {
 				sans: [...fontFamily.sans]
 			},
-			screens: {
-				'print': {'raw': 'print'},
-			},
 		}
 	},
 	plugins: [
